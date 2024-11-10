@@ -89,7 +89,7 @@ const Sidebar = () => {
               <span className="icon">
                 <TbSlideshow />
               </span>
-              Home Banner Slides
+               Banners
               <span className="arrow">
                 <FaAngleRight />
               </span>
@@ -102,7 +102,7 @@ const Sidebar = () => {
               }`}
             >
               <ul className="submenu">
-                <li>
+                {/* <li>
                   <NavLink
                     exact
                     activeClassName="is-active"
@@ -111,7 +111,7 @@ const Sidebar = () => {
                   >
                     Add Home Banner Slide
                   </NavLink>
-                </li>
+                </li> */}
                 <li>
                   <NavLink
                     exact
@@ -120,6 +120,36 @@ const Sidebar = () => {
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Home Slides List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/banners"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Home Banners List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/homeSideBanners"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Home Side Banners List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/homeBottomBanners"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Home Bottom Banners List
                   </NavLink>
                 </li>
               </ul>
@@ -157,14 +187,14 @@ const Sidebar = () => {
                     Category List
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to="/category/add"
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Add a category
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     to="/subCategory"
@@ -173,14 +203,14 @@ const Sidebar = () => {
                     Sub Category List
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to="/subCategory/add"
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Add a sub category
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
           </li>
@@ -219,7 +249,7 @@ const Sidebar = () => {
                   </NavLink>
                 </li>
 
-                <li>
+                {/* <li>
                   <NavLink
                     exact
                     activeClassName="is-active"
@@ -228,8 +258,8 @@ const Sidebar = () => {
                   >
                     Product Upload
                   </NavLink>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <NavLink
                     exact
                     activeClassName="is-active"
@@ -258,7 +288,7 @@ const Sidebar = () => {
                   >
                     Add Product SIZE
                   </NavLink>
-                </li>
+                </li> */}
               </ul>
             </div>
           </li>
@@ -283,7 +313,7 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          <li>
+          {/* <li>
             <Button
               className={`w-100 ${
                 activeTab === 5 && isToggleSubmenu === true ? "active" : ""
@@ -313,7 +343,7 @@ const Sidebar = () => {
                     to="/banners"
                     onClick={() => context.setIsOpenNav(false)}
                   >
-                    Banners List
+                    Home Banners List
                   </NavLink>
                 </li>
 
@@ -361,7 +391,7 @@ const Sidebar = () => {
                     to="/homeSideBanners"
                     onClick={() => context.setIsOpenNav(false)}
                   >
-                    Banners List
+                    Home Side Banners List
                   </NavLink>
                 </li>
 
@@ -409,7 +439,7 @@ const Sidebar = () => {
                     to="/homeBottomBanners"
                     onClick={() => context.setIsOpenNav(false)}
                   >
-                    Banners List
+                    Home Bottom Banners List
                   </NavLink>
                 </li>
 
@@ -425,7 +455,7 @@ const Sidebar = () => {
                 </li>
               </ul>
             </div>
-          </li>
+          </li> */}
         </ul>
 
         <div className="logoutWrapper">
