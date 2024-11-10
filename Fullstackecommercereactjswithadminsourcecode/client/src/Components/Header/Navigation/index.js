@@ -130,6 +130,7 @@ const Navigation = (props) => {
                   //   </Link>
                   // </li>
                 }
+                
                 {props.navData
                   .filter((item, idx) => idx < 7)
                   .map((item, index) => {
@@ -187,6 +188,11 @@ const Navigation = (props) => {
                       </li>
                     );
                   })}
+                <li className="list-inline-item" onClick={props.closeNav}>
+                  <Link to="/blog">
+                    <Button>Blogs</Button>
+                  </Link>
+                </li>
               </ul>
               {context.windowWidth < 992 && (
                 <>

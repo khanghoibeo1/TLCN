@@ -81,7 +81,7 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    postData("/api/user/signin", formfields).then((res) => {
+    postData("/api/user/signin", formfields).then((res) => {//sửa từ /api/user/signin
       try {
         if (res.error !== true) {
           localStorage.setItem("token", res.token);

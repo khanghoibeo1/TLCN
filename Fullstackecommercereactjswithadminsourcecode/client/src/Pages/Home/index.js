@@ -18,7 +18,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import homeBannerPlaceholder from "../../assets/images/homeBannerPlaceholder.jpg";
 import Banners from "../../Components/banners";
 import { Link } from "react-router-dom";
-import ChatBot from 'react-chatbotify';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -127,7 +126,6 @@ const Home = () => {
 
   return (
     <>
-      <ChatBot/>
       {homeSlides?.length !== 0 ? (
         <HomeBanner data={homeSlides} />
       ) : (

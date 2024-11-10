@@ -32,6 +32,9 @@ const bannersSchema = require('./routes/banners.js');
 const homeSideBannerSchema = require('./routes/homeSideBanner.js');
 const homeBottomBannerSchema = require('./routes/homeBottomBanner.js');
 
+const postRoutes = require('./routes/posts.js');
+const commentRoutes = require('./routes/comments.js');
+
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
 app.use(`/api/category`, categoryRoutes);
@@ -50,12 +53,11 @@ app.use(`/api/banners`, bannersSchema);
 app.use(`/api/homeSideBanners`, homeSideBannerSchema);
 app.use(`/api/homeBottomBanners`, homeBottomBannerSchema);
 
-
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
 })
     .then(() => {
         console.log('Database Connection is ready...');
