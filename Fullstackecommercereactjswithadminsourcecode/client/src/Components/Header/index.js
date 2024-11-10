@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../../assets/images/logo.jpg";
+import Logo from "../../assets/images/logo.png";
 import Button from "@mui/material/Button";
 import CountryDropdown from "../CountryDropdown";
 import { FiUser } from "react-icons/fi";

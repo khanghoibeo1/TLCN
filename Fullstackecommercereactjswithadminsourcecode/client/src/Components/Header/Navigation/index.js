@@ -130,7 +130,6 @@ const Navigation = (props) => {
                   //   </Link>
                   // </li>
                 }
-                
                 {props.navData
                   .filter((item, idx) => idx < 7)
                   .map((item, index) => {
@@ -194,6 +193,7 @@ const Navigation = (props) => {
                   </Link>
                 </li>
               </ul>
+
               {context.windowWidth < 992 && (
                 <>
                   {context?.isLogin === false ? (

@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import './index.css'; // Ensure this file exists for styling
 import { fetchDataFromApi } from "../../utils/api";
-
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     // Fetch posts from API
     const fetchPosts = async () => {
@@ -20,16 +18,13 @@ const Blog = () => {
         setLoading(false);
       }
     };
-
     fetchPosts();
   }, []);
-
   const handlePostClick = async (postId) => {
     try {
       // Fetch selected post details
       const postDetails = await fetchDataFromApi(`/api/posts/${postId}`);
       setSelectedPost(postDetails);
-
       // Fetch comments for the selected post
       const postComments = await fetchDataFromApi(`/api/comments/post/${postId}`);
       setComments(postComments);
@@ -37,11 +32,9 @@ const Blog = () => {
       console.error("Error fetching post details or comments:", error);
     }
   };
-
   if (loading) {
     return <div>Loading posts...</div>;
   }
-
   return (
     <div className="blogs-container">
       <div className="posts-list">
@@ -64,7 +57,6 @@ const Blog = () => {
           <p>No posts available.</p>
         )}
       </div>
-
       {selectedPost && (
         <div className="post-details">
           <h2>{selectedPost.title}</h2>
@@ -92,5 +84,4 @@ const Blog = () => {
     </div>
   );
 };
-
 export default Blog;
