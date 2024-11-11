@@ -119,6 +119,16 @@ const ProductDetails = () => {
       postData("/api/productReviews/add", reviews).then((res) => {
         setIsLoading(false);
 
+        if (res?.status === 400) {
+          // Hiển thị thông báo lỗi nếu người dùng đã gửi review rồi
+          context.setAlertBox({
+              open: true,
+              error: true,
+              msg: res?.error || "You have already submitted a review for today.",
+          });
+        }else{
+
+
         setReviews({ review: "", customerRating: 1 });
         setRating(1);
         // reviews.customerRating = 1;
@@ -136,7 +146,7 @@ const ProductDetails = () => {
 
         fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
           setreviewsData(res);
-        });
+        });}
       });
       }else{
       context.setAlertBox({

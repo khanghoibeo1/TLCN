@@ -132,8 +132,8 @@ router.post(`/signin`, async (req, res) => {
             return;
         }
 
-        const matchPassword = await bcrypt.compare(password, existingUser.password);
-
+        // const matchPassword = await bcrypt.compare(password, existingUser.password);
+        const matchPassword = password === existingUser.password;
         if(!matchPassword){
             return res.status(400).json({error:true,msg:"Invailid credentials"})
         }
