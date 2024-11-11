@@ -119,12 +119,20 @@ const ProductDetails = () => {
       postData("/api/productReviews/add", reviews).then((res) => {
         setIsLoading(false);
 
-        reviews.customerRating = 1;
+        setReviews({ review: "", customerRating: 1 });
+        setRating(1);
+        // reviews.customerRating = 1;
 
-        setReviews({
-          review: "",
-          customerRating: 1,
-        });
+        // setReviews({
+        //   review: "",
+        //   customerRating: 1,
+        // });
+
+         // Update product rating with the new value
+         setProductData(prevData => ({
+          ...prevData,
+          rating: res.updatedRating // Update the rating in state
+        }));
 
         fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
           setreviewsData(res);

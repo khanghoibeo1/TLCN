@@ -1,4 +1,5 @@
 const { ProductReviews } = require('../models/productReviews');
+const { Product } = require('../models/products');
 const express = require('express');
 const router = express.Router();
 
@@ -59,28 +60,69 @@ router.get('/:id', async (req, res) => {
 
 router.post('/add', async (req, res) => {
     
-    let review = new ProductReviews({
-        customerId: req.body.customerId,
-        customerName: req.body.customerName,
-        review:req.body.review,
-        customerRating: req.body.customerRating,
-        productId: req.body.productId
-    });
+    // let review = new ProductReviews({
+    //     customerId: req.body.customerId,
+    //     customerName: req.body.customerName,
+    //     review:req.body.review,
+    //     customerRating: req.body.customerRating,
+    //     productId: req.body.productId
+    // });
 
 
 
-    if (!review) {
+    // if (!review) {
+    //     res.status(500).json({
+    //         error: err,
+    //         success: false
+    //     })
+    // }
+
+
+    // review = await review.save();
+    
+
+    // res.status(201).json(review);
+
+    //AVERAGE RATING
+    try {
+        // Extract the review data from the request body
+        const { customerId, customerName, review, customerRating, productId } = req.body;
+
+        // Create a new review object
+        let newReview = new ProductReviews({
+            customerId,
+            customerName,
+            review,
+            customerRating,
+            productId
+        });
+
+        // Save the review
+        newReview = await newReview.save();
+
+        // Fetch all reviews for the product
+        const allReviews = await ProductReviews.find({ productId });
+
+        // Calculate the new average rating
+        const totalRating = allReviews.reduce((acc, cur) => acc + cur.customerRating, 0);
+        const averageRating = totalRating / allReviews.length;
+
+        // Update the product's rating with the new average
+        await Product.findByIdAndUpdate(productId, { rating: averageRating });
+
+        // Send back the response with the review and updated rating
+        res.status(201).json({
+            success: true,
+            review: newReview,
+            updatedRating: averageRating
+        });
+    } catch (err) {
+        // Handle errors and send a response
         res.status(500).json({
-            error: err,
+            error: err.message,
             success: false
-        })
+        });
     }
-
-
-    review = await review.save();
-
-
-    res.status(201).json(review);
 
 });
 
