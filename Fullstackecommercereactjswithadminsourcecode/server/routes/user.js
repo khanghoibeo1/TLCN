@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 
 const multer = require('multer');
 const fs = require("fs");
+const { sendVerficationEmail } = require('../helper/mailtrap/emails');
 
 const cloudinary = require('cloudinary').v2;
 
@@ -110,6 +111,7 @@ router.post(`/signup`, async (req, res) => {
 
         const token = jwt.sign({email:result.email, id: result._id}, process.env.JSON_WEB_TOKEN_SECRET_KEY);
 
+        await sendVerficationEmail(result.email, verificationToken)
         res.status(200).json({
             user:result,
             token:token,
