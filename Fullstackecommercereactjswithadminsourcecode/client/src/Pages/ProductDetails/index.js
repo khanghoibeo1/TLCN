@@ -119,34 +119,35 @@ const ProductDetails = () => {
       postData("/api/productReviews/add", reviews).then((res) => {
         setIsLoading(false);
 
-        if (res?.status === 400) {
+        if (res?.error) {
           // Hiển thị thông báo lỗi nếu người dùng đã gửi review rồi
           context.setAlertBox({
               open: true,
               error: true,
-              msg: res?.error || "You have already submitted a review for today.",
+              msg: "You have already submitted a review for today.",
           });
         }else{
 
 
-        setReviews({ review: "", customerRating: 1 });
-        setRating(1);
-        // reviews.customerRating = 1;
+          setReviews({ review: "", customerRating: 1 });
+          setRating(1);
+          // reviews.customerRating = 1;
 
-        // setReviews({
-        //   review: "",
-        //   customerRating: 1,
-        // });
+          // setReviews({
+          //   review: "",
+          //   customerRating: 1,
+          // });
 
-         // Update product rating with the new value
-         setProductData(prevData => ({
-          ...prevData,
-          rating: res.updatedRating // Update the rating in state
-        }));
+          // Update product rating with the new value
+          setProductData(prevData => ({
+            ...prevData,
+            rating: res.updatedRating // Update the rating in state
+          }));
 
-        fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
-          setreviewsData(res);
-        });}
+          fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
+            setreviewsData(res);
+          });
+        }
       });
       }else{
       context.setAlertBox({

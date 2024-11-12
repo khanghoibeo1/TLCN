@@ -615,6 +615,7 @@ router.put("/:id", async (req, res) => {
       rating: req.body.rating,
       numReviews: req.body.numReviews,
       isFeatured: req.body.isFeatured,
+      discount: req.body.discount,
       productRam: req.body.productRam,
       size: req.body.size,
       productWeight: req.body.productWeight,

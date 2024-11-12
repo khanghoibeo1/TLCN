@@ -26,6 +26,14 @@ const QuantityBox = (props) => {
 
     }
 
+    const handleChange = (e) => {
+        let stock = parseInt(props.item.countInStock);
+        const value = e.target.value;
+        if (/^\d*$/.test(value) && parseInt(value) <= stock) {
+            setInputVal(value);
+        }
+      };
+
     const plus = () => {
         let stock = parseInt(props.item.countInStock);
         if(inputVal<stock){
@@ -53,7 +61,7 @@ const QuantityBox = (props) => {
     return (
         <div className='quantityDrop d-flex align-items-center'>
             <Button onClick={minus}><FaMinus /></Button>
-            <input type="text" value={inputVal} />
+            <input type="text" value={inputVal} onChange={handleChange}/>
             <Button onClick={plus}><FaPlus /></Button>
         </div>
     )

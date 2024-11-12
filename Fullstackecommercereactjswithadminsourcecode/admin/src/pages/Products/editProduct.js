@@ -152,6 +152,23 @@ const EditUpload = () => {
     setSubCatData(subCatArr);
   }, [context.catData]);
 
+  //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
+  useEffect(() => {
+    if(formFields.oldPrice === '' || formFields.discount === ''){
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: '',
+      }));
+    }
+    if (formFields.oldPrice && formFields.discount) {
+      const discountedPrice = formFields.oldPrice - (formFields.oldPrice * (formFields.discount / 100));
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: discountedPrice.toFixed(0),
+      }));
+    }
+  }, [formFields.oldPrice, formFields.discount]); 
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -695,7 +712,7 @@ const EditUpload = () => {
                         type="text"
                         name="price"
                         value={formFields.price}
-                        onChange={inputChange}
+                        readOnly
                       />
                     </div>
                   </div>
