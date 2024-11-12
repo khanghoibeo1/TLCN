@@ -96,13 +96,16 @@ router.post(`/signup`, async (req, res) => {
         }
 
         const hashPassword = await bcrypt.hash(password,10);
+        const verificationToken = Math.floor(100000 +  Math.random() * 900000).toString()
 
         const result = await User.create({
             name:name,
             phone:phone,
             email:email,
             password:hashPassword,
-            isAdmin:isAdmin
+            isAdmin:isAdmin,
+            verificationToken: verificationToken,
+            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         });
 
         const token = jwt.sign({email:result.email, id: result._id}, process.env.JSON_WEB_TOKEN_SECRET_KEY);

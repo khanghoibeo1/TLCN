@@ -24,7 +24,15 @@ const userSchema = mongoose.Schema({
     isAdmin:{
         type: Boolean,
         default: false,
-    }
+    },
+    isVerified:{
+        type: Boolean,
+        default: false,
+    },
+    resetPasswordToken: String,
+    resetPasswordExpiresAt: Date,
+    verificationToken: String,
+    verificationTokenExpiresAt: Date,
 })
 
 userSchema.virtual('id').get(function () {
