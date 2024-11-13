@@ -20,4 +20,24 @@ const sendVerficationEmail = async (email, verificationToken) => {
     }
 }
 
-module.exports = {sendVerficationEmail};
+const sendWelcomeEmail = async(email, name) => {
+    const recipient = [{email}]
+
+    try {
+        const response = await mailtrapClient.send({
+            from: sender,
+            to: recipient,
+            template_uuid: "67c022e4-dd60-4c36-a8f9-2ed729a03a0a",
+            template_variables: {
+                "company_info_name": "Shopify",
+                "name": name
+            }
+        });
+
+        console.log("Welcome email sent successfully!", response)
+    }catch(error){
+        console.log(`Error sending verification`, error)
+        throw new Error(`Error sending verification email: ${error}`)
+    }
+}
+module.exports = {sendVerficationEmail, sendWelcomeEmail};
