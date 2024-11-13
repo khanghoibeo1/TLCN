@@ -110,7 +110,7 @@ const EditUpload = () => {
     countInStock: null,
     rating: 0,
     isFeatured: null,
-    discount: 0,
+    discount: null,
     productRam: [],
     size: [],
     productWeight: [],
@@ -493,7 +493,7 @@ const EditUpload = () => {
       return false;
     }
 
-    if (formFields.price === null) {
+    if (formFields.price === "") {
       context.setAlertBox({
         open: true,
         msg: "please add product price",
@@ -502,7 +502,7 @@ const EditUpload = () => {
       return false;
     }
 
-    if (formFields.oldPrice === null) {
+    if (formFields.oldPrice === "") {
       context.setAlertBox({
         open: true,
         msg: "please add product oldPrice",
@@ -529,7 +529,7 @@ const EditUpload = () => {
     //     return false;
     // }
 
-    if (formFields.countInStock === null) {
+    if (formFields.countInStock === "") {
       context.setAlertBox({
         open: true,
         msg: "please add product count in stock",
@@ -547,7 +547,7 @@ const EditUpload = () => {
       return false;
     }
 
-    if (formFields.isFeatured === null) {
+    if (formFields.isFeatured === "") {
       context.setAlertBox({
         open: true,
         msg: "please select the product is a featured or not",
@@ -556,7 +556,7 @@ const EditUpload = () => {
       return false;
     }
 
-    if (formFields.discount === null) {
+    if (formFields.discount === "") {
       context.setAlertBox({
         open: true,
         msg: "please select the product discount",
