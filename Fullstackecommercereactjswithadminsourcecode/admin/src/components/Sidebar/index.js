@@ -248,6 +248,9 @@ const Sidebar = () => {
                     Product List
                   </NavLink>
                 </li>
+              </ul>
+            </div>
+          </li>
 
                 {/* <li>
                   <NavLink
@@ -289,9 +292,6 @@ const Sidebar = () => {
                     Add Product SIZE
                   </NavLink>
                 </li> */}
-              </ul>
-            </div>
-          </li>
 
           <li>
             <NavLink exact activeClassName="is-active" to="/orders">
@@ -311,6 +311,44 @@ const Sidebar = () => {
                 Orders
               </Button>
             </NavLink>
+          </li>
+
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 5 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(5)}
+            >
+              <span className="icon">
+                <FaProductHunt />
+              </span>
+              Blogs
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 5 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/blogs"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Blogs List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
           </li>
 
           {/* <li>

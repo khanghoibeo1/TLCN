@@ -30,6 +30,19 @@ const postSchema = mongoose.Schema(
         type: String,
       }
     ],
+    category: {
+      type: String,
+      required: true
+    },
+    commentsCount: {
+      type: Number,
+      default: 0
+    },
+    status: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'draft'
+    }
   },
   { timestamps: true }
 );

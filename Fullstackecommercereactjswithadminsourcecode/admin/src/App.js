@@ -27,6 +27,10 @@ import EditHomeBannerSlide from "./pages/HomeBanner/editSlide";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
+import Blogs from "./pages/Blogs";
+import EditBlogs from "./pages/Blogs/editBlogs";
+import AddBlogs from "./pages/Blogs/addBlogs";
+
 import LoadingBar from "react-top-loading-bar";
 import { fetchDataFromApi } from "./utils/api";
 
@@ -290,6 +294,10 @@ function App() {
                 exact={true}
                 element={<ProductSize />}
               />
+              <Route path="/blogs" exact={true} element={<Blogs />} />
+              <Route path="/blog/edit/:id" exact={true} element={<EditBlogs />} />
+              <Route path="/blog/add" exact={true} element={<AddBlogs />} />
+
               <Route path="/orders/" exact={true} element={<Orders />} />
               <Route
                 path="/homeBannerSlide/add"

@@ -1,67 +1,192 @@
+/* Container styling for the main blog area */
 .blogs-container {
-    display: flex;
-    padding: 20px;
-  }
-  
-  .posts-list {
-    width: 30%;
-    border-right: 1px solid #ddd;
-    padding: 20px;
-  }
-  
-  .post-card {
-    padding: 15px;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: box-shadow 0.2s ease;
-  }
-  
-  .post-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .post-details {
-    width: 70%;
-    padding: 20px;
-  }
-  
-  .post-content {
-    margin-top: 15px;
-    font-size: 1.1em;
-    line-height: 1.6;
-  }
-  
-  .post-images img {
-    max-width: 100%;
-    margin-top: 10px;
-    border-radius: 8px;
-  }
-  
-  .tags {
-    margin-top: 10px;
-  }
-  
-  .tag {
-    display: inline-block;
-    background-color: #f1f1f1;
-    padding: 5px 10px;
-    margin: 2px;
-    border-radius: 5px;
-    font-size: 0.9em;
-    color: #555;
-  }
-  
-  .comments-section {
-    margin-top: 20px;
-  }
-  
-  .comment {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .comment p {
-    margin: 5px 0;
-  }
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f5f7fa;
+}
+
+/* Post list section styling */
+.posts-list {
+  width: 30%;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.posts-list h2 {
+  color: #2e86de;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.post-card {
+  padding: 15px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.post-card:hover {
+  background-color: #dfe6e9;
+}
+
+.post-card h3 {
+  color: #34495e;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.post-card p {
+  color: #555;
+}
+
+.tags {
+  margin-top: 8px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #d1e7f7;
+  color: #00796b;
+  padding: 5px 10px;
+  margin: 2px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Post details section styling */
+.post-details {
+  width: 70%;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.post-info h2 {
+  color: #2c3e50;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.post-info p {
+  color: #607d8b;
+}
+
+.post-content {
+  margin-top: 15px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.post-images img {
+  width: 100px;
+  height: auto;
+  border-radius: 5px;
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Comments section styling */
+.comments-section {
+  margin-top: 30px;
+  background-color: #eafaf1;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.comments-section h3 {
+  color: #388e3c;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.comment-box {
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.comment-box h5 {
+  color: #333;
+  font-weight: bold;
+}
+
+.comment-box p {
+  color: #555;
+}
+
+.text-light {
+  color: #757575;
+}
+
+/* Comment form styling */
+.reviewForm {
+  margin-top: 20px;
+}
+
+.reviewForm h4 {
+  color: #388e3c;
+  font-weight: bold;
+}
+
+.reviewForm .form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  resize: vertical;
+}
+
+.btn-blue {
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn-blue:hover {
+  background-color: #2980b9;
+}
+
+/* Loader spinner styling */
+.loader {
+  color: white;
+  margin-right: 5px;
+}
+
+/* Search Bar Styles */
+.search-bar {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.search-input {
+  width: 50%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007BFF;
+}
+
+.search-input::placeholder {
+  color: #888;
+  font-style: italic;
+}
