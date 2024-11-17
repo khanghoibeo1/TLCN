@@ -8,6 +8,8 @@ import { fetchDataFromApi, postData, deleteData } from "../../utils/api";
 
 import { useNavigate } from "react-router-dom";
 
+import { PayPalButton } from "react-paypal-button-v2";
+
 const Checkout = () => {
   const [formFields, setFormFields] = useState({
     fullName: "",
@@ -21,6 +23,8 @@ const Checkout = () => {
     email: "",
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [shippingMethod, setShippingMethod] = useState('');
   const [cartData, setCartData] = useState([]);
   const [totalAmount, setTotalAmount] = useState();
 
@@ -46,6 +50,10 @@ const Checkout = () => {
       ...formFields,
       [e.target.name]: e.target.value,
     }));
+
+    const { name, value } = e.target;
+    if (name === "paymentMethod") setPaymentMethod(value);
+    if (name === "shippingMethod") setShippingMethod(value);
   };
 
   const context = useContext(MyContext);
@@ -138,6 +146,23 @@ const Checkout = () => {
       return false;
     }
 
+    if (!paymentMethod) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Select payment method!",
+      });
+      return false;
+    }
+    if (!shippingMethod) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Select shipping method!",
+      });
+      return false;
+    }
+
     const addressInfo = {
       name: formFields.fullName,
       phoneNumber: formFields.phoneNumber,
@@ -150,18 +175,7 @@ const Checkout = () => {
       }),
     };
 
-    var options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-      key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-      amount: parseInt(totalAmount * 100),
-      currency: "INR",
-      order_receipt: "order_rcptid_" + formFields.fullName,
-      name: "E-Bharat",
-      description: "for testing purpose",
-      handler: function (response) {
-        console.log(response);
-
-        const paymentId = response.razorpay_payment_id;
+    const paymentId = "1";
 
         const user = JSON.parse(localStorage.getItem("user"));
 
@@ -194,15 +208,61 @@ const Checkout = () => {
           });
          
         });
-      },
+      
 
-      theme: {
-        color: "#3399cc",
-      },
-    };
+    // var options = {
+    //   key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+    //   key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
+    //   amount: parseInt(totalAmount * 100),
+    //   currency: "INR",
+    //   order_receipt: "order_rcptid_" + formFields.fullName,
+    //   name: "E-Bharat",
+    //   description: "for testing purpose",
+    //   handler: function (response) {
+    //     console.log(response);
 
-    var pay = new window.Razorpay(options);
-    pay.open();
+    //     const paymentId = response.razorpay_payment_id;
+
+    //     const user = JSON.parse(localStorage.getItem("user"));
+
+    //     const payLoad = {
+    //       name: addressInfo.name,
+    //       phoneNumber: formFields.phoneNumber,
+    //       address: addressInfo.address,
+    //       pincode: addressInfo.pincode,
+    //       amount: parseInt(totalAmount),
+    //       paymentId: paymentId,
+    //       email: user.email,
+    //       userid: user.userId,
+    //       products: cartData,
+    //       date:addressInfo?.date
+    //     };
+
+    //     console.log(payLoad)
+          
+
+    //     postData(`/api/orders/create`, payLoad).then((res) => {
+    //          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
+    //         res?.length!==0 && res?.map((item)=>{
+    //             deleteData(`/api/cart/${item?.id}`).then((res) => {
+    //             })    
+    //         })
+    //             setTimeout(()=>{
+    //                 context.getCartData();
+    //             },1000);
+    //             history("/orders");
+    //       });
+         
+    //     });
+    //   },
+
+    //   theme: {
+    //     color: "#3399cc",
+    //   },
+    // };
+
+    // var pay = new window.Razorpay(options);
+    // pay.open();
   };
 
   return (
@@ -348,6 +408,38 @@ const Checkout = () => {
                 </div>
               </div>
             </div>
+            
+            <div className="row mt-4">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Payment Method *</label>
+                  <select
+                    name="paymentMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Payment Method</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="cash_on_delivery">Cash on Delivery</option>
+                  </select>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Shipping Method *</label>
+                  <select
+                    name="shippingMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Shipping Method</option>
+                    <option value="standard">Standard Shipping</option>
+                    <option value="express">Express Shipping</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
 
             <div className="col-md-4">
               <div className="card orderInfo">
@@ -401,13 +493,40 @@ const Checkout = () => {
                     </tbody>
                   </table>
                 </div>
+                
+                {paymentMethod === "paypal" ? (
+                  <PayPalButton
+                    amount="0.01"
+                    // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
+                    onSuccess={(details, data) => {
+                      alert("Transaction completed by " + details.payer.name.given_name);
 
-                <Button
+                      // OPTIONAL: Call your server to save the transaction
+                      return fetch("/paypal-transaction-complete", {
+                        method: "post",
+                        body: JSON.stringify({
+                          orderID: data.orderID
+                        })
+                      });
+                    }}
+                    onError={() =>{
+                      alert("Error")
+                    }}
+                  />
+                ) : (
+                  <Button
+                    type="submit"
+                    className="btn-blue bg-red btn-lg btn-big">
+                      <IoBagCheckOutline /> &nbsp; Checkout
+                  </Button>
+                )}
+
+                {/* <Button
                   type="submit"
                   className="btn-blue bg-red btn-lg btn-big"
                 >
                   <IoBagCheckOutline /> &nbsp; Checkout
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>

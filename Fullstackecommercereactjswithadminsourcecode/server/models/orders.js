@@ -21,9 +21,10 @@ const ordersSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    paymentId: {
+    payment: {
         type: String,
-        required: true
+        required: true,
+        enum: ['Cash on Delivery', 'Paypal']
     },
     email: {
         type: String,
@@ -57,6 +58,7 @@ const ordersSchema = mongoose.Schema({
     ],
     status:{
         type:String,
+        enum: ["pending", "paid"],
         default:"pending"
     },
     date: {
