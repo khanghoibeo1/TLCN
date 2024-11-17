@@ -175,10 +175,74 @@ router.post('/create-paypal-order', async(req, res) => {
         if(!order){
             return res.status(404).json({ success: false, message: 'Order not found.'})
         }
-    }catch(error){
 
+        const request = new paypal.orders.OrdersCreateRequest();
+        request.prefer("return=representation");
+        request.requestBody({
+            intent: 'CAPTURE',
+            purchase_units: [
+                {
+                    reference_id: orderId, // Tham chiếu đến ID đơn hàng của bạn
+                    amount: {
+                        currency_code: 'USD', // Đổi thành 'INR' nếu cần
+                        value: order.amount.toFixed(2), // Tổng tiền đơn hàng
+                    },
+                    description: `Order ID: ${orderId}`,
+                },
+            ],
+        });
+
+        const paypalOrder = await client.execute(request);
+        return res.status(201).json({
+            id: paypalOrder.result.id, // ID của giao dịch PayPal
+            status: paypalOrder.result.status,
+            links: paypalOrder.result.links
+        });
+    }catch(error){
+        console.error('Error when creating PayPal application!', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
     }
 })
+
+router.post('/capture-paypal-order', async (req, res) => {
+    try {
+        const { paypalOrderId, orderId } = req.body;
+
+        const order = await Orders.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found.' });
+        }
+
+        // Capture đơn PayPal
+        const request = new paypal.orders.OrdersCaptureRequest(paypalOrderId);
+        request.requestBody({});
+
+        const capture = await client.execute(request);
+
+        if (capture.result.status === 'COMPLETED') {
+            // Cập nhật trạng thái đơn hàng
+            order.status = 'paid';
+            order.payment = 'PayPal';
+            await order.save();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Payment successful!',
+                order,
+                paypalResponse: capture.result,
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment has not been completed!',
+                status: capture.result.status,
+            });
+        }
+    } catch (error) {
+        console.error('Error capture PayPal:', error);
+        return res.status(500).json({ success: false, message: 'Sever error.' });
+    }
+});
 
 
 module.exports = router;
