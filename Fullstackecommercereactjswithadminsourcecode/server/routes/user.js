@@ -76,8 +76,6 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 });
 
 
-
-
 router.post(`/signup`, async (req, res) => {
     const { name, phone, email, password, isAdmin } = req.body;
 
