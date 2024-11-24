@@ -97,7 +97,6 @@ const AddBanner = () => {
     setSubCatData(subCatArr);
 },[context.catData])
 
-
   let img_arr = [];
   let uniqueArray = [];
   let selectedImages = [];
@@ -105,11 +104,8 @@ const AddBanner = () => {
   const onChangeFile = async (e, apiEndPoint) => {
     try {
       const files = e.target.files;
-
       console.log(files);
       setUploading(true);
-
-      //const fd = new FormData();
       for (var i = 0; i < files.length; i++) {
         // Validate file type
         if (
@@ -152,7 +148,6 @@ const AddBanner = () => {
               item?.images.length !== 0 &&
                 item?.images?.map((img) => {
                   img_arr.push(img);
-                  //console.log(img)
                 });
             });
 
@@ -250,7 +245,6 @@ const AddBanner = () => {
         console.log(formFields)
 
       postData(`/api/banners/create`, formFields).then((res) => {
-        // console.log(res);
         setIsLoading(false);
         context.fetchCategory();
 

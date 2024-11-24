@@ -705,6 +705,46 @@ const EditUpload = () => {
                     </div>
                   </div>
 
+                  <div className="col-md-4">
+                    <div className="form-group">
+                      <h6>BRAND</h6>
+                      <input
+                        type="text"
+                        name="brand"
+                        value={formFields.brand}
+                        onChange={inputChange}
+                      />
+                    </div>
+                  </div>
+
+                  
+                </div>
+
+                <div className="row">
+                  <div className="col">
+                    <div className="form-group">
+                      <h6>OLD PRICE </h6>
+                      <input
+                        type="text"
+                        name="oldPrice"
+                        value={formFields.oldPrice}
+                        onChange={inputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-group">
+                      <h6>DISCOUNT</h6>
+                      <input
+                        type="text"
+                        name="discount"
+                        value={formFields.discount}
+                        onChange={inputChange}
+                      />
+                    </div>
+                  </div>
+
                   <div className="col">
                     <div className="form-group">
                       <h6>PRICE</h6>
@@ -721,11 +761,11 @@ const EditUpload = () => {
                 <div className="row">
                   <div className="col">
                     <div className="form-group">
-                      <h6>OLD PRICE </h6>
+                      <h6>PRODUCT STOCK </h6>
                       <input
                         type="text"
-                        name="oldPrice"
-                        value={formFields.oldPrice}
+                        name="countInStock"
+                        value={formFields.countInStock}
                         onChange={inputChange}
                       />
                     </div>
@@ -750,45 +790,9 @@ const EditUpload = () => {
                     </div>
                   </div>
 
-                  <div className="col">
-                    <div className="form-group">
-                      <h6>PRODUCT STOCK </h6>
-                      <input
-                        type="text"
-                        name="countInStock"
-                        value={formFields.countInStock}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  
 
-                <div className="row">
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>BRAND</h6>
-                      <input
-                        type="text"
-                        name="brand"
-                        value={formFields.brand}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>DISCOUNT</h6>
-                      <input
-                        type="text"
-                        name="discount"
-                        value={formFields.discount}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
+                  {/* <div className="col-md-4">
                     <div className="form-group">
                       <h6>PRODUCT RAMS</h6>
                       <Select
@@ -808,10 +812,10 @@ const EditUpload = () => {
                         })}
                       </Select>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-md-4">
                     <div className="form-group">
                       <h6>PRODUCT WEIGHT</h6>
@@ -870,7 +874,7 @@ const EditUpload = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="row">
                   {selectedLocation?.length !== 0 && (

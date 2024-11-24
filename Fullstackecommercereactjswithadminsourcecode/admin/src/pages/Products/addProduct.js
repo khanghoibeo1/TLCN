@@ -106,7 +106,7 @@ const ProductUpload = () => {
     catId: "",
     category: "",
     countInStock: null,
-    rating: 0,
+    rating: 5,
     isFeatured: null,
     discount: null,
     productRam: [],
@@ -671,14 +671,14 @@ const ProductUpload = () => {
                     </div>
                   </div>
 
-                  <div className="col">
+                  <div className="col-md-4">
                     <div className="form-group">
-                      <h6>PRICE</h6>
+                      <h6>BRAND</h6>
                       <input
                         type="text"
-                        name="price"
-                        value={formFields.price }
-                        readOnly 
+                        name="brand"
+                        value={formFields.brand}
+                        onChange={inputChange}
                       />
                     </div>
                   </div>
@@ -697,6 +697,43 @@ const ProductUpload = () => {
                     </div>
                   </div>
 
+                  <div className="col-md-4">
+                    <div className="form-group">
+                      <h6>DISCOUNT</h6>
+                      <input
+                        type="text"
+                        name="discount"
+                        value={formFields.discount}
+                        onChange={inputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <div className="form-group">
+                      <h6>PRICE</h6>
+                      <input
+                        type="text"
+                        name="price"
+                        value={formFields.price }
+                        readOnly 
+                      />
+                    </div>
+                  </div>                 
+                </div>
+
+                <div className="row">
+                  <div className="col">
+                    <div className="form-group">
+                      <h6>PRODUCT STOCK </h6>
+                      <input
+                        type="text"
+                        name="countInStock"
+                        value={formFields.countInStock}
+                        onChange={inputChange}
+                      />
+                    </div>
+                  </div>
                   <div className="col">
                     <div className="form-group">
                       <h6 className="text-uppercase">is Featured </h6>
@@ -714,47 +751,9 @@ const ProductUpload = () => {
                         <MenuItem value={false}>False</MenuItem>
                       </Select>
                     </div>
-                  </div>
+                  </div> 
 
-                  <div className="col">
-                    <div className="form-group">
-                      <h6>PRODUCT STOCK </h6>
-                      <input
-                        type="text"
-                        name="countInStock"
-                        value={formFields.countInStock}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>BRAND</h6>
-                      <input
-                        type="text"
-                        name="brand"
-                        value={formFields.brand}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>DISCOUNT</h6>
-                      <input
-                        type="text"
-                        name="discount"
-                        value={formFields.discount}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
+                  {/* <div className="col-md-4">
                     <div className="form-group">
                       <h6>PRODUCT RAMS</h6>
                       <Select
@@ -774,10 +773,10 @@ const ProductUpload = () => {
                         })}
                       </Select>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-md-4">
                     <div className="form-group">
                       <h6>PRODUCT WEIGHT</h6>
@@ -836,7 +835,7 @@ const ProductUpload = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="row">
                   <div className="col-md-12">

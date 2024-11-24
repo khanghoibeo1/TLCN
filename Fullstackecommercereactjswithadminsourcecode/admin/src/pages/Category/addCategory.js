@@ -195,10 +195,6 @@ const AddCategory = () => {
     const appendedArray = [...previews, ...uniqueArray];
 
     img_arr = [];
-    // formdata.append('name', formFields.name);
-    // formdata.append('color', formFields.color);
-
-    // formdata.append('images', appendedArray);
 
     formFields.slug = formFields.name;
     formFields.images = appendedArray;

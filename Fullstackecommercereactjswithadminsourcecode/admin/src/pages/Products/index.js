@@ -216,7 +216,7 @@ else{
             <Link to="/product/upload">
               <Button className="btn-blue  ml-3 pl-3 pr-3">Add Product</Button>
             </Link>
-            <Link to="/productRAMS/add">
+            {/* <Link to="/productRAMS/add">
               <Button className="btn-blue  ml-3 pl-3 pr-3">Add Product RAMS</Button>
             </Link>
             <Link to="/productWEIGHT/add">
@@ -224,7 +224,7 @@ else{
             </Link>
             <Link to="/productSIZE/add">
               <Button className="btn-blue  ml-3 pl-3 pr-3">Add Product SIZE</Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
 

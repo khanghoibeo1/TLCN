@@ -28,8 +28,8 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
 import Blogs from "./pages/Blogs";
-import EditBlogs from "./pages/Blogs/editBlogs";
-import AddBlogs from "./pages/Blogs/addBlogs";
+import EditBlog from "./pages/Blogs/editBlogs";
+import AddBlog from "./pages/Blogs/addBlogs";
 
 import LoadingBar from "react-top-loading-bar";
 import { fetchDataFromApi } from "./utils/api";
@@ -47,6 +47,7 @@ import HomeBottomBannersList from "./pages/HomeBottomBanners/bannerList";
 import AddHomeBottomBanner from "./pages/HomeBottomBanners/addHomeBottomBanner";
 import EditHomeBottomBanner from "./pages/HomeBottomBanners/editHomeBottomBanner";
 import MyAccount from "./pages/MyAccount";
+import BlogDetails from "./pages/BlogDetails";
 
 const MyContext = createContext();
 
@@ -66,9 +67,7 @@ function App() {
   });
 
   const [isOpenNav, setIsOpenNav] = useState(false);
-
   const [baseUrl, setBaseUrl] = useState("http://localhost:4000");
-
   const [progress, setProgress] = useState(0);
   const [alertBox, setAlertBox] = useState({
     msg: "",
@@ -115,25 +114,17 @@ function App() {
     const responsive = await axios.get(url).then((res) => {
       
       if (res !== null) {
-        //console.log(res.data.data);
         res.data.data.map((item, index) => {
           countryListArr.push({
             value:item?.iso2,
             label:item?.country,
           });
-          //console.log(item.country)
         });
-
-
-       
         setCountryList(countryListArr);
-
-        //console.log(res.data.data[0].country)
       }
 
     });
   };
-
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -242,104 +233,47 @@ function App() {
               <Route path="/dashboard" exact={true} element={<Dashboard />} />
               <Route path="/login" exact={true} element={<Login />} />
               <Route path="/signUp" exact={true} element={<SignUp />} />
+
               <Route path="/products" exact={true} element={<Products />} />
-              <Route
-                path="/product/details/:id"
-                exact={true}
-                element={<ProductDetails />}
-              />
-              <Route
-                path="/product/upload"
-                exact={true}
-                element={<ProductUpload />}
-              />
-              <Route
-                path="/product/edit/:id"
-                exact={true}
-                element={<EditProduct />}
-              />
+              <Route path="/product/details/:id" exact={true} element={<ProductDetails />} />
+              <Route path="/product/upload" exact={true} element={<ProductUpload />} />
+              <Route  path="/product/edit/:id" exact={true} element={<EditProduct />} />
+
               <Route path="/category" exact={true} element={<Category />} />
-              <Route
-                path="/category/add"
-                exact={true}
-                element={<CategoryAdd />}
-              />
-              <Route
-                path="/category/edit/:id"
-                exact={true}
-                element={<EditCategory />}
-              />
-              <Route
-                path="/subCategory/"
-                exact={true}
-                element={<SubCatList />}
-              />
-              <Route
-                path="/subCategory/add"
-                exact={true}
-                element={<SubCatAdd />}
-              />
-              <Route
-                path="/productRAMS/add"
-                exact={true}
-                element={<AddProductRAMS />}
-              />
-              <Route
-                path="/productWEIGHT/add"
-                exact={true}
-                element={<ProductWeight />}
-              />
-              <Route
-                path="/productSIZE/add"
-                exact={true}
-                element={<ProductSize />}
-              />
+              <Route path="/category/add" exact={true} element={<CategoryAdd />} />
+              <Route path="/category/edit/:id" exact={true} element={<EditCategory />} />
+
+              <Route path="/subCategory/" exact={true} element={<SubCatList />} />
+              <Route path="/subCategory/add" exact={true} element={<SubCatAdd />} />
+
+              <Route path="/productRAMS/add" exact={true} element={<AddProductRAMS />} />
+              <Route path="/productWEIGHT/add" exact={true} element={<ProductWeight />}  />
+              <Route path="/productSIZE/add" exact={true} element={<ProductSize />} />
+              
               <Route path="/blogs" exact={true} element={<Blogs />} />
-              <Route path="/blog/edit/:id" exact={true} element={<EditBlogs />} />
-              <Route path="/blog/add" exact={true} element={<AddBlogs />} />
+              <Route path="/blog/edit/:id" exact={true} element={<EditBlog />} />
+              <Route path="/blog/details/:id" exact={true} element={<BlogDetails />} />
+              <Route path="/blog/add" exact={true} element={<AddBlog />} />
 
               <Route path="/orders/" exact={true} element={<Orders />} />
-              <Route
-                path="/homeBannerSlide/add"
-                exact={true}
-                element={<AddHomeBannerSlide />}
-              />
-              <Route
-                path="/homeBannerSlide/list"
-                exact={true}
-                element={<HomeBannerSlideList />}
-              />
-              <Route
-                path="/homeBannerSlide/edit/:id"
-                exact={true}
-                element={<EditHomeBannerSlide />}
-              />
+
+              <Route path="/homeBannerSlide/add" exact={true} element={<AddHomeBannerSlide />} />
+              <Route path="/homeBannerSlide/list" exact={true} element={<HomeBannerSlideList />} />
+              <Route path="/homeBannerSlide/edit/:id" exact={true} element={<EditHomeBannerSlide />} />
 
               <Route path="/banners" exact={true} element={<BannersList />} />
               <Route path="/banners/add" exact={true} element={<AddBanner />} />
-              <Route
-                path="/banners/edit/:id"
-                exact={true}
-                element={<EditBanner />}
-              />
+              <Route path="/banners/edit/:id" exact={true} element={<EditBanner />} />
 
               <Route path="/homeSideBanners" exact={true} element={<HomeSideBannersList />} />
               <Route path="/homeSideBanners/add" exact={true} element={<AddHomeSideBanner />} />
-              <Route
-                path="/homeSideBanners/edit/:id"
-                exact={true}
-                element={<EditHomeSideBanner />}
-              />
+              <Route path="/homeSideBanners/edit/:id" exact={true} element={<EditHomeSideBanner />} />
 
               <Route path="/homeBottomBanners" exact={true} element={<HomeBottomBannersList />} />
               <Route path="/homeBottomBanners/add" exact={true} element={<AddHomeBottomBanner />} />
-              <Route
-                path="/homeBottomBanners/edit/:id"
-                exact={true}
-                element={<EditHomeBottomBanner />}
-              />
-              <Route exact={true} path="/my-account" element={<MyAccount />} />
+              <Route path="/homeBottomBanners/edit/:id" exact={true} element={<EditHomeBottomBanner />} />
 
+              <Route exact={true} path="/my-account" element={<MyAccount />} />
             </Routes>
           </div>
         </div>

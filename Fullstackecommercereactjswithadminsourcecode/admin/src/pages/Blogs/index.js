@@ -172,7 +172,7 @@ const PostList = () => {
               <StyledBreadcrumb label="Posts" deleteIcon={<ExpandMoreIcon />} />
             </Breadcrumbs>
 
-            <Link to="/post/create">
+            <Link to="/blog/add">
               <Button className="btn-blue ml-3 pl-3 pr-3">Add Post</Button>
             </Link>
           </div>
@@ -264,13 +264,13 @@ const PostList = () => {
                     <td>{post?.author}</td>
                     <td>
                       <div className="actions d-flex align-items-center">
-                        <Link to={`/post/view/${post.id}`}>
+                        <Link to={`/blog/details/${post?.id}`}>
                           <Button className="secondary">
                             <FaEye />
                           </Button>
                         </Link>
 
-                        <Link to={`/post/edit/${post.id}`}>
+                        <Link to={`/blog/edit/${post.id}`}>
                           <Button className="success">
                             <FaPencilAlt />
                           </Button>
