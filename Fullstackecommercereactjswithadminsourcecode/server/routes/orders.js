@@ -1,8 +1,9 @@
 const { Orders } = require('../models/orders');
+
 const express = require('express');
 const router = express.Router();
-
-
+const paypal = require('@paypal/checkout-server-sdk');
+const  client  = require('../helper/paypal/paypal.config');
 
 router.get(`/`, async (req, res) => {
 
@@ -21,10 +22,7 @@ router.get(`/`, async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false })
     }
-
-
 });
-
 
 router.get('/:id', async (req, res) => {
 
@@ -46,17 +44,14 @@ router.get(`/get/count`, async (req, res) =>{
             orderCount: orderCount
         });
     }
-   
 })
-
-
 
 router.post('/create', async (req, res) => {
 
     try{
         const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date } = req.body;
 
-        if (!['Cash on Delivery', 'PayPal'].includes(payment)) {
+        if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
         }
 
@@ -107,7 +102,7 @@ router.put('/:id', async (req, res) => {
         const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, status, date } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
-        if (payment && !['Cash on Delivery', 'PayPal'].includes(payment)) {
+        if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.' });
         }
 
@@ -137,33 +132,6 @@ router.put('/:id', async (req, res) => {
         return res.status(500).json({ success: false, message: 'Server error.' });
     }
 
-    // const order = await Orders.findByIdAndUpdate(
-    //     req.params.id,
-    //     {
-    //         name: req.body.name,
-    //         phoneNumber: req.body.phoneNumber,
-    //         address: req.body.address,
-    //         pincode: req.body.pincode,
-    //         amount: req.body.amount,
-    //         paymentId: req.body.paymentId,
-    //         email: req.body.email,
-    //         userid: req.body.userid,
-    //         products: req.body.products,
-    //         status:req.body.status
-    //     },
-    //     { new: true }
-    // )
-
-
-
-    // if (!order) {
-    //     return res.status(500).json({
-    //         message: 'Order cannot be updated!',
-    //         success: false
-    //     })
-    // }
-
-    // res.send(order);
 })
 
 router.post('/create-paypal-order', async(req, res) => {
@@ -222,7 +190,7 @@ router.post('/capture-paypal-order', async (req, res) => {
         if (capture.result.status === 'COMPLETED') {
             // Cập nhật trạng thái đơn hàng
             order.status = 'paid';
-            order.payment = 'PayPal';
+            order.payment = 'Paypal';
             await order.save();
 
             return res.status(200).json({

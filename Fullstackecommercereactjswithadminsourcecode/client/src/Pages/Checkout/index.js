@@ -55,7 +55,10 @@ const Checkout = () => {
     }));
 
     const { name, value } = e.target;
-    if (name === "paymentMethod") setPaymentMethod(value);
+    if (name === "paymentMethod"){ 
+      setPaymentMethod(value)
+      // console.log(value);
+    };
     if (name === "shippingMethod") setShippingMethod(value);
   };
 
@@ -178,7 +181,6 @@ const Checkout = () => {
       }),
     };
 
-    // const paymentId = "1";
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -186,7 +188,7 @@ const Checkout = () => {
       name: addressInfo.name,
       phoneNumber: formFields.phoneNumber,
       address: addressInfo.address,
-      payment: paymentMethod,
+      pincode: addressInfo.pincode,
       amount: parseInt(totalAmount),
       payment: paymentMethod,
       email: user.email,
@@ -199,9 +201,13 @@ const Checkout = () => {
       
     try {
       const createdOrder = await postData('/api/orders/create', payLoad);
+      console.log('Created Order:', createdOrder);
+      
       setOrderId(createdOrder._id);
 
-      if (paymentMethod === "PayPal") {
+      
+
+      if (paymentMethod === "Paypal") {
           // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId
           context.setAlertBox({
               open: true,
@@ -226,6 +232,24 @@ const Checkout = () => {
     }
   };
 
+  // useEffect(() => {
+  //   console.log('Order ID updated:', orderId);
+  // }, [orderId]);
+
+  const createOrder = async (data, actions) => {
+    const response = await postData('/api/orders/create-paypal-order', {orderId});
+
+    if(response.id){
+      return response.id;
+    }else {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Failed to create PayPal order. Please try again.",
+      });
+      throw new Error("Failed to create PayPal order");
+    }
+  }
   const handleCapturePayPalOrder = async (paypalOrderId) => {
     try {
         const response = await postData('/api/orders/capture-paypal-order', { paypalOrderId, orderId });
@@ -252,77 +276,6 @@ const Checkout = () => {
         });
     }
   };
-    // postData(`/api/orders/create`, payLoad).then((res) => {
-    //       fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-    //     res?.length!==0 && res?.map((item)=>{
-    //         deleteData(`/api/cart/${item?.id}`).then((res) => {
-    //         })    
-    //     })
-    //         setTimeout(()=>{
-    //             context.getCartData();
-    //         },1000);
-    //         history("/orders");
-    //   });
-      
-    // });
-
-
-      
-
-    // var options = {
-    //   key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-    //   key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-    //   amount: parseInt(totalAmount * 100),
-    //   currency: "INR",
-    //   order_receipt: "order_rcptid_" + formFields.fullName,
-    //   name: "E-Bharat",
-    //   description: "for testing purpose",
-    //   handler: function (response) {
-    //     console.log(response);
-
-    //     const paymentId = response.razorpay_payment_id;
-
-    //     const user = JSON.parse(localStorage.getItem("user"));
-
-    //     const payLoad = {
-    //       name: addressInfo.name,
-    //       phoneNumber: formFields.phoneNumber,
-    //       address: addressInfo.address,
-    //       pincode: addressInfo.pincode,
-    //       amount: parseInt(totalAmount),
-    //       paymentId: paymentId,
-    //       email: user.email,
-    //       userid: user.userId,
-    //       products: cartData,
-    //       date:addressInfo?.date
-    //     };
-
-    //     console.log(payLoad)
-          
-
-    //     postData(`/api/orders/create`, payLoad).then((res) => {
-    //          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-    //         res?.length!==0 && res?.map((item)=>{
-    //             deleteData(`/api/cart/${item?.id}`).then((res) => {
-    //             })    
-    //         })
-    //             setTimeout(()=>{
-    //                 context.getCartData();
-    //             },1000);
-    //             history("/orders");
-    //       });
-         
-    //     });
-    //   },
-
-    //   theme: {
-    //     color: "#3399cc",
-    //   },
-    // };
-
-    // var pay = new window.Razorpay(options);
-    // pay.open();
-  
 
   return (
     <section className="section">
@@ -525,7 +478,7 @@ const Checkout = () => {
                               <td>
                                 {item?.subTotal?.toLocaleString("en-US", {
                                   style: "currency",
-                                  currency: "INR",
+                                  currency: "USD",
                                 })}
                               </td>
                             </tr>
@@ -545,7 +498,7 @@ const Checkout = () => {
                             : 0
                           )?.toLocaleString("en-US", {
                             style: "currency",
-                            currency: "INR",
+                            currency: "USD",
                           })}
                         </td>
                       </tr>
@@ -553,25 +506,13 @@ const Checkout = () => {
                   </table>
                 </div>
                 
-                {paymentMethod === "paypal" && orderId ? (
+                {paymentMethod === "Paypal" && orderId ? (
                   <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
                       <PayPalButtons
                           style={{ layout: 'vertical' }}
-                          createOrder={(data, actions) => {
-                              return actions.order.create({
-                                  purchase_units: [{
-                                      amount: {
-                                          value: totalAmount.toFixed(2),
-                                      },
-                                      description: `Order ID: ${orderId}`,
-                                  }],
-                              });
-                          }}
-                          onApprove={(data, actions) => {
-                              return actions.order.capture().then((details) => {
-                                  alert(`Transaction completed by ${details.payer.name.given_name}`);
-                                  handleCapturePayPalOrder(data.orderID);
-                              });
+                          createOrder={createOrder}
+                          onApprove = { async (data, actions) => {
+                              await  handleCapturePayPalOrder(data.orderID)
                           }}
                           onError={(err) => {
                               console.error('PayPal Checkout onError:', err);
@@ -591,12 +532,6 @@ const Checkout = () => {
                   </Button>
                 )}
 
-                {/* <Button
-                  type="submit"
-                  className="btn-blue bg-red btn-lg btn-big"
-                >
-                  <IoBagCheckOutline /> &nbsp; Checkout
-                </Button> */}
               </div>
             </div>
           </div>
