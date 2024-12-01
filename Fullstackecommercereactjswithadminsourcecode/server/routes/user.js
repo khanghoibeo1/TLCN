@@ -203,15 +203,59 @@ router.put(`/changePassword/:id`, async (req, res) => {
 })
 
 
+// Get post count (excluding child posts if needed)
+router.get('/get/count', async (req, res) => {
+    try {
+        const userCount = await User.countDocuments({ parentId: undefined });
+        return res.status(200).json({ success: true, userCount });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-router.get(`/`, async (req, res) =>{
-    const userList = await User.find();
 
-    if(!userList) {
-        res.status(500).json({success: false})
-    } 
-    res.send(userList);
-})
+// Get all posts with pagination and optional location filter
+router.get('/', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10;
+    const locationFilter = req.query.location;
+
+    try {
+        const totalUsers = await User.countDocuments();
+        const totalPages = Math.ceil(totalUsers / perPage);
+
+        if (page > totalUsers) {
+            return res.status(404).json({ success: false, message: "Page not found" });
+        }
+
+        let users = [];
+
+        if (locationFilter) {
+            const allUsers = await User.find()
+                .populate("name")
+                .exec();
+
+                users = allUsers.filter(user =>
+                user.location && user.location.some(loc => loc.value === locationFilter)
+            ).slice((page - 1) * perPage, page * perPage);
+        } else {
+            users = await User.find()
+                .populate("name")
+                .skip((page - 1) * perPage)
+                .limit(perPage)
+                .exec();
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: users,
+            totalUsers,
+            currentPage: page,
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 router.get('/:id', async(req,res)=>{
     const user = await User.findById(req.params.id);

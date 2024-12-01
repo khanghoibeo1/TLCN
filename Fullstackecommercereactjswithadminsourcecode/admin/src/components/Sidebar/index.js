@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
 import { MdDashboard } from "react-icons/md";
 import { FaAngleRight } from "react-icons/fa6";
+import { FaAddressCard } from "react-icons/fa6";
 import { FaProductHunt } from "react-icons/fa";
+import { FaBlog } from "react-icons/fa";
 import { FaCartArrowDown } from "react-icons/fa6";
 import { MdMessage } from "react-icons/md";
 import { FaBell } from "react-icons/fa6";
@@ -258,7 +260,45 @@ const Sidebar = () => {
               onClick={() => isOpenSubmenu(5)}
             >
               <span className="icon">
-                <FaProductHunt />
+                <FaAddressCard />
+              </span>
+              Users
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 5 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/users"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Users List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>
+
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 6 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(6)}
+            >
+              <span className="icon">
+                <FaBlog />
               </span>
               Blogs
               <span className="arrow">
@@ -267,7 +307,7 @@ const Sidebar = () => {
             </Button>
             <div
               className={`submenuWrapper ${
-                activeTab === 5 && isToggleSubmenu === true
+                activeTab === 6 && isToggleSubmenu === true
                   ? "colapse"
                   : "colapsed"
               }`}

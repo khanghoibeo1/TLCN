@@ -133,7 +133,7 @@ const PostList = () => {
   const handleChangeCategory = (event) => {
     if (event.target.value !== "all") {
       setCategoryVal(event.target.value);
-      fetchDataFromApi(`/api/posts/catId?catId=${event.target.value}&page=1&perPage=${perPage}`).then(
+      fetchDataFromApi(`/api/posts/catgory?catgory=${event.target.value}&page=1&perPage=${perPage}`).then(
         (res) => {
           setPostList(res);
           context.setProgress(100);
