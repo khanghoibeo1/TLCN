@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rinku Verma",
@@ -20,10 +20,12 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.2",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.0",
     "p-limit": "^3.1.0",
     "razorpay": "^2.9.4",
     "slugify": "^1.6.6",
     "stripe": "^15.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }

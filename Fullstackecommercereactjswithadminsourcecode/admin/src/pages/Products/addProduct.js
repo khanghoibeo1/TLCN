@@ -575,7 +575,7 @@ const ProductUpload = () => {
               deleteIcon={<ExpandMoreIcon />}
             />
             <StyledBreadcrumb
-              label="Product Upload"
+              label="Add Product"
               deleteIcon={<ExpandMoreIcon />}
             />
           </Breadcrumbs>

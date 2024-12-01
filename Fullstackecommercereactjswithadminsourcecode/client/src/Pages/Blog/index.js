@@ -1,17 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState } from 'react';
 import './index.css';
-import { fetchDataFromApi } from '../../utils/api';
-import Rating from "@mui/material/Rating";
 import { Button, CircularProgress } from "@mui/material";
-
+import { fetchDataFromApi, postData } from "../../utils/api";
+import { MyContext } from "../../App";
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [postId, setPostId] = useState('');
+  const [reviews, setReviews] = useState({
+      postId: "", 
+      author: {
+        name1: "",
+        userId: ""
+      },
+      content: "",
+  });
+  const context = useContext(MyContext);
+
+  const onChangeInput = (e) => {
+    setReviews(() => ({
+      ...reviews,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -30,9 +45,10 @@ const Blog = () => {
 
   const handlePostClick = async (postId) => {
     try {
+      setPostId(postId);
       const postDetails = await fetchDataFromApi(`/api/posts/${postId}`);
       setSelectedPost(postDetails.data);
-      const postComments = await fetchDataFromApi(`/api/comments/post/${postId}`);
+      const postComments = await fetchDataFromApi(`/api/comments/post?postId=${postId}`);
       setComments(postComments);
     } catch (error) {
       console.error('Error fetching post details or comments:', error);
@@ -41,7 +57,53 @@ const Blog = () => {
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
-    // Add a new comment here using `newComment` value
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user !== null) {
+      reviews.author.name = user?.name;
+      reviews.author.userId = user?.userId;
+      reviews.postId = postId;
+      
+      if(reviews.content !== ""){
+      
+        setIsLoading(true);
+
+        postData("/api/comments/add", reviews).then((res) => {
+          setIsLoading(false);
+
+          if (res?.error) {
+            // Hiển thị thông báo lỗi nếu người dùng đã gửi review rồi
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: "Error occured.",
+            });
+          }else{
+            setReviews((prevReviews) => ({
+              ...prevReviews,
+              content: "",
+            }));
+            fetchDataFromApi(`/api/comments/post?postId=${postId}`).then((res) => {
+              setComments(res);
+            });
+          }
+        });
+      }else{
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please add a Review",
+      });
+      }
+
+    } else {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please Login first",
+      });
+    }
   };
 
   const filteredPosts = posts.filter(post => 
@@ -105,12 +167,12 @@ const Blog = () => {
 
           <div className="comments-section">
             <h3>Customer questions & answers</h3>
-            {comments.length > 0 ? (
-              comments.map((comment) => (
+            {comments.data?.length > 0 ? (
+              comments.data.map((comment) => (
                 <div key={comment.id} className="comment-box mb-4 border-bottom">
                   <div className="info">
                     <div className="d-flex align-items-center w-100">
-                      <h5>{comment.author}</h5>
+                      <h5>{comment.author.name}</h5>
                       <div className="ml-auto">
                         <h6 className="text-light">{comment.createdAt.split('T')[0]}</h6>
                       </div>
@@ -129,8 +191,9 @@ const Blog = () => {
                 <textarea
                   className="form-control shadow"
                   placeholder="Write a Comment"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                  name="content"
+                  value={reviews.content}
+                  onChange={onChangeInput}
                 ></textarea>
               </div>
 

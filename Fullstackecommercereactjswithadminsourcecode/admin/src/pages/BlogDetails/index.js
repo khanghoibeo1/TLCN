@@ -4,7 +4,9 @@ import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
 import { useParams } from "react-router-dom";
 import { fetchDataFromApi } from "../../utils/api";
+import UserAvatarImgComponent from "../../components/userAvatarImg";
 import { emphasize, styled } from '@mui/material/styles';
+import ProductZoom from '../../components/ProductZoom';
 // Styled Breadcrumb
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor =
@@ -27,24 +29,29 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 });
 
 const BlogDetails = () => {
-    const { id } = useParams(); // Assuming route is something like `/blog/:slug`
+    const { id } = useParams(); 
     const [blogData, setBlogData] = useState(null);
-    console.log(id);
-
+    const [commentData, setCommentData] = useState(null);
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     useEffect(() => {
         window.scrollTo(0, 0);
 
-        // Fetch the blog post by slug
         fetchDataFromApi(`/api/posts/${id}`).then((res) => {
             setBlogData(res);
         });
+
+        fetchDataFromApi(`/api/comments/post?postId=${id}`).then((res) => {
+            setCommentData(res)
+        })
     }, [id]);
 
     if (!blogData) {
         return <p>Loading...</p>;
     }
     return (
-        <div className="blogDetails">
+        <div className="right-content w-100 blogDetails">
             {/* Breadcrumb Navigation */}
             <div className="card shadow border-0 w-100 flex-row p-4">
                 <h5 className="mb-0">Blog Details</h5>
@@ -74,7 +81,7 @@ const BlogDetails = () => {
     
                     {/* Blog Metadata */}
                     <p className="text-muted">
-                        By <strong>{blogData?.data?.author || "Unknown"}</strong> | Category:{" "}
+                        Author: <strong>{blogData?.data?.author || "Unknown"}</strong> | Category:{" "}
                         <strong>{blogData.data?.category || "Uncategorized"}</strong> | Published:{" "}
                         {blogData.data?.updatedAt
                             ? new Date(blogData.data?.updatedAt).toLocaleDateString()
@@ -82,7 +89,8 @@ const BlogDetails = () => {
                     </p>
     
                     {/* Tags */}
-                    <div className="tags mb-4">
+                    <div className="tags mb-4"> 
+                        <p className="text-muted">Tags: </p>
                         {blogData.data?.tags?.length > 0
                             ? blogData.data?.tags.map((tag, index) => (
                                   <Chip
@@ -95,7 +103,8 @@ const BlogDetails = () => {
                     </div>
     
                     {/* Blog Images */}
-                    {blogData.data?.images?.length > 0 && (
+                    <ProductZoom images={blogData.data?.images} discount={0} />
+                    {/* {blogData.data?.images?.length > 0 && (
                         <div className="imageGallery mb-4">
                             {blogData.data?.images.map((image, index) => (
                                 <img
@@ -110,17 +119,63 @@ const BlogDetails = () => {
                                 />
                             ))}
                         </div>
-                    )}
+                    )} */}
     
                     {/* Blog Content */}
                     <div className="content">
-                        <p>{blogData.content || "No Content Available"}</p>
+                        <p>Content:</p>
+                        <p>{blogData.data?.content || "No Content Available"}</p>
                     </div>
     
                     {/* Comments Count */}
                     <div className="commentsCount mt-4">
                         <h6>Comments: {blogData.data?.commentsCount || 0}</h6>
                     </div>
+
+                    {
+                            commentData?.length !== 0 &&
+                            <>
+                                <h6 className="mt-4 mb-4">Blog Comments</h6>
+
+                                <div className="commentSection">
+
+                                    {
+                                        commentData?.length !== 0 && commentData?.map((review, index) => {
+                                            return (
+                                                <div className="reviewsRow">
+                                                    <div className="row">
+                                                        <div className="col-sm-7 d-flex">
+                                                            <div className="d-flex flex-column">
+                                                                <div className="userInfo d-flex align-items-center mb-3">
+                                                                    <UserAvatarImgComponent img="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" lg={true} />
+
+                                                                    <div className="info pl-3">
+                                                                        <h6>{review?.author?.name}</h6>
+                                                                        <span>{review?.createdAt}</span>
+                                                                    </div>
+
+                                                                </div>
+
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <p className="mt-3">{review?.content}</p>
+
+
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
+                                    }
+
+
+
+
+                                </div>
+                            </>
+                        }
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const commentSchema = mongoose.Schema({
     postId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Blog',
         required: true
     },
@@ -23,6 +23,16 @@ const commentSchema = mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Comment = mongoose.model('Comment', commentSchema);
+commentSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+  });
+  
+  commentSchema.set('toJSON', {
+    virtuals: true,
+  });
 
-module.exports = Comment;
+// const Comment = mongoose.model('Comment', commentSchema);
+
+// module.exports = Comment;
+exports.Comment = mongoose.model('Comment', commentSchema);
+exports.commentSchema = commentSchema;
