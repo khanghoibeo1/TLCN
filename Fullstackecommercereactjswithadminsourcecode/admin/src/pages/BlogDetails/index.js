@@ -43,7 +43,7 @@ const BlogDetails = () => {
         });
 
         fetchDataFromApi(`/api/comments/post?postId=${id}`).then((res) => {
-            setCommentData(res)
+            setCommentData(res.data)
         })
     }, [id]);
 

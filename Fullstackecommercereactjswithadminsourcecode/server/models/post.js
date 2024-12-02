@@ -29,6 +29,10 @@ const postSchema = mongoose.Schema(
       type: String,
       required: true
     },
+    catId: {
+      type: String,
+      default:''
+    },
     commentsCount: {
       type: Number,
       default: 0

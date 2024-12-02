@@ -62,6 +62,61 @@ cloudinary.config({
     }
   });
 
+
+// Get all posts with catgory filter
+  router.get(`/catId`, async (req, res) => {
+    let postList = [];
+  
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage);
+    const totalPosts = await Post.countDocuments();
+    const totalPages = Math.ceil(totalPosts / perPage);
+  
+    if (page > totalPages) {
+      return res.status(404).json({ message: "Page not found" });
+    }
+  
+    if (req.query.page !== undefined && req.query.perPage !== undefined) {
+      const postListArr = await Post.find({ catId: req.query.catId })
+        .populate("category")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+  
+      return res.status(200).json({
+        data: postListArr,
+        totalPages: totalPages,
+        page: page,
+      });
+    } else {
+      const postListArr = await Post.find({ catId: req.query.catId });
+  
+      for (let i = 0; i < postListArr.length; i++) {
+        //console.log(productList[i].location)
+        for (let j = 0; j < postListArr[i].location.length; j++) {
+          if (postListArr[i].location[j].value === req.query.location) {
+            postList.push(postListArr[i]);
+          }
+        }
+      }
+  
+      if (req.query.location !== "All") {
+        return res.status(200).json({
+          data: postList,
+          totalPages: totalPages,
+          page: page,
+        });
+      } else {
+        return res.status(200).json({
+          data: postListArr,
+          totalPages: totalPages,
+          page: page,
+        });
+      }
+    }
+  });
+  
+
 // Get all posts with pagination and optional location filter
 router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -230,6 +285,8 @@ router.delete("/deleteImage", async (req, res) => {
   
     res.send(category);
   });
+
+
   
 module.exports = router;
 

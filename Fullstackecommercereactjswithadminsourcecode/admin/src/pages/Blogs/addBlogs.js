@@ -18,6 +18,7 @@ const AddBlog = () => {
   const navigate = useNavigate();
   const context = useContext(MyContext);
   const [uploading, setUploading] = useState(false);
+  const [categoryVal, setCategoryVal] = useState("all");
   const formdata = new FormData();
   const [formFields, setFormFields] = useState({
     title: "",

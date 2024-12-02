@@ -261,9 +261,9 @@ router.get('/:id', async(req,res)=>{
     const user = await User.findById(req.params.id);
 
     if(!user) {
-        res.status(500).json({message: 'The user with the given ID was not found.'})
+        res.status(500).json({ success: false, message: 'The user with the given ID was not found.' })
     } else{
-        res.status(200).send(user);
+        res.status(200).send({ success: true, data: user });
     }
     
 })
@@ -343,7 +343,7 @@ router.post(`/authWithGoogle`, async (req, res) => {
 
 router.put('/:id',async (req, res)=> {
 
-    const { name, phone, email } = req.body;
+    const { name, phone, email, status } = req.body;
 
     const userExist = await User.findById(req.params.id);
 
@@ -359,6 +359,7 @@ router.put('/:id',async (req, res)=> {
             name:name,
             phone:phone,
             email:email,
+            status:status,
             password:newPassword,
             images: imagesArr,
         },

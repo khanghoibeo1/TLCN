@@ -7,7 +7,8 @@ import Pagination from "@mui/material/Pagination";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import { MdDelete } from "react-icons/md";
 import DashboardBox from "../Dashboard/components/dashboardBox";
-import SearchBox from "../../components/SearchPostBox";
+import { FaEye, FaPencilAlt } from 'react-icons/fa';
+import SearchBox from "../../components/SearchBox";
 import { emphasize, styled } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import HomeIcon from "@mui/icons-material/Home";
@@ -36,6 +37,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
+  const [showBy, setShowBy] = useState(10);
   const [perPage, setPerPage] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
   const context = useContext(MyContext);
@@ -48,7 +50,7 @@ const Users = () => {
     context.setProgress(40);
     fetchDataFromApi(`/api/user?page=${currentPage}&perPage=${itemsPerPage}`)
       .then((res) => {
-        setUsers(res.data);
+        setUsers(res);
         setTotalUsers(res.totalUsers);
         context.setProgress(100);
       })
@@ -68,6 +70,26 @@ const Users = () => {
 
   const handleChange = (event, value) => {
     setPage(value);
+  };
+
+  const showPerPage = (e) => {
+    setShowBy(e.target.value);
+    fetchDataFromApi(`/api/user?page=1&perPage=${e.target.value}`).then((res) => {
+      setUsers(res);
+      context.setProgress(100);
+    });
+  };
+
+  const onSearch = (keyword) => {
+    if (keyword !== "") {
+      fetchDataFromApi(`/api/search/user?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
+        setUsers(res);
+      });
+    } else {
+      fetchDataFromApi(`/api/user?page=1&perPage=${10}`).then((res) => {
+        setUsers(res);
+      });
+    }
   };
 
   return (
@@ -96,24 +118,53 @@ const Users = () => {
           </div>
         </div>
 
+        
+
         <div className="card shadow border-0 p-3 mt-4">
+          <h3 className="hd">Recent Users</h3>
+          <div className="row cardFilters mt-3">
+            <div className="col-md-3">
+                <h4>SHOW BY</h4>
+                <FormControl size="small" className="w-100">
+                  <Select value={showBy} onChange={showPerPage} displayEmpty className="w-100">
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+            <div className="col-md-6 d-flex justify-content-end">
+              <div className="searchWrap d-flex">
+                <SearchBox onSearch={onSearch} />
+              </div>
+            </div>
+          </div>
           <div className="table-responsive mt-3">
             <table className="table table-bordered table-striped v-align">
               <thead className="thead-dark">
                 <tr>
                   <th>NAME</th>
                   <th>EMAIL</th>
+                  <th>PHONE</th>
+                  <th>STATUS</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
               <tbody>
-                {users.length > 0 &&
-                  users.map((user) => (
+                {users?.data?.length > 0 &&
+                  users?.data?.map((user) => (
                     <tr key={user.id}>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
+                      <td>{user.phone}</td>
+                      <td>{user.status}</td>
                       <td>
                         <div className="actions d-flex align-items-center">
+                        <Link to={`/user/edit/${user.id}`}>
+                          <Button className="success">
+                            <FaPencilAlt />
+                          </Button>
+                        </Link>
                           <Button className="error" onClick={() => deleteUser(user.id)}>
                             <MdDelete />
                           </Button>

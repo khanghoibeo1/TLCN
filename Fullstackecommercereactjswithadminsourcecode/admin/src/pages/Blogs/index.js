@@ -11,7 +11,7 @@ import { IoShieldCheckmarkSharp } from 'react-icons/io5';
 import { FaEye, FaPencilAlt } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import DashboardBox from '../Dashboard/components/dashboardBox';
-import SearchBox from '../../components/SearchPostBox';
+import SearchBox from '../../components/SearchBox';
 import Rating from '@mui/material/Rating';
 import { emphasize, styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
@@ -133,7 +133,7 @@ const PostList = () => {
   const handleChangeCategory = (event) => {
     if (event.target.value !== "all") {
       setCategoryVal(event.target.value);
-      fetchDataFromApi(`/api/posts/catgory?catgory=${event.target.value}&page=1&perPage=${perPage}`).then(
+      fetchDataFromApi(`/api/posts/catId?catId=${event.target.value}&page=1&perPage=${perPage}`).then(
         (res) => {
           setPostList(res);
           context.setProgress(100);
@@ -148,9 +148,9 @@ const PostList = () => {
     }
   };
 
-  const searchPosts = (keyword) => {
+  const onSearch = (keyword) => {
     if (keyword !== "") {
-      fetchDataFromApi(`/api/post/search?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
+      fetchDataFromApi(`/api/search/post?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
         setPostList(res);
       });
     } else {
@@ -188,7 +188,6 @@ const PostList = () => {
 
         <div className="card shadow border-0 p-3 mt-4">
           <h3 className="hd">Recent Posts</h3>
-
           <div className="row cardFilters mt-3">
             <div className="col-md-3">
               <h4>SHOW BY</h4>
@@ -232,7 +231,7 @@ const PostList = () => {
 
             <div className="col-md-6 d-flex justify-content-end">
               <div className="searchWrap d-flex">
-                <SearchBox searchPosts={searchPosts} />
+                <SearchBox onSearch={onSearch} />
               </div>
             </div>
           </div>

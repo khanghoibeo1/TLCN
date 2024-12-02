@@ -47,20 +47,15 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   };
 });
 
-const EditBlog = () => {
+const EditUser = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formFields, setFormFields] = useState({
-    title: "",
-    content: "",
-    author: "",
-    tags: [],
-    category: "",
+    name: "",
+    phone: "",
+    email: "",
+    status: "",
     images: [],
-    status: "draft",
-    commentsCount: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
 
   });
   const [previews, setPreviews] = useState([]);
@@ -82,15 +77,13 @@ const EditBlog = () => {
       });
     });
 
-    fetchDataFromApi(`/api/posts/${id}`)
+    fetchDataFromApi(`/api/user/${id}`)
       .then((res) => {
         setPreviews(res?.data?.images)
         setFormFields({
-          title: res?.data?.title,
-          content: res?.data?.content,
-          author: res?.data?.author,
-          tags: res?.data?.tags,
-          category: res?.data?.category,
+          name: res?.data?.name,
+          phone: res?.data?.phone,
+          email: res?.data?.email,
           images: res?.data?.images,
           status: res?.data?.status,
         });
@@ -206,7 +199,7 @@ const EditBlog = () => {
     }
   };
 
-  const editBlog = (e) => {
+  const editUser = (e) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -216,20 +209,18 @@ const EditBlog = () => {
     img_arr = [];
     formFields.images = appendedArray;
     if (
-      formFields.name !== "" &&
-      formFields.color !== "" &&
-      previews.length !== 0
+      formFields.name !== "" 
     ) {
       setIsLoading(true);
 
-      editData(`/api/posts/${id}`, formFields).then((res) => {
+      editData(`/api/user/${id}`, formFields).then((res) => {
         // console.log(res);
         setIsLoading(false);
         context.fetchCategory();
 
         deleteData("/api/imageUpload/deleteAllImages");
 
-        history("/blogs");
+        history("/users");
       });
     } else {
       context.setAlertBox({
@@ -244,56 +235,45 @@ const EditBlog = () => {
   return (
   <div className="right-content w-100">
     <div className="card shadow border-0 w-100 flex-row p-4">
-      <h5 className="mb-0">Blog Edit</h5>
+      <h5 className="mb-0">User Edit</h5>
       <Breadcrumbs aria-label="breadcrumb" className="ml-auto">
         <span>Dashboard</span>
-        <span>Blogs</span>
-        <span>Edit Blog</span>
+        <span>Users</span>
+        <span>Edit User</span>
       </Breadcrumbs>
     </div>
 
-    <form className="form" onSubmit={editBlog}>
+    <form className="form" onSubmit={editUser}>
       <div className="card p-4">
         <h5 className="mb-4">Basic Information</h5>
 
         <div className="form-group">
-          <h6>Title</h6>
-          <input type="text" name="title" value={formFields.title} onChange={handleChange} />
+          <h6>Name</h6>
+          <input type="text" name="name" value={formFields.name} onChange={handleChange} />
         </div>
 
         <div className="form-group">
-          <h6>Content</h6>
-          <textarea rows={5} name="content" value={formFields.content} onChange={handleChange} />
+          <h6>Phone</h6>
+          <textarea rows={5} name="phone" value={formFields.phone} onChange={handleChange} />
         </div>
 
         <div className="form-group">
-          <h6>Author</h6>
-          <input type="text" name="author" value={formFields.author} onChange={handleChange} />
+          <h6>Email</h6>
+          <input type="text" name="email" value={formFields.email} onChange={handleChange} />
         </div>
-
-        <div className="form-group">
-          <h6>Category</h6>
-          <input type="text" name="category" value={formFields.category} onChange={handleChange} />
-        </div>
-
+        
         <div className="form-group">
           <h6>Status</h6>
-          <Select name="status" value={formFields.status} onChange={handleChange}>
-            <MenuItem value="draft">Draft</MenuItem>
-            <MenuItem value="published">Published</MenuItem>
-          </Select>
-        </div>
-
-        <div className="form-group">
-          <h6>Tags</h6>
-          <input
-            type="text"
-            name="tags"
-            value={formFields.tags.join(", ")}
-            onChange={(e) =>
-              setFormFields({ ...formFields, tags: e.target.value.split(",").map((tag) => tag.trim()) })
-            }
-          />
+            <Select
+                value={formFields.status}
+                onChange={handleChange}
+                inputProps={{ "aria-label": "Without label" }}
+                className="w-100"
+                name="status"
+                >
+                <MenuItem value="banned">Banned</MenuItem>
+                <MenuItem value="active">Active</MenuItem>
+            </Select>
         </div>
       </div>
 
@@ -309,7 +289,7 @@ const EditBlog = () => {
             </div>
           ))}
           <div className="uploadBox">
-            <input type="file" multiple onChange={(e) => onChangeFile(e, "/api/posts/upload")} />
+            <input type="file" multiple onChange={(e) => onChangeFile(e, "/api/user/upload")} />
             <div className="info">
               <FaCloudUploadAlt />
               <h5>Upload Images</h5>
@@ -324,11 +304,11 @@ const EditBlog = () => {
         className="btn-blue btn-lg w-100 mt-4"
       >
         <FaCloudUploadAlt /> &nbsp;
-        {isLoading ? <CircularProgress color="inherit" className="loader" /> : "PUBLISH BLOG"}
+        {isLoading ? <CircularProgress color="inherit" className="loader" /> : "PUBLISH USER"}
       </Button>
     </form>
   </div>
 );
 };
 
-export default EditBlog;
+export default EditUser;

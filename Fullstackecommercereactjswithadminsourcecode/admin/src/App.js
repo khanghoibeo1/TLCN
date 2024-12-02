@@ -32,6 +32,7 @@ import EditBlog from "./pages/Blogs/editBlogs";
 import AddBlog from "./pages/Blogs/addBlogs";
 
 import Users from "./pages/Users";
+import EditUser from "./pages/Users/editUsers";
 
 import LoadingBar from "react-top-loading-bar";
 import { fetchDataFromApi } from "./utils/api";
@@ -258,6 +259,7 @@ function App() {
               <Route path="/blog/add" exact={true} element={<AddBlog />} />
 
               <Route path="/users" exact={true} element={<Users />} />
+              <Route path="/user/edit/:id" exact={true} element={<EditUser />} />
 
               <Route path="/orders/" exact={true} element={<Orders />} />
 

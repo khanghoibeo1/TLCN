@@ -15,6 +15,10 @@ const userSchema = mongoose.Schema({
     password:{
         type:String,
     },
+    status:{
+        type:String,
+        default:"active",
+    },
     images:[
         {
             type:String,
@@ -29,6 +33,7 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
+
 })
 
 userSchema.virtual('id').get(function () {

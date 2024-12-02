@@ -175,9 +175,9 @@ else{
   };
 
 
-  const searchProducts = (keyword) => {
+  const onSearch = (keyword) => {
     if(keyword!==""){
-      fetchDataFromApi(`/api/search?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
+      fetchDataFromApi(`/api/search/product?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
         setProductList(res);
       })
     }else{
@@ -311,7 +311,7 @@ else{
 
             <div className="col-md-6 d-flex justify-content-end">
               <div className="searchWrap d-flex">
-                <SearchBox searchProducts={searchProducts}/>
+                <SearchBox onSearch={onSearch}/>
               </div>
             </div>
 
