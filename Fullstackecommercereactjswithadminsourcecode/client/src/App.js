@@ -160,29 +160,38 @@ function App() {
 
   const addToCart = (data) => {
     if (isLogin === true) {
-      setAddingInCart(true);
-      postData(`/api/cart/add`, data).then((res) => {
-        if (res.status !== false) {
-          setAlertBox({
-            open: true,
-            error: false,
-            msg: "Item is added in the cart",
-          });
+      if(user.status === 'active'){
+        setAddingInCart(true);
+        postData(`/api/cart/add`, data).then((res) => {
+          if (res.status !== false) {
+            setAlertBox({
+              open: true,
+              error: false,
+              msg: "Item is added in the cart",
+            });
 
-          setTimeout(() => {
+            setTimeout(() => {
+              setAddingInCart(false);
+            }, 1000);
+
+            getCartData();
+          } else {
+            setAlertBox({
+              open: true,
+              error: true,
+              msg: res.msg,
+            });
             setAddingInCart(false);
-          }, 1000);
-
-          getCartData();
-        } else {
-          setAlertBox({
-            open: true,
-            error: true,
-            msg: res.msg,
-          });
-          setAddingInCart(false);
-        }
-      });
+          }
+        });
+      } else {
+        setAlertBox({
+          open: true,
+          error: true,
+          msg: "You are banned!",
+        });
+      }
+      
     } else {
       setAlertBox({
         open: true,

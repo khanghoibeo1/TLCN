@@ -52,158 +52,168 @@ const Checkout = () => {
   const history = useNavigate();
 
   const checkout = (e) => {
-    e.preventDefault();
+    const user = JSON.parse(localStorage.getItem("user"));
+    if(user.status === 'active'){
+      e.preventDefault();
 
-    console.log(cartData);
+      console.log(cartData);
 
-    console.log(formFields);
-    if (formFields.fullName === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill full name ",
-      });
-      return false;
-    }
-
-    if (formFields.country === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill country ",
-      });
-      return false;
-    }
-
-    if (formFields.streetAddressLine1 === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill Street address",
-      });
-      return false;
-    }
-
-    if (formFields.streetAddressLine2 === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill  Street address",
-      });
-      return false;
-    }
-
-    if (formFields.city === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill city ",
-      });
-      return false;
-    }
-
-    if (formFields.state === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill state ",
-      });
-      return false;
-    }
-
-    if (formFields.zipCode === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill zipCode ",
-      });
-      return false;
-    }
-
-    if (formFields.phoneNumber === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill phone Number ",
-      });
-      return false;
-    }
-
-    if (formFields.email === "") {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill email",
-      });
-      return false;
-    }
-
-    const addressInfo = {
-      name: formFields.fullName,
-      phoneNumber: formFields.phoneNumber,
-      address: formFields.streetAddressLine1 + formFields.streetAddressLine2,
-      pincode: formFields.zipCode,
-      date: new Date().toLocaleString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      }),
-    };
-
-    var options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-      key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-      amount: parseInt(totalAmount * 100),
-      currency: "INR",
-      order_receipt: "order_rcptid_" + formFields.fullName,
-      name: "E-Bharat",
-      description: "for testing purpose",
-      handler: function (response) {
-        console.log(response);
-
-        const paymentId = response.razorpay_payment_id;
-
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        const payLoad = {
-          name: addressInfo.name,
-          phoneNumber: formFields.phoneNumber,
-          address: addressInfo.address,
-          pincode: addressInfo.pincode,
-          amount: parseInt(totalAmount),
-          paymentId: paymentId,
-          email: user.email,
-          userid: user.userId,
-          products: cartData,
-          date:addressInfo?.date
-        };
-
-        console.log(payLoad)
-          
-
-        postData(`/api/orders/create`, payLoad).then((res) => {
-             fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-            res?.length!==0 && res?.map((item)=>{
-                deleteData(`/api/cart/${item?.id}`).then((res) => {
-                })    
-            })
-                setTimeout(()=>{
-                    context.getCartData();
-                },1000);
-                history("/orders");
-          });
-         
+      console.log(formFields);
+      if (formFields.fullName === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill full name ",
         });
-      },
+        return false;
+      }
 
-      theme: {
-        color: "#3399cc",
-      },
-    };
+      if (formFields.country === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill country ",
+        });
+        return false;
+      }
 
-    var pay = new window.Razorpay(options);
-    pay.open();
-  };
+      if (formFields.streetAddressLine1 === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill Street address",
+        });
+        return false;
+      }
+
+      if (formFields.streetAddressLine2 === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill  Street address",
+        });
+        return false;
+      }
+
+      if (formFields.city === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill city ",
+        });
+        return false;
+      }
+
+      if (formFields.state === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill state ",
+        });
+        return false;
+      }
+
+      if (formFields.zipCode === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill zipCode ",
+        });
+        return false;
+      }
+
+      if (formFields.phoneNumber === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill phone Number ",
+        });
+        return false;
+      }
+
+      if (formFields.email === "") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Please fill email",
+        });
+        return false;
+      }
+
+      const addressInfo = {
+        name: formFields.fullName,
+        phoneNumber: formFields.phoneNumber,
+        address: formFields.streetAddressLine1 + formFields.streetAddressLine2,
+        pincode: formFields.zipCode,
+        date: new Date().toLocaleString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }),
+      };
+
+      var options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
+        amount: parseInt(totalAmount * 100),
+        currency: "INR",
+        order_receipt: "order_rcptid_" + formFields.fullName,
+        name: "E-Bharat",
+        description: "for testing purpose",
+        handler: function (response) {
+          console.log(response);
+
+          const paymentId = response.razorpay_payment_id;
+
+          const user = JSON.parse(localStorage.getItem("user"));
+
+          const payLoad = {
+            name: addressInfo.name,
+            phoneNumber: formFields.phoneNumber,
+            address: addressInfo.address,
+            pincode: addressInfo.pincode,
+            amount: parseInt(totalAmount),
+            paymentId: paymentId,
+            email: user.email,
+            userid: user.userId,
+            products: cartData,
+            date:addressInfo?.date
+          };
+
+          console.log(payLoad)
+            
+
+          postData(`/api/orders/create`, payLoad).then((res) => {
+              fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
+              res?.length!==0 && res?.map((item)=>{
+                  deleteData(`/api/cart/${item?.id}`).then((res) => {
+                  })    
+              })
+                  setTimeout(()=>{
+                      context.getCartData();
+                  },1000);
+                  history("/orders");
+            });
+          
+          });
+        },
+
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      var pay = new window.Razorpay(options);
+      pay.open();
+    } else {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "You are banned! ",
+      });
+    }
+    }
+    
 
   return (
     <section className="section">

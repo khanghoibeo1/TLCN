@@ -70,6 +70,7 @@ const SignIn = () => {
             name: res.user?.name,
             email: res.user?.email,
             userId: res.user?.id,
+            status: res.user?.status,
             image:res?.user?.images[0]
           }
 
@@ -129,6 +130,7 @@ const SignIn = () => {
                 const user = {
                   name: res.user?.name,
                   email: res.user?.email,
+                  status: res.user?.status,
                   userId: res.user?.id,
                 };
       
