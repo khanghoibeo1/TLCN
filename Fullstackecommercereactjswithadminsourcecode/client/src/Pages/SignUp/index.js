@@ -96,7 +96,7 @@ const SignUp = () => {
 
             setTimeout(() => {
               setIsLoading(true);
-              history("/signIn");
+              history("/verify-email");
               //window.location.href="/signIn";
             }, 2000);
           } else {

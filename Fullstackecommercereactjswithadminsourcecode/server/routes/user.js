@@ -5,10 +5,12 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
 
 const multer = require('multer');
 const fs = require("fs");
-const { sendVerficationEmail, sendWelcomeEmail } = require('../helper/mailtrap/emails');
+const { sendVerficationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } = require('../helper/mailtrap/emails');
+const { triggerAsyncId } = require('async_hooks');
 
 const cloudinary = require('cloudinary').v2;
 
@@ -364,7 +366,58 @@ router.put('/:id',async (req, res)=> {
     res.send(user);
 })
 
+router.post('/forgot-password', async (req, res) => {
+    const {email} = req.body;
+    try{
+        const user = await User.findOne({email});
 
+        if(!user){
+            return res.status(400).json({success: false, message: "User not found"})
+        }
+
+        const resetToken = crypto.randomBytes(20).toString("hex");
+        const resetTokenExpireAt = Date.now() + 1*60*60*1000
+        user.resetPasswordToken = resetToken
+        user.resetPasswordExpiresAt = resetTokenExpireAt
+
+        await user.save()
+
+        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}`)
+
+        res.status(200).json({success: true, message: "Password reset link sent to your email"});
+    } catch(error){
+        console.log("Error in forgotPassword ", error)
+        res.status(400).json({success: false, message: error.message})
+    };
+})
+
+router.post('/reset-password/:token', async (req, res) => {
+    try{
+        const { token } = req.params;
+        const { password } = req.body;
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpiresAt: {$gt: Date.now()},
+        });
+        
+        if(!user){
+            return res.status(400).json({success: false, message: "Invalid or expired reset token"})
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpiresAt = undefined;
+        
+        await user.save();
+
+        await sendResetSuccessEmail(user.email);
+        res.status(200).json({success: true, message:"Password reset successful"})
+    } catch(error){
+        console.log("Error in resetPassword ", error);
+        res.status(400).json({success: false, message: error.message});
+    }
+})
 // router.put('/:id',async (req, res)=> {
 
 //     const { name, phone, email, password } = req.body;

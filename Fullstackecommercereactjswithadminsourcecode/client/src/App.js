@@ -13,6 +13,9 @@ import ProductModal from "./Components/ProductModal";
 import Cart from "./Pages/Cart";
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
+import ResetPassword from "./Pages/ResetPassword";
+import ForgotPassword from "./Pages/ForgotPassword";
+import EmailVerification from "./Pages/EmailVerification";
 import MyList from "./Pages/MyList";
 import Checkout from "./Pages/Checkout";
 import Orders from "./Pages/Orders";
@@ -270,6 +273,9 @@ function App() {
           />
           <Route exact={true} path="/cart" element={<Cart />} />
           <Route exact={true} path="/signIn" element={<SignIn />} />
+          <Route exact={true} path="/forgot-password" element={<ForgotPassword />} />
+          <Route exact={true} path="/reset-password/:token" element={<ResetPassword />} />
+          <Route exact={true} path="/verify-email" element={<EmailVerification/>} />
           <Route exact={true} path="/signUp" element={<SignUp />} />
           <Route exact={true} path="/my-list" element={<MyList />} />
           <Route exact={true} path="/checkout" element={<Checkout />} />
