@@ -174,7 +174,7 @@ router.put("/:id", async (req, res) => {
       catName:req.body.catName,
       subCatId: req.body.subCatId,
       subCatName:req.body.subCatName,
-      link: req.body.subCatName
+      link: req.body.link
     },
     { new: true }
   );

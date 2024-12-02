@@ -264,10 +264,8 @@ const EditBanner = () => {
 
     formFields.images = appendedArray;
 
-    console.log(formdata);
+    console.log(formFields);
     if (
-      formFields.name !== "" &&
-      formFields.color !== "" &&
       previews.length !== 0
     ) {
       setIsLoading(true);
