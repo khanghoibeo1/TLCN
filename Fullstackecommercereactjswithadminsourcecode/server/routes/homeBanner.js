@@ -105,9 +105,10 @@ router.get('/:id', async (req, res) => {
 
 
 router.post('/create', async (req, res) => {
-    
+
     let newEntry = new HomeBanner({
         images: imagesArr,
+        link:req.body.link
     });
 
 
@@ -192,6 +193,7 @@ router.put('/:id', async (req, res) => {
         req.params.id,
         {
             images: req.body.images,
+            link: req.body.link,
         },
         { new: true }
     )

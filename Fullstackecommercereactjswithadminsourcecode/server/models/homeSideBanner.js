@@ -18,6 +18,9 @@ const homeSideBannersSchema = mongoose.Schema({
   },
   subCatName:{
     type: String,
+  },
+  link: {
+      type: String,
   }
 });
 

@@ -51,6 +51,7 @@ const AddHomeSlide = () => {
   const [uploading, setUploading] = useState(false);
   const [formFields, setFormFields] = useState({
     images: [],
+    link:"",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -178,6 +179,12 @@ const AddHomeSlide = () => {
     }
   };
 
+  // Xử lý thay đổi trường nhập
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormFields({ ...formFields, [name]: value });
+  };
+
   const addHomeSlide = (e) => {
     e.preventDefault();
 
@@ -189,7 +196,7 @@ const AddHomeSlide = () => {
 
     formFields.images = appendedArray;
 
-    if (previews.length !== 0) {
+    if (previews.length !== 0 ) {
       setIsLoading(true);
 
       postData(`/api/homeBanner/create`, formFields).then((res) => {
@@ -244,6 +251,11 @@ const AddHomeSlide = () => {
                 <div className="imagesUploadSec">
                   <h5 class="mb-4">Media And Published</h5>
 
+                  
+                  <div className="form-group">
+                    <h6>Link</h6>
+                    <input type="text" name="link" value={formFields.link} onChange={handleChange} />
+                  </div>
                   <div className="imgUploadBox d-flex align-items-center">
                     {previews?.length !== 0 &&
                       previews?.map((img, index) => {

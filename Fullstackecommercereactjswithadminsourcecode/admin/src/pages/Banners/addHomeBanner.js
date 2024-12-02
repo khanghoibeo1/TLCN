@@ -58,6 +58,7 @@ const AddBanner = () => {
     subCat: null,
     subCatId: null,
     subCatName: null,
+    link: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -227,6 +228,12 @@ const AddBanner = () => {
     setSubCatVal(event.target.value);
 };
 
+// Xử lý thay đổi trường nhập
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormFields({ ...formFields, [name]: value });
+};
+
   const addHomeBanner = (e) => {
     e.preventDefault();
 
@@ -355,6 +362,11 @@ const AddBanner = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="form-group">
+                    <h6>Link</h6>
+                    <input type="text" name="link" value={formFields.link} onChange={handleChange} />
+                  </div>
 
                 <div className="imagesUploadSec">
                   <h5 className="mb-4">Media And Published</h5>

@@ -6,7 +6,10 @@ const homeBannerSchema = mongoose.Schema({
             type:String,
             required:true
         }
-    ]
+    ], 
+    link: {
+        type: String,
+    }
 })
 
 homeBannerSchema.virtual('id').get(function () {

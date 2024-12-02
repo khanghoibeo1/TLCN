@@ -18,6 +18,9 @@ const bannersSchema = mongoose.Schema({
   },
   subCatName:{
     type: String,
+  }, 
+  link: {
+      type: String,
   }
 });
 

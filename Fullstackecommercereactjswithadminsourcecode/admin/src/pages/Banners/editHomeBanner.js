@@ -59,6 +59,7 @@ const EditBanner = () => {
     subCat: null,
     subCatId: null,
     subCatName: null,
+    link: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -89,6 +90,11 @@ const EditBanner = () => {
     fetchDataFromApi(`/api/banners/${id}`).then((res) => {
       // setcategory(res);
       console.log(res);
+      setFormFields((prevFields) => ({
+        ...prevFields, // giữ nguyên các trường hiện tại trong state
+        link: res.link, // cập nhật trường link
+      }));
+      setPreviews(res.images);
       setPreviews(res.images);
       setcategoryVal(res?.catId);
       setSubCatVal(res?.subCatId);
@@ -240,6 +246,12 @@ const EditBanner = () => {
     setSubCatVal(event.target.value);
   };
 
+  // Xử lý thay đổi trường nhập
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormFields({ ...formFields, [name]: value });
+  };
+
   const editSlide = (e) => {
     e.preventDefault();
 
@@ -368,6 +380,11 @@ const EditBanner = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="form-group">
+                    <h6>Link</h6>
+                    <input type="text" name="link" value={formFields.link} onChange={handleChange} />
+                  </div>
 
                 <div className="imagesUploadSec">
                   <h5 className="mb-4">Media And Published</h5>

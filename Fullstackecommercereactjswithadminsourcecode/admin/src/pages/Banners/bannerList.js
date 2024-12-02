@@ -124,7 +124,8 @@ const BannersList = () => {
               <thead className="thead-dark">
                 <tr>
                   <th style={{ width: "200px" }}>IMAGE</th>
-                  <th>ACTION</th>
+                  <th>IMAGE LINK</th>
+                  <th>ACTIONA</th>
                 </tr>
               </thead>
 
@@ -153,6 +154,8 @@ const BannersList = () => {
                             </div>
                           </div>
                         </td>
+
+                        <td>{item?.link}</td>
 
                         <td>
                           <div className="actions d-flex align-items-center">
