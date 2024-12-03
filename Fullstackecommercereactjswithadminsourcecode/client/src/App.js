@@ -80,19 +80,17 @@ function App() {
     fetchDataFromApi("/api/category").then((res) => {
       setCategoryData(res.categoryList);
 
- const subCatArr=[];
+      const subCatArr=[];
 
-        res.categoryList?.length !== 0 && res.categoryList?.map((cat, index) => {
-                if(cat?.children.length!==0){
-                    cat?.children?.map((subCat)=>{
-                        subCatArr.push(subCat);
-                    })
-                }
-        });
+      res.categoryList?.length !== 0 && res.categoryList?.map((cat, index) => {
+        if(cat?.children.length!==0){
+            cat?.children?.map((subCat)=>{
+                subCatArr.push(subCat);
+            })
+        }
+      });
 
-       setsubCategoryData(subCatArr);
-
-
+      setsubCategoryData(subCatArr);
     });
 
   
