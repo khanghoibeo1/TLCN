@@ -343,7 +343,7 @@ router.post(`/authWithGoogle`, async (req, res) => {
 
 router.put('/:id',async (req, res)=> {
 
-    const { name, phone, email, status } = req.body;
+    const { name, phone, email, status, totalSpent } = req.body;
 
     const userExist = await User.findById(req.params.id);
 
@@ -360,6 +360,7 @@ router.put('/:id',async (req, res)=> {
             phone:phone,
             email:email,
             status:status,
+            totalSpent: totalSpent || userExist.totalSpent,
             password:newPassword,
             images: imagesArr,
         },

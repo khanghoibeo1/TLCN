@@ -17,7 +17,7 @@ import Pagination from "@mui/material/Pagination";
 import { MyContext } from "../../App";
 
 import Rating from "@mui/material/Rating";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { emphasize, styled } from "@mui/material/styles";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -67,6 +67,8 @@ const Products = () => {
   const open = Boolean(anchorEl);
 
   const context = useContext(MyContext);
+
+  const history = useNavigate();
 
   const [productList, setProductList] = useState([]);
 
@@ -236,6 +238,7 @@ else{
                 icon={<MdShoppingBag />}
                 title="Total Products"
                 count={totalProducts}
+                onClick={() => history('/products')}
                 grow={true}
               />
               <DashboardBox
@@ -243,12 +246,14 @@ else{
                 icon={<MdCategory />}
                 title="Total Categories"
                 count={totalCategory}
+                onClick={() => history('/category')}
               />
               <DashboardBox
                 color={["#2c78e5", "#60aff5"]}
                 icon={<IoShieldCheckmarkSharp />}
                 title="Total Sub Category"
                 count={totalSubCategory}
+                onClick={() => history('/subCategory')}
               />
             </div>
           </div>

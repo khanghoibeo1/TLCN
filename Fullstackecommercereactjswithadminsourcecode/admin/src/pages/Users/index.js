@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MyContext } from "../../App";
 import { fetchDataFromApi, deleteData } from "../../utils/api";
 import { Button, FormControl, Select, MenuItem } from "@mui/material";
@@ -41,6 +41,7 @@ const Users = () => {
   const [perPage, setPerPage] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
   const context = useContext(MyContext);
+  const history = useNavigate();
 
   useEffect(() => {
     loadUsers(page, perPage);
@@ -113,7 +114,8 @@ const Users = () => {
         <div className="row dashboardBoxWrapperRow pt-0">
           <div className="col-md-12">
             <div className="dashboardBoxWrapper d-flex">
-              <DashboardBox color={["#1da256", "#48d483"]} title="Total Users" count={totalUsers} />
+              <DashboardBox color={["#1da256", "#48d483"]} title="Total Users" 
+                onClick={() => history('/users')} count={totalUsers} />
             </div>
           </div>
         </div>

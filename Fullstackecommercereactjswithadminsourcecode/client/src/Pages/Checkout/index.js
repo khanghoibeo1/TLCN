@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import { IoBagCheckOutline } from "react-icons/io5";
 
 import { MyContext } from "../../App";
-import { fetchDataFromApi, postData, deleteData } from "../../utils/api";
+import { fetchDataFromApi, postData, deleteData, editData } from "../../utils/api";
 
 import { useNavigate } from "react-router-dom";
 
@@ -181,8 +181,8 @@ const Checkout = () => {
           };
 
           console.log(payLoad)
-            
 
+          user.totalSpent = user.totalSpent + parseInt(totalAmount);
           postData(`/api/orders/create`, payLoad).then((res) => {
               fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
               res?.length!==0 && res?.map((item)=>{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
 import { fetchDataFromApi, deleteData } from '../../utils/api';
 import { Button, FormControl, Select, MenuItem } from '@mui/material'; // Add this import
@@ -50,8 +50,10 @@ const PostList = () => {
   const [isLoadingBar, setIsLoadingBar] = useState(false);
   const [perPage, setPerPage] = useState(10);
   const open = Boolean(anchorEl);
-
+  
   const context = useContext(MyContext);
+
+  const history = useNavigate();
 
   const [postList, setPostList] = useState([]);
 
@@ -181,7 +183,8 @@ const PostList = () => {
         <div className="row dashboardBoxWrapperRow pt-0">
           <div className="col-md-12">
             <div className="dashboardBoxWrapper d-flex">
-              <DashboardBox color={["#1da256", "#48d483"]} title="Total Posts" count={totalPosts} />
+              <DashboardBox color={["#1da256", "#48d483"]} title="Total Posts" 
+                onClick={() => history('/blogs')} count={totalPosts} />
             </div>
           </div>
         </div>

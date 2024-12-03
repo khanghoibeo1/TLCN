@@ -33,6 +33,10 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    totalSpent: {
+        type: Number,
+        default: 0,
+    },
 
 })
 

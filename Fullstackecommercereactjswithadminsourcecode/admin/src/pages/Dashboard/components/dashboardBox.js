@@ -17,15 +17,15 @@ const DashboardBox = (props) => {
     const ITEM_HEIGHT = 48;
 
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = () => {
+        props.onClick();
     };
     const handleClose = () => {
         setAnchorEl(null);
     };
 
     return (
-        <Button className="dashboardBox" style={{
+        <Button onClick={handleClick} className="dashboardBox" style={{
             backgroundImage:
                 `linear-gradient(to right, ${props.color?.[0]} , ${props.color?.[1]})`
         }}>

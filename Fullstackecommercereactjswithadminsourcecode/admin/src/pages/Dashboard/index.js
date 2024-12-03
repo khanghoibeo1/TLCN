@@ -8,6 +8,7 @@ import Menu from "@mui/material/Menu";
 import SearchBox from "../../components/SearchBox";
 import MenuItem from "@mui/material/MenuItem";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoIosTimer } from "react-icons/io";
 import Button from "@mui/material/Button";
 import { Chart } from "react-google-charts";
@@ -38,6 +39,7 @@ export const data = [
   ["2016", 1030, 540],
 ];
 
+
 export const options = {
   backgroundColor: "transparent",
   chartArea: { width: "100%", height: "100%" },
@@ -62,6 +64,8 @@ const Dashboard = () => {
   const ITEM_HEIGHT = 48;
 
   const context = useContext(MyContext);
+  
+  const history = useNavigate();
 
   useEffect(() => {
     context.setisHideSidebarAndHeader(false);
@@ -199,6 +203,9 @@ const Dashboard = () => {
     }
    
 }
+  const onGoto = () =>{
+    history('/users');
+  }
 
 
   return (
@@ -213,29 +220,33 @@ const Dashboard = () => {
                 grow={true}
                 title="Total Users"
                 count={totalUsers}
+                onClick={() => history('/users')}
               />
               <DashboardBox
                 color={["#c012e2", "#eb64fe"]}
                 icon={<IoMdCart />}
                 title="Total Orders"
                 count={totalOrders}
+                onClick={() => history('/orders')}
               />
               <DashboardBox
                 color={["#2c78e5", "#60aff5"]}
                 icon={<MdShoppingBag />}
                 title="Total Products"
                 count={totalProducts}
+                onClick={() => history('/products')}
               />
               <DashboardBox
                 color={["#e1950e", "#f3cd29"]}
                 icon={<GiStarsStack />}
                 title="Total Reviews"
                 count={totalProductsReviews}
+                onClick={() => history('/')}
               />
             </div>
           </div>
 
-          <div className="col-md-4 pl-0 d-none">
+          <div className="col-md-4 pt-3 ">
             <div className="box graphBox">
               <div className="d-flex align-items-center w-100 bottomEle">
                 <h6 className="text-white mb-0 mt-0">Total Sales</h6>
@@ -259,7 +270,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card shadow border-0 p-3 mt-4">
+        {/* <div className="card shadow border-0 p-3 mt-4">
           <h3 className="hd">Best Selling Products</h3>
 
           <div className="row cardFilters mt-3">
@@ -422,7 +433,7 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );
