@@ -186,6 +186,40 @@ router.post('/add', async (req, res) => {
 
 });
 
+// API để thống kê số bình luận theo số sao từ 1 đến 5
+router.get('/get/reviews/stats', async (req, res) => {
+    try {
+      // Sử dụng aggregation pipeline để đếm số lượng đánh giá theo mỗi mức sao từ 1 đến 5
+      const statistics = await ProductReviews.aggregate([
+        {
+          $group: {
+            _id: "$customerRating",  // Group by customerRating (số sao)
+            count: { $sum: 1 }  // Tính tổng số bình luận cho mỗi mức sao
+          }
+        },
+        {
+          $match: { _id: { $gte: 1, $lte: 5 } }  // Lọc số sao trong khoảng từ 1 đến 5
+        },
+        {
+          $sort: { _id: 1 }  // Sắp xếp kết quả theo số sao từ thấp đến cao
+        }
+      ]);
+  
+      // Nếu không có đánh giá nào, gán giá trị mặc định
+      const result = [];
+      for (let i = 1; i <= 5; i++) {
+        const stat = statistics.find(item => item._id === i);
+        result.push({
+          rating: i,
+          count: stat ? stat.count : 0  // Nếu không có bình luận, gán là 0
+        });
+      }
+  
+      res.status(200).json(result);  // Trả về kết quả thống kê
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching statistics", error });
+    }
+  });
 
 module.exports = router;
 

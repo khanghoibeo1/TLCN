@@ -1,49 +1,23 @@
 import DashboardBox from "./components/dashboardBox";
-import { HiDotsVertical } from "react-icons/hi";
+import DateFilter from "../../components/DateFilter";
 import { FaUserCircle } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
 import { MdShoppingBag } from "react-icons/md";
 import { GiStarsStack } from "react-icons/gi";
-import Menu from "@mui/material/Menu";
-import SearchBox from "../../components/SearchBox";
-import MenuItem from "@mui/material/MenuItem";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoIosTimer } from "react-icons/io";
-import Button from "@mui/material/Button";
-import { Chart } from "react-google-charts";
-
-import InputLabel from "@mui/material/InputLabel";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-
-import { Link } from "react-router-dom";
-import { FaEye } from "react-icons/fa";
-import { FaPencilAlt } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import Pagination from "@mui/material/Pagination";
 import { MyContext } from "../../App";
 
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-import Rating from "@mui/material/Rating";
 import { deleteData, fetchDataFromApi } from "../../utils/api";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
-export const data = [
-  ["Year", "Sales", "Expenses"],
-  ["2013", 1000, 400],
-  ["2014", 1170, 460],
-  ["2015", 660, 1120],
-  ["2016", 1030, 540],
-];
-
-
-export const options = {
-  backgroundColor: "transparent",
-  chartArea: { width: "100%", height: "100%" },
-};
+// Customizing the calendar date format
+const localizer = momentLocalizer(moment);
 
 const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -59,6 +33,18 @@ const Dashboard = () => {
   const [totalSales, setTotalSales] = useState();
   const [perPage, setPerPage] = useState(10);
 
+  const [orderStatusData, setOrderStatusData] = useState([]);
+  const [blogCountCatgoryData, setBlogCountCatgoryData] = useState([]);
+  const [userSpentData, setUserSpentData] = useState([]);
+  const [reviewStatsData, setreviewStatsData] = useState([]);
+  const [mostSellingProductsData, setMostSellingProductsData] = useState([]);
+  const [salesData, setSalesData] = useState([]);
+  const [filter, setFilter] = useState({
+    fromDate: "2024-01-01",
+    toDate: "2024-12-31",
+    groupBy: "month", // hoặc "day", "quarter", "year"
+  });
+
   const open = Boolean(anchorEl);
 
   const ITEM_HEIGHT = 48;
@@ -71,6 +57,31 @@ const Dashboard = () => {
     context.setisHideSidebarAndHeader(false);
     window.scrollTo(0, 0);
     context.setProgress(40);
+
+    fetchDataFromApi('/api/orders/get/data/status-summary').then((res) => {
+      setOrderStatusData(res);
+    });
+
+    fetchDataFromApi('/api/posts/get/data/category-stats').then((res) => {
+      setBlogCountCatgoryData(res);
+    });
+
+    fetchDataFromApi('/api/user/get/data/user-spent').then((res) => {
+      setUserSpentData(res);
+    });
+
+    fetchDataFromApi('/api/productReviews/get/reviews/stats').then((res) => {
+      setreviewStatsData(res);
+    });
+
+    fetchDataFromApi('/api/orders/get/data/most-sold-products').then((res) => {
+      setMostSellingProductsData(res);
+    });
+
+    fetchDataFromApi(`/api/orders/get/data/stats/sales?fromDate=${filter.fromDate}&toDate=${filter.toDate}&groupBy=${filter.groupBy}`).then((res) => {
+      setSalesData(res);
+    })
+
     fetchDataFromApi(`/api/products?page=1&perPage=${perPage}`).then((res) => {
       setProductList(res);
       context.setProgress(100);
@@ -103,110 +114,17 @@ const Dashboard = () => {
     });
   }, []);
 
-  const deleteProduct = (id) => {
-    const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
-      context.setProgress(40);
-      deleteData(`/api/products/${id}`).then((res) => {
-        context.setProgress(100);
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "Product Deleted!",
-        });
-        fetchDataFromApi(`/api/products?page=${1}&perPage=${perPage}`).then(
-          (res) => {
-            setProductList(res);
-          }
-        );
+  const handleFilter = async (filter) => {
+    try {
+      console.log(filter);
+      fetchDataFromApi(`/api/orders/get/data/stats/sales?fromDate=${filter.fromDate}&toDate=${filter.toDate}&groupBy=${filter.groupBy}`).then((res) => {
+        setSalesData(res);
       });
-    } else {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Only Admin can delete Home Slides",
-      });
+      
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
     }
   };
-
-  const handleChange = (event, value) => {
-    context.setProgress(40);
-    if (categoryVal !== "all") {
-      fetchDataFromApi(
-        `/api/products/catId?catId=${categoryVal}&page=${value}&perPage=${perPage}`
-      ).then((res) => {
-        setProductList(res);
-        context.setProgress(100);
-      });
-    } else {
-      fetchDataFromApi(`/api/products?page=${value}&perPage=${perPage}`).then(
-        (res) => {
-          setProductList(res);
-          context.setProgress(100);
-        }
-      );
-    }
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const showPerPage = (e) => {
-    setshowBy(e.target.value);
-    fetchDataFromApi(`/api/products?page=${1}&perPage=${e.target.value}`).then(
-      (res) => {
-        setProductList(res);
-        context.setProgress(100);
-      }
-    );
-  };
-
-  const handleChangeCategory = (event) => {
-    if (event.target.value !== "all") {
-      setcategoryVal(event.target.value);
-      fetchDataFromApi(
-        `/api/products/catId?catId=${
-          event.target.value
-        }&page=${1}&perPage=${perPage}`
-      ).then((res) => {
-        setProductList(res);
-        context.setProgress(100);
-      });
-    }
-    if (event.target.value === "all") {
-      setcategoryVal("all");
-      setcategoryVal(event.target.value);
-      fetchDataFromApi(`/api/products?page=${1}&perPage=${perPage}`).then(
-        (res) => {
-          setProductList(res);
-          context.setProgress(100);
-        }
-      );
-    }
-  };
-
-
-
-  const onSearch = (keyword) => {
-    if(keyword!==""){
-      fetchDataFromApi(`/api/search?q=${keyword}&page=1&perPage=${100000}`).then((res) => {
-        setProductList(res);
-      })
-    }else{
-      fetchDataFromApi(`/api/products?page=${1}&perPage=${10}`).then((res) => {
-        setProductList(res);
-      })
-    }
-   
-}
-  const onGoto = () =>{
-    history('/users');
-  }
-
 
   return (
     <>
@@ -246,194 +164,158 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="col-md-4 pt-3 ">
-            <div className="box graphBox">
-              <div className="d-flex align-items-center w-100 bottomEle">
-                <h6 className="text-white mb-0 mt-0">Total Sales</h6>
+          <div className="container-fluid text-white m-5">
+            {/* Row 1 */}
+            <div className="row mt-4 d-flex justify-content-between">
+              <div className="col-md-8">
+                <div className="box  p-3 bg-dark">
+                  <h6 className="text-white mb-3">Total Sales</h6>
+                    <DateFilter onFilter={(handleFilter)} />
+                    <ResponsiveContainer width="100%" height={300}>
+                      <AreaChart
+                        width={500}
+                        height={400}
+                        data={salesData}
+                        margin={{
+                          top: 10,
+                          right: 30,
+                          left: 0,
+                          bottom: 0,
+                        }}
+                      >
+                        
+                        <XAxis dataKey="label" />
+                        <YAxis />
+                        <Tooltip />
+                        <Area type="monotone" dataKey="sales" stroke="#FAB12F" fill="#FCF596" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                </div>
               </div>
-
-              <h3 className="text-white font-weight-bold">
-                {totalSales?.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </h3>
-
-              <Chart
-                chartType="PieChart"
-                width="100%"
-                height="170px"
-                data={data}
-                options={options}
-              />
+              <div className="col-md-4">
+                <div className="box p-3 bg-dark">
+                  <h6 className="text-white mb-3">Top Selling Products</h6>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <table className="table table-dark table-striped">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Product</th>
+                          <th>Sales</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {mostSellingProductsData.map((product, index) => (
+                          <tr key={product._id}>
+                            <td>{index + 1}</td>
+                            <td>{product.productTitle}</td>
+                            <td>{product.totalQuantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Row 2 */}
+            <div className="row mt-4 d-flex justify-content-between">
+              <div className="col-md-4">
+                <div className=" bg-dark p-3">
+                  <h6 className="text-white mb-3">Order Status</h6>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={orderStatusData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={110}
+                        fill="#c012e2"
+                        label
+                      >
+                        {orderStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={index === 0 ? "#FFCFEF" : (index === 1 ? "#0A97B0" : "#0A5EB0")} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <div className="col-md-5 ">
+              <div className="box p-3 bg-dark">
+                    <h6 className="text-white mb-3">Stats Blogs Of Category</h6>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={blogCountCatgoryData}>
+                        <YAxis />
+                        <XAxis dataKey="name"/>
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="amount" fill="#8EA3A6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+            </div>
+              <div className="col-md-3">
+                <div className="box">
+                  <Calendar
+                    localizer={localizer}
+                    events={[]}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{
+                      height: "370px",
+                      backgroundColor: "#8B5DFF", // White background for calendar
+                      borderRadius: "10px",
+                      padding: "10px",
+                      color: "black",
+                      fontWeight: "bold",
+                      fontSize: "18px",
+                    }}
+                    views={["month"]}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3 */}
+            <div className="row mt-4 d-flex justify-content-between">
+              <div className="col-md-7 mt-4 ">
+                <div className="box p-3 bg-dark">
+                      <h6 className="text-white mb-3">Top 10 Users</h6>
+                      <ResponsiveContainer width="95%" height={350}>
+                        <BarChart data={userSpentData} layout="vertical">
+                          <YAxis type="category" dataKey="name" />
+                          <XAxis type="number"/>
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="totalSpent" fill="#1da256" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+              </div>
+              <div className="col-md-5 mt-4 pl-0">
+                <div className=" p-3 bg-dark">
+                    <h6 className="text-white mb-3">Product Rating Stats</h6>
+                    <ResponsiveContainer width="95%" height={350}>
+                      <BarChart data={reviewStatsData} layout="vertical">
+                        <YAxis type="category" dataKey="rating" />
+                        <XAxis type="number"/>
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="count" fill="#563A9C" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+            </div>
+            </div>
+            
+            
           </div>
         </div>
-
-        {/* <div className="card shadow border-0 p-3 mt-4">
-          <h3 className="hd">Best Selling Products</h3>
-
-          <div className="row cardFilters mt-3">
-            <div className="col-md-3">
-              <h4>SHOW BY</h4>
-              <FormControl size="small" className="w-100">
-                <Select
-                  value={showBy}
-                  onChange={showPerPage}
-                  displayEmpty
-                  inputProps={{ "aria-label": "Without label" }}
-                  labelId="demo-select-small-label"
-                  className="w-100"
-                >
-                  <MenuItem value={10}>10</MenuItem>
-                  <MenuItem value={20}>20</MenuItem>
-                  <MenuItem value={30}>30</MenuItem>
-                  <MenuItem value={40}>40</MenuItem>
-                  <MenuItem value={50}>50</MenuItem>
-                  <MenuItem value={60}>60</MenuItem>
-                  <MenuItem value={70}>70</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-
-            <div className="col-md-3">
-              <h4>CATEGORY BY</h4>
-              <FormControl size="small" className="w-100">
-                <Select
-                  value={categoryVal}
-                  onChange={handleChangeCategory}
-                  displayEmpty
-                  inputProps={{ "aria-label": "Without label" }}
-                  className="w-100"
-                >
-                  <MenuItem value="all">
-                    <em>All</em>
-                  </MenuItem>
-                  {context.catData?.categoryList?.length !== 0 &&
-                    context.catData?.categoryList?.map((cat, index) => {
-                      return (
-                        <MenuItem
-                          className="text-capitalize"
-                          value={cat._id}
-                          key={index}
-                        >
-                          {cat.name}
-                        </MenuItem>
-                      );
-                    })}
-                </Select>
-              </FormControl>
-            </div>
-
-            <div className="col-md-6 d-flex justify-content-end">
-              <div className="searchWrap d-flex">
-                <SearchBox onSearch={onSearch}/>
-              </div>
-            </div>
-          </div>
-
-          <div className="table-responsive mt-3">
-            <table className="table table-bordered table-striped v-align">
-              <thead className="thead-dark">
-                <tr>
-                  <th style={{ width: "300px" }}>PRODUCT</th>
-                  <th>CATEGORY</th>
-                  <th>SUB CATEGORY</th>
-                  <th>BRAND</th>
-                  <th>PRICE</th>
-                  <th>RATING</th>
-                  <th>ACTION</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {productList?.products?.length !== 0 &&
-                  productList?.products?.map((item, index) => {
-                    return (
-                      <tr key={index}>
-                        <td>
-                          <div className="d-flex align-items-center productBox">
-                            <div className="imgWrapper">
-                              <div className="img card shadow m-0">
-                                <LazyLoadImage
-                                  alt={"image"}
-                                  effect="blur"
-                                  className="w-100"
-                                  src={item.images[0]}
-                                />
-                              </div>
-                            </div>
-                            <div className="info pl-3">
-                              <h6>{item?.name}</h6>
-                              <p>{item?.description}</p>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td>{item?.category?.name}</td>
-                        <td>{item?.subCatName}</td>
-                        <td>{item?.brand}</td>
-                        <td>
-                          <div style={{ width: "70px" }}>
-                            <del className="old">Rs {item?.oldPrice}</del>
-                            <span className="new text-danger">
-                              Rs {item?.price}
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <Rating
-                            name="read-only"
-                            defaultValue={item?.rating}
-                            precision={0.5}
-                            size="small"
-                            readOnly
-                          />
-                        </td>
-
-                        <td>
-                          <div className="actions d-flex align-items-center">
-                            <Link to={`/product/details/${item.id}`}>
-                              <Button className="secondary" color="secondary">
-                                <FaEye />
-                              </Button>
-                            </Link>
-
-                            <Link to={`/product/edit/${item.id}`}>
-                              <Button className="success" color="success">
-                                <FaPencilAlt />
-                              </Button>
-                            </Link>
-
-                            <Button
-                              className="error"
-                              color="error"
-                              onClick={() => deleteProduct(item?.id)}
-                            >
-                              <MdDelete />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-
-            {productList?.totalPages > 1 && (
-              <div className="d-flex tableFooter">
-                <Pagination
-                  count={productList?.totalPages}
-                  color="primary"
-                  className="pagination"
-                  showFirstButton
-                  showLastButton
-                  onChange={handleChange}
-                />
-              </div>
-            )}
-          </div>
-        </div> */}
       </div>
     </>
   );

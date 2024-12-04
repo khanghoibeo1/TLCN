@@ -428,7 +428,32 @@ router.delete('/deleteImage', async (req, res) => {
       
 });
 
-
+// Đếm số lượng đơn hàng theo trạng thái
+router.get('/get/data/user-spent', async (req, res) => {
+    try {
+        const result = await User.aggregate([
+            {
+              $project: {
+                name: 1, // Chỉ lấy trường 'name'
+                totalSpent: 1, // Chỉ lấy trường 'totalSpent'
+              }
+            },
+            {
+              $sort: { totalSpent: -1 } // Sắp xếp theo totalSpent giảm dần
+            },
+            {
+              $limit: 10 // Giới hạn kết quả để chỉ lấy 4 người dùng có chi tiêu cao nhất
+            }
+          ]);
+  
+  
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Error fetching order status summary:", error.message);
+      res.status(500).json({ success: false, message: "Internal Server Error." });
+    }
+  });
+  
 
 
 

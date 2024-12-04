@@ -286,6 +286,32 @@ router.delete("/deleteImage", async (req, res) => {
     res.send(category);
   });
 
+// API để lấy số lượng bài viết theo category
+router.get('/get/data/category-stats', async (req, res) => {
+  try {
+    // Sử dụng aggregate để nhóm các bài viết theo category và đếm số lượng
+    const result = await Post.aggregate([
+      {
+        $group: {
+          _id: "$category",  // Nhóm theo category
+          count: { $sum: 1 }, // Đếm số lượng bài viết trong mỗi category
+        },
+      },
+      {
+        $sort: { count: -1 }  // Sắp xếp theo số lượng bài viết, giảm dần
+      }
+    ]);
+
+    const formattedData = result.map((item) => ({
+      name: item._id, // Tên trạng thái (Pending, Shipped, Delivered)
+      amount: item.count, // Tổng số lượng
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching category stats", error });
+  }
+});
 
   
 module.exports = router;
