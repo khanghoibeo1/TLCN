@@ -136,7 +136,10 @@ router.post(`/signin`, async (req, res) => {
             res.status(404).json({error:true, msg:"User not found!"})
             return;
         }
-
+        if(!existingUser.isVerified) {
+            res.status(400).json({error:true, msg:"Email is not verify!"})
+            return;
+        }
         const matchPassword = await bcrypt.compare(password, existingUser.password);
 
         if(!matchPassword){
@@ -194,53 +197,44 @@ router.post(`/verify-email`, async(req, res) => {
 })
 
 router.put(`/changePassword/:id`, async (req, res) => {
-   
+   try{
     const { name, phone, email, password, newPass, images } = req.body;
 
    // console.log(req.body)
 
     const existingUser = await User.findOne({ email: email });
     if(!existingUser){
-        res.status(404).json({error:true, msg:"User not found!"})
+        return res.status(404).json({error:true, status: "FAILED", msg:"User not found!"})
     }
 
     const matchPassword = await bcrypt.compare(password, existingUser.password);
 
     if(!matchPassword){
-        res.status(404).json({error:true,msg:"current password wrong"})
-    }else{
-
-        let newPassword
-
-        if(newPass) {
-            newPassword = bcrypt.hashSync(newPass, 10)
-        } else {
-            newPassword = existingUser.passwordHash;
-        }
-    
-        
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            {
-                name:name,
-                phone:phone,
-                email:email,
-                password:newPassword,
-                images: images,
-            },
-            { new: true}
-        )
-    
-        if(!user)
-        return res.status(400).json({error:true,msg:'The user cannot be Updated!'})
-    
-        res.send(user);
+        return res.status(404).json({error:true, status: "FAILED", msg:"current password wrong"})
     }
 
+    const newPassword =  await bcrypt.hash(newPass,10);
+    const user = await User.findByIdAndUpdate(
+        req.params.id,
+        {
+            name:name,
+            phone:phone,
+            email:email,
+            password:newPassword,
+            images: images,
+        },
+        { new: true}
+    )
 
-
+    if(!user){
+        return res.status(400).json({error:true,  status: "FAILED", msg:'The user cannot be Updated!'})
+    }
+    return res.status(200).json({ error: false, status: "SUCCESS", msg: "Password updated successfully!" });
+    }catch(error){
+        console.error(error);
+    return res.status(500).json({ error: true, status: "FAILED", msg: "Internal server error" });
+    }
 })
-
 
 
 router.get(`/`, async (req, res) =>{
@@ -263,7 +257,6 @@ router.get('/:id', async(req,res)=>{
     
 })
 
-
 router.delete('/:id', (req, res)=>{
     User.findByIdAndDelete(req.params.id).then(user =>{
         if(user) {
@@ -275,8 +268,6 @@ router.delete('/:id', (req, res)=>{
        return res.status(500).json({success: false, error: err}) 
     })
 })
-
-
 
 
 router.get(`/get/count`, async (req, res) =>{
@@ -305,7 +296,8 @@ router.post(`/authWithGoogle`, async (req, res) => {
                 email:email,
                 password:password,
                 images:images,
-                isAdmin:isAdmin
+                isAdmin:isAdmin,
+                isVerified: true,
             });
 
     
@@ -471,9 +463,6 @@ router.delete('/deleteImage', async (req, res) => {
     }
       
 });
-
-
-
 
 
 module.exports = router;

@@ -655,6 +655,205 @@ color: #000;}
 .signUpPage .box{width: 500px;}
 
 
+.code-input {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin: 0 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.code-input:focus {
+  border-color: #583991;
+}
+
+.emailVerificationPage .box h2 {
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.emailVerificationPage .box .form-group {
+  margin-bottom: 15px;
+}
+
+.emailVerificationPage .btn-blue {
+  background: linear-gradient(90deg, #583991, #46277e);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.emailVerificationPage .btn-blue:hover {
+  background: linear-gradient(90deg, #46277e, #583991);
+}
+
+.forgotPasswordPage {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.forgotPasswordPage .shape-bottom {
+  position: absolute;
+  top: auto;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.forgotPasswordPage::after {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(#46277e, #583991);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.forgotPasswordPage .box {
+  width: 400px;
+  height: auto;
+  background: #fff;
+  margin: auto;
+  position: relative;
+  z-index: 100;
+  border-radius: 10px !important;
+}
+
+.forgotPasswordPage .box h2 {
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.forgotPasswordPage .box form {
+  padding: 20px 30px;
+}
+
+.forgotPasswordPage .box .form-group {
+  margin-bottom: 15px;
+}
+
+.forgotPasswordPage .box .txt {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.resetPasswordPage {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.resetPasswordPage .shape-bottom {
+  position: absolute;
+  top: auto;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.resetPasswordPage::after {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(#46277e, #583991);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.resetPasswordPage .box {
+  width: 400px;
+  height: auto;
+  background: #fff;
+  margin: auto;
+  position: relative;
+  z-index: 100;
+  border-radius: 10px !important;
+}
+
+.resetPasswordPage .box h2 {
+  font-size: 25px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.resetPasswordPage .box form {
+  padding: 20px 30px;
+}
+
+.resetPasswordPage .box .form-group {
+  margin-bottom: 15px;
+}
+
+.resetPasswordPage .box .txt {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.resetPasswordPage .box .border-effect {
+  position: relative;
+  color: #337ab7;
+  text-decoration: none;
+}
+
+.resetPasswordPage .box .border-effect::after {
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background-color: #337ab7;
+  content: "";
+  transition: width 0.2s;
+}
+
+.resetPasswordPage .box .border-effect:hover {
+  text-decoration: none;
+  color: #000;
+}
+
+.resetPasswordPage .box .border-effect:hover::after {
+  width: 100%;
+}
+
+.resetPasswordPage .box .btn-blue {
+  background-color: #337ab7;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.resetPasswordPage .box .btn-blue:hover {
+  background-color: #286090;
+}
+
+.resetPasswordPage .box .btn-lg {
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.resetPasswordPage .box .btn-big {
+  padding: 12px 24px;
+}
+
+
+
 .filterTabs .item{display: flex; align-items: center; justify-content: center; padding: 5px 10px !important; text-transform:capitalize; cursor: pointer; transition: all 0.2s;  font-size: 13px; font-weight: 700 !important;}
 
 .loadingOverlay{position: fixed; top: 0px; left: 0px; width: 100%; height:100%; z-index: 10000; cursor: wait; background: rgba(255,255,255,0.7);}

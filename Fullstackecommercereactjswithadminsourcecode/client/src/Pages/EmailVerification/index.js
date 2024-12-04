@@ -10,8 +10,8 @@ const EmailVerification = () => {
 	const [code, setCode] = useState(["", "", "", "", "", ""]);
     const inputRefs = useRef([])
     const history = useNavigate()
-	const [error, setError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+	
 
 	useEffect(() => {
 		context.setisHeaderFooterShow(false);
@@ -52,7 +52,7 @@ const EmailVerification = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 		setIsLoading(true)
-		setError(null)
+		
 		const verificationCode = code.join("")
 		if (verificationCode.length !== 6 || !/^\d+$/.test(verificationCode)) {
 			context.setAlertBox({
@@ -89,8 +89,6 @@ const EmailVerification = () => {
 		} finally {
 			setIsLoading(false);
 		}
-        
-        // alert(`Verification code submitted: ${verificationCode}`)
     } 
 
     useEffect(() => {
@@ -100,49 +98,61 @@ const EmailVerification = () => {
     }, [code])
 
     return(
-        <div className='max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'>
-			<motion.div
-				initial={{ opacity: 0, y: -50 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5 }}
-				className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md'
-			>
-				<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
-					Verify Your Email
-				</h2>
-				<p className='text-center text-gray-300 mb-6'>Enter the 6-digit code sent to your email address.</p>
+        <section className="section signInPage">
+            <div className="shape-bottom">
+                <svg
+                    fill="#fff"
+                    id="Layer_1"
+                    x="0px"
+                    y="0px"
+                    viewBox="0 0 1921 819.8"
+                    style={{ enableBackground: "new 0 0 1921 819.8" }}
+                >
+                    <path
+                        className="st0"
+                        d="M1921,413.1v406.7H0V0.5h0.4l228.1,598.3c30,74.4,80.8,130.6,152.5,168.6c107.6,57,212.1,40.7,245.7,34.4 c22.4-4.2,54.9-13.1,97.5-26.6L1921,400.5V413.1z"
+                    ></path>
+                </svg>
+            </div>
 
-				<form onSubmit={handleSubmit} className='space-y-6'>
-					<div className='flex justify-between'>
-						{code.map((digit, index) => (
-							<input
-								key={index}
-								ref={(el) => (inputRefs.current[index] = el)}
-								type='text'
-								maxLength='6'
-								value={digit}
-								onChange={(e) => handleChange(index, e.target.value)}
-								onKeyDown={(e) => handleKeyDown(index, e)}
-								className='w-12 h-12 text-center text-2xl font-bold bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:border-green-500 focus:outline-none'
-							/>
-						))}
-					</div>
-					{error && <p className='text-red-500 font-semibold mt-2'>{error}</p>}
-					<motion.button
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-						type='submit'
-						disabled={isLoading || code.some((digit) => !digit)}
-						className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg ${
-							isLoading || code.some((digit) => !digit) ? "opacity-50 cursor-not-allowed" : "hover:from-green-600 hover:to-emerald-700"
-						}`}
+            <div className="container">
+                <div className="box card p-3 shadow border-0">
+                    <h2 className="mb-3 text-center">Verify Your Email</h2>
+                    <p className="text-center text-muted mb-4">
+                        Enter the 6-digit code sent to your email address.
+                    </p>
 
-					>
-						{isLoading ? "Verifying..." : "Verify Email"}
-					</motion.button>
-				</form>
-			</motion.div>
-		</div>
+                    <form className="mt-2" onSubmit={handleSubmit}>
+                        <div className="form-group text-center">
+                            <div className="d-flex justify-content-center gap-2">
+                                {code.map((digit, index) => (
+                                    <input
+                                        key={index}
+                                        ref={(el) => (inputRefs.current[index] = el)}
+                                        type="text"
+                                        maxLength="6"
+                                        value={digit}
+                                        onChange={(e) => handleChange(index, e.target.value)}
+										onKeyDown={(e) => handleKeyDown(index, e)}
+                                        className="code-input"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="d-flex align-items-center mt-3 mb-3">
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="btn-blue w-100 btn-lg btn-big"
+                            >
+                                {isLoading ? "Verifying..." : "Verify Email"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
     )
 }
 
