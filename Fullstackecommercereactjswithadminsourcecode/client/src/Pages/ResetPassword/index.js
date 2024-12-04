@@ -10,7 +10,7 @@ const ResetPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
     const context = useContext(MyContext);
     const history = useNavigate();
-    const token = useParams()
+    const { token } = useParams()
 
     useEffect(() => {
         context.setisHeaderFooterShow(false);
@@ -73,7 +73,7 @@ const ResetPassword = () => {
                 });
 
                 setTimeout(() => {
-                    history("/singIn")
+                    history("/signIn")
                 }, 2000)
             } else{
                 context.setAlertBox({
@@ -169,76 +169,6 @@ const ResetPassword = () => {
             </div>
         </section>
 
-        // <section className="section resetPasswordPage">
-        //     <div className="shape-bottom">
-        //         <svg
-        //             fill="#fff"
-        //             id="Layer_1"
-        //             x="0px"
-        //             y="0px"
-        //             viewBox="0 0 1921 819.8"
-        //             style={{ enableBackground: "new 0 0 1921 819.8" }}
-        //         >
-        //             <path
-        //                 className="st0"
-        //                 d="M1921,413.1v406.7H0V0.5h0.4l228.1,598.3c30,74.4,80.8,130.6,152.5,168.6c107.6,57,212.1,40.7,245.7,34.4
-        //                 c22.4-4.2,54.9-13.1,97.5-26.6L1921,400.5V413.1z"
-        //             ></path>
-        //         </svg>
-        //     </div>
-
-        //     <div className="container">
-        //         <div className="box card p-3 shadow border-0">
-        //             <div className="text-center">
-        //                 <img src={Logo} alt="Logo" />
-        //             </div>
-
-        //             <form className="mt-3" onSubmit={handleSubmit}>
-        //                 <h2 className="mb-4">Reset Password</h2>
-
-        //                 <div className="form-group">
-        //                     <TextField
-        //                         id="password"
-        //                         label="New Password"
-        //                         type="password"
-        //                         required
-        //                         variant="standard"
-        //                         className="w-100"
-        //                         name="password"
-        //                         value={formfields.password}
-        //                         onChange={onchangeInput}
-        //                     />
-        //                 </div>
-        //                 <div className="form-group">
-        //                     <TextField
-        //                         id="confirmPassword"
-        //                         label="Confirm New Password"
-        //                         type="password"
-        //                         required
-        //                         variant="standard"
-        //                         className="w-100"
-        //                         name="confirmPassword"
-        //                         value={formfields.confirmPassword}
-        //                         onChange={onchangeInput}
-        //                     />
-        //                 </div>
-        //                 <div className="d-flex align-items-center mt-3 mb-3">
-        //                     <Button type="submit" className="btn-blue col btn-lg btn-big" disabled={isLoading}>
-        //                         {isLoading ? <CircularProgress size={24} /> : "Set New Password"}
-        //                     </Button>
-                                
-        //                 </div>
-
-
-        //                 <p className="txt">
-        //                     <Link to="/signIn" className="border-effect">
-        //                         Back To Sign In
-        //                     </Link>
-        //                 </p>
-        //             </form>
-        //         </div>
-        //     </div>
-        // </section>
     )
 };
 
