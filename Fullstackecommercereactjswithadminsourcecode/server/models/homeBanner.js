@@ -9,6 +9,10 @@ const homeBannerSchema = mongoose.Schema({
     ], 
     link: {
         type: String,
+    },
+    display: {
+        type: Boolean,
+        default: "true",
     }
 })
 

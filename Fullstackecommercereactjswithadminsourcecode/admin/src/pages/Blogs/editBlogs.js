@@ -56,6 +56,7 @@ const EditBlog = () => {
     author: "",
     tags: [],
     category: "",
+    catId: null,
     images: [],
     status: "draft",
     commentsCount: 0,
@@ -91,6 +92,7 @@ const EditBlog = () => {
           author: res?.data?.author,
           tags: res?.data?.tags,
           category: res?.data?.category,
+          catId: res?.data?.catId,
           images: res?.data?.images,
           status: res?.data?.status,
         });
@@ -103,6 +105,18 @@ const EditBlog = () => {
       ...formFields,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  // const handleChangeCategory = (event) => {
+  //   setcategoryVal(event.target.value);
+  //   setFormFields(() => ({
+  //     ...formFields,
+  //     category: event.target.value,
+  //   }));
+  // };
+  const selectCat = (cat, id) => {
+    formFields.category = cat;
+    formFields.catId = id;
   };
 
   let img_arr = [];
@@ -273,7 +287,29 @@ const EditBlog = () => {
 
         <div className="form-group">
           <h6>Category</h6>
-          <input type="text" name="category" value={formFields.category} onChange={handleChange} />
+          {formFields.category !== "" && (
+          <Select
+            value={formFields.category}
+            onChange={handleChange}
+            displayEmpty
+            inputProps={{ "aria-label": "Without label" }}
+            className="w-100"
+          >
+            {context.catData?.categoryList?.length !== 0 &&
+              context.catData?.categoryList?.map((cat, index) => {
+                return (
+                  <MenuItem
+                    className="text-capitalize"
+                    value={cat.name}
+                    key={index}
+                    onClick={() => selectCat(cat.name, cat._id)}
+                  >
+                    {cat.name}
+                  </MenuItem>
+                );
+              })}
+          </Select>
+        )}
         </div>
 
         <div className="form-group">

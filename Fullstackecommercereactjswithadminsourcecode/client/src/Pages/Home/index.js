@@ -1,4 +1,5 @@
 import HomeBanner from "../../Components/HomeBanner";
+import HomeSideBanner from "../../Components/HomeSideBanner";
 import Button from "@mui/material/Button";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import React, { useContext, useEffect, useState } from "react";
@@ -146,7 +147,8 @@ const Home = () => {
         <div className="container">
           <div className="row homeProductsRow">
             <div className="col-md-3">
-              <div className="sticky">
+              <HomeSideBanner data={homeSideBanners} col={3}/>
+              {/* <div className="sticky">
                 {homeSideBanners?.length !== 0 &&
                   homeSideBanners?.map((item, index) => {
                     return (
@@ -178,7 +180,7 @@ const Home = () => {
                     );
                   })}
 
-              </div>
+              </div> */}
             </div>
 
             <div className="col-md-9 productRow">

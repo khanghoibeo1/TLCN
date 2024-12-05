@@ -188,12 +188,13 @@ router.delete('/:id', async (req, res) => {
 
 
 router.put('/:id', async (req, res) => {
-
+    const banner = await HomeBanner.findById(req.params.id);
     const slideItem = await HomeBanner.findByIdAndUpdate(
         req.params.id,
         {
-            images: req.body.images,
-            link: req.body.link,
+            images: req.body.images || banner.images,
+            link: req.body.link || banner.link,
+            display: req.body.display ?? banner.display,
         },
         { new: true }
     )

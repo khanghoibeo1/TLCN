@@ -44,6 +44,8 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 
 const HomeSlidesList = () => {
   const [slideList, setSlideList] = useState([]);
+  // isDisplay ở đây là biến để kích hoạt useEffect là chủ yếu
+  const [isDisplay, setIsDisplay] = useState(true);
 
   const context = useContext(MyContext);
 
@@ -51,10 +53,11 @@ const HomeSlidesList = () => {
     window.scrollTo(0, 0);
     context.setProgress(20);
     fetchDataFromApi("/api/homeBanner").then((res) => {
+      setIsDisplay(res.display);
       setSlideList(res);
       context.setProgress(100);
     });
-  }, []);
+  }, [isDisplay]);
 
   const deleteSlide = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
@@ -80,6 +83,19 @@ const HomeSlidesList = () => {
         msg: "Only Admin can delete Home Slides",
       });
      }
+  };
+
+  const handleCheckboxChange = async (id, newDisplayValue) => {
+    try {
+      console.log(newDisplayValue);
+      editData(`/api/homeBanner/${id}`, { display: newDisplayValue }).then((res) => {
+      })
+      setIsDisplay(!newDisplayValue);
+      // Cập nhật lại trạng thái checkbox trong state (nếu có dùng state)
+      console.log("Post updated successfully:");
+    } catch (error) {
+      console.error("Error updating display status:", error);
+    }
   };
 
   return (
@@ -121,6 +137,7 @@ const HomeSlidesList = () => {
                 <tr>
                   <th style={{ width: "200px" }}>IMAGE</th>
                   <th>IMAGE LINK</th>
+                  <th>Display</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -152,6 +169,13 @@ const HomeSlidesList = () => {
                         </td>
 
                         <td>{item?.link}</td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={item.display} // Giá trị checkbox dựa trên trạng thái hiện tại
+                            onChange={() => handleCheckboxChange(item.id, !item.display)}
+                          />
+                        </td>
 
                         <td>
                           <div className="actions d-flex align-items-center">

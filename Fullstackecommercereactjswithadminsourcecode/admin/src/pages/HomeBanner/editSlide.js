@@ -211,6 +211,7 @@ const EditHomeSlide = () => {
     if (
       formFields.name !== "" &&
       formFields.color !== "" &&
+      formFields.link !== "" &&
       previews.length !== 0
     ) {
       setIsLoading(true);

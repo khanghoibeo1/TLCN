@@ -132,7 +132,9 @@ const Blog = () => {
         </div>
 
         {filteredPosts.length > 0 ? (
-          filteredPosts?.map((post) => (
+          filteredPosts
+          .filter((post) => post.status === 'published')
+          .map((post) => (
             <div key={post._id} className="post-card" onClick={() => handlePostClick(post.id)}>
               <h3>{post.title}</h3>
               <p>By {post.author}</p>

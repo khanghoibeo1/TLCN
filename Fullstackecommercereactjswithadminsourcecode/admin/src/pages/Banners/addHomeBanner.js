@@ -245,7 +245,7 @@ const handleChange = (e) => {
 
     formFields.images = appendedArray;
 
-    if (previews.length !== 0) {
+    if (previews.length !== 0 || formFields.link) {
       setIsLoading(true);
 
 

@@ -21,7 +21,11 @@ const bannersSchema = mongoose.Schema({
   }, 
   link: {
       type: String,
-  }
+  },
+  display: {
+    type: Boolean,
+    default: "true",
+}
 });
 
 bannersSchema.virtual("id").get(function () {

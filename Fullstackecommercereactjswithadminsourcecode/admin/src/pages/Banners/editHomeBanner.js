@@ -266,6 +266,9 @@ const EditBanner = () => {
 
     console.log(formFields);
     if (
+      formFields.name !== "" &&
+      formFields.color !== "" &&
+      formFields.link !== "" &&
       previews.length !== 0
     ) {
       setIsLoading(true);

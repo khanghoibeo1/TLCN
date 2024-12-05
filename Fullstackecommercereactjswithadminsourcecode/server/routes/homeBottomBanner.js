@@ -166,15 +166,17 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
+  const banner = await HomeBottomBanners.findById(req.params.id);
   const slideItem = await HomeBottomBanners.findByIdAndUpdate(
     req.params.id,
     {
-      images: req.body.images,
-      catId: req.body.catId,
-      catName:req.body.catName,
-      subCatId: req.body.subCatId,
-      subCatName:req.body.subCatName,
-      link: req.body.link,
+      images: req.body.images || banner.images,
+      catId: req.body.catId || banner.catId,
+      catName:req.body.catName || banner.catName,
+      subCatId: req.body.subCatId || banner.subCatId,
+      subCatName:req.body.subCatName || banner.subCatName,
+      link: req.body.link || banner.link,
+      display: req.body.display ?? banner.display
     },
     { new: true }
   );

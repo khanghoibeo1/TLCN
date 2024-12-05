@@ -1,4 +1,3 @@
-
 import React, { useContext } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -9,7 +8,12 @@ import { MyContext } from "../../App";
 const HomeBanner = (props) => {
 
     const context = useContext(MyContext);
+    
 
+
+    const ReRoute = (link) => {
+        window.open(link, "_blank");
+    }
     return (
         <div className="container mt-3">
             <div className="homeBannerSection">
@@ -31,7 +35,10 @@ const HomeBanner = (props) => {
                             return (
                                 <SwiperSlide key={index}>
                                     <div className="item">
-                                        <img src={item?.images[0]} className="w-100" />
+                                        {item.display && 
+                                            <img onClick = {() => ReRoute(item?.link)} src={item?.images[0]} className="w-100" />
+                                        }
+                                        
                                     </div>
                                 </SwiperSlide>
                             )

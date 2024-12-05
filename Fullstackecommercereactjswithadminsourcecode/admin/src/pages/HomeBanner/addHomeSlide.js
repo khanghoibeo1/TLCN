@@ -196,7 +196,7 @@ const AddHomeSlide = () => {
 
     formFields.images = appendedArray;
 
-    if (previews.length !== 0 ) {
+    if (previews.length !== 0 || formFields.link ) {
       setIsLoading(true);
 
       postData(`/api/homeBanner/create`, formFields).then((res) => {

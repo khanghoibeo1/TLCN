@@ -10,6 +10,10 @@ import { Link } from "react-router-dom";
 const Banners = (props) => {
   const context = useContext(MyContext);
 
+  const ReRoute = (link) => {
+    window.open(link, "_blank");
+  }
+
   return (
     <>
       <div className="bannerAds pt-3 pb-3">
@@ -46,28 +50,36 @@ const Banners = (props) => {
                 return (
                   <SwiperSlide key={index}>
                     <div className={`col_`}>
-                      {item?.subCatId !== null ? (
+                      {/* Kiểm tra xem item có cả subCatId và catId hay không */}
+                      {item?.subCatId || item?.catId ? (
                         <Link
-                          to={`/products/subCat/${item?.subCatId}`}
+                          to={
+                            item?.subCatId
+                              ? `/products/subCat/${item?.subCatId}`
+                              : `/products/category/${item?.catId}`
+                          }
                           className="box"
                         >
-                          <img
+                          {item.display && 
+                            <img
                             src={item?.images[0]}
                             className="w-100 transition"
                             alt="banner img"
-                          />
+                        />}
+                          
                         </Link>
                       ) : (
-                        <Link
-                          to={`/products/category/${item?.catId}`}
-                          className="box"
-                        >
-                          <img
+                        <div className="box">
+                          {item.display && 
+                            <img
+                            onClick = {() => ReRoute(item?.link)}
                             src={item?.images[0]}
                             className="w-100 transition"
                             alt="banner img"
                           />
-                        </Link>
+                          }
+                          
+                        </div>
                       )}
                     </div>
                   </SwiperSlide>
@@ -83,28 +95,36 @@ const Banners = (props) => {
               props?.data?.map((item, index) => {
                 return (
                    <div className={`col_`}>
-                      {item?.subCatId !== null ? (
+                      {item?.subCatId || item?.catId ? (
                         <Link
-                          to={`/products/subCat/${item?.subCatId}`}
+                          to={
+                            item?.subCatId
+                              ? `/products/subCat/${item?.subCatId}`
+                              : `/products/category/${item?.catId}`
+                          }
                           className="box"
                         >
-                          <img
+                          {item.display && 
+                            <img
                             src={item?.images[0]}
                             className="w-100 transition"
                             alt="banner img"
                           />
+                          }
+                          
                         </Link>
                       ) : (
-                        <Link
-                          to={`/products/category/${item?.catId}`}
-                          className="box"
-                        >
-                          <img
+                        <div className="box">
+                          {item.display && 
+                            <img
+                            onClick = {() => ReRoute(item?.link)}
                             src={item?.images[0]}
                             className="w-100 transition"
                             alt="banner img"
                           />
-                        </Link>
+                          }
+                          
+                        </div>
                       )}
                     </div>
                 );

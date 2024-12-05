@@ -18,7 +18,7 @@ const AddBlog = () => {
   const navigate = useNavigate();
   const context = useContext(MyContext);
   const [uploading, setUploading] = useState(false);
-  const [categoryVal, setCategoryVal] = useState("all");
+  const [categoryVal, setcategoryVal] = useState("all");
   const formdata = new FormData();
   const [formFields, setFormFields] = useState({
     title: "",
@@ -28,6 +28,7 @@ const AddBlog = () => {
     category: "",
     status: "draft",
     tags: [],
+    catId: null,
     commentsCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -54,21 +55,6 @@ const AddBlog = () => {
     const { name, value } = e.target;
     setFormFields({ ...formFields, [name]: value });
   };
-
-  // Xử lý chọn file ảnh
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const filePreviews = files.map((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviews((prev) => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
-      return file;
-    });
-    setImageFiles([...imageFiles, ...filePreviews]);
-  };
-
 
   let img_arr = [];
   let uniqueArray = [];
@@ -100,6 +86,15 @@ const AddBlog = () => {
     }
   };
 
+  const handleChangeCategory = (event) => {
+    setcategoryVal(event.target.value);
+    
+  };
+
+  const selectCat = (cat, id) => {
+    formFields.category = cat;
+    formFields.catId = id;
+  };
 
 
   const onChangeFile = async (e, apiEndPoint) => {
@@ -184,10 +179,10 @@ const AddBlog = () => {
     const appendedArray = [...previews, ...uniqueArray];
     img_arr = [];
     formFields.images = appendedArray;
-    console.log(appendedArray);
+    console.log(formFields);
 
 
-    if (!formFields.title || !formFields.content || !formFields.author || !formFields.category || !formFields.images || previews.length === 0) {
+    if (!formFields.title || !formFields.content || !formFields.author || !formFields.category || !formFields.images || !previews.length) {
       context.setAlertBox({
         open: true,
         msg: "Please fill all required fields and upload images",
@@ -253,7 +248,32 @@ const AddBlog = () => {
 
           <div className="form-group">
             <h6>Category</h6>
-            <input type="text" name="category" value={formFields.category} onChange={handleChange} />
+            {/* <input type="text" name="category" value={formFields.category} onChange={handleChange} /> */}
+            <Select
+              value={formFields.category}
+              name="category"
+              onChange={handleChange}
+              displayEmpty
+              inputProps={{ "aria-label": "Without label" }}
+              className="w-100"
+            >
+              <MenuItem value="">
+                <em value={null}>None</em>
+              </MenuItem>
+              {context.catData?.categoryList?.length !== 0 &&
+                context.catData?.categoryList?.map((cat, index) => {
+                  return (
+                    <MenuItem
+                      className="text-capitalize"
+                      value={cat.name}
+                      key={index}
+                      onClick={() => selectCat(cat.name, cat._id)}
+                    >
+                      {cat.name}
+                    </MenuItem>
+                  );
+                })}
+            </Select>
           </div>
 
           <div className="form-group">

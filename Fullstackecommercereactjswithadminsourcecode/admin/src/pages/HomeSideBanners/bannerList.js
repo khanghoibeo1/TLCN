@@ -44,6 +44,8 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 
 const BannersList = () => {
   const [slideList, setSlideList] = useState([]);
+  // isDisplay ở đây là biến để kích hoạt useEffect là chủ yếu
+  const [isDisplay, setIsDisplay] = useState(true);
 
   const context = useContext(MyContext);
 
@@ -51,10 +53,11 @@ const BannersList = () => {
     window.scrollTo(0, 0);
     context.setProgress(20);
     fetchDataFromApi("/api/homeSideBanners").then((res) => {
+      setIsDisplay(res.display);
       setSlideList(res);
       context.setProgress(100);
     });
-  }, []);
+  }, [isDisplay]);
 
   const deleteSlide = (id) => {
     
@@ -84,6 +87,19 @@ const BannersList = () => {
      }
     
    
+  };
+
+  const handleCheckboxChange = async (id, newDisplayValue) => {
+    try {
+      console.log(newDisplayValue);
+      editData(`/api/homeSideBanners/${id}`, { display: newDisplayValue }).then((res) => {
+      })
+      setIsDisplay(!newDisplayValue);
+      // Cập nhật lại trạng thái checkbox trong state (nếu có dùng state)
+      console.log("Post updated successfully:");
+    } catch (error) {
+      console.error("Error updating display status:", error);
+    }
   };
 
   return (
@@ -125,6 +141,9 @@ const BannersList = () => {
                 <tr>
                   <th style={{ width: "200px" }}>IMAGE</th>
                   <th>IMAGE LINK</th>
+                  <th>Category</th>
+                  <th>Sub Category</th>
+                  <th>Display</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -156,6 +175,15 @@ const BannersList = () => {
                         </td>
 
                         <td>{item?.link}</td>
+                        <td>{item?.catName}</td>
+                        <td>{item?.subCatName}</td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={item.display} // Giá trị checkbox dựa trên trạng thái hiện tại
+                            onChange={() => handleCheckboxChange(item.id, !item.display)}
+                          />
+                        </td>
 
                         <td>
                           <div className="actions d-flex align-items-center">

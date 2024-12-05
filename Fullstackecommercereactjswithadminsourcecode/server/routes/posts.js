@@ -173,7 +173,7 @@ router.get('/get/count', async (req, res) => {
 // Add a new post
 router.post('/create', async (req, res) => {
     try {
-        const { title, content, author, images, tags, category, status } = req.body;
+        const { title, content, author, images, tags, category, status, catId } = req.body;
         const images_Array = [];
         const uploadedImages = await ImageUpload.find();
         const images_Arr = uploadedImages?.map((item) => {
@@ -194,6 +194,7 @@ router.post('/create', async (req, res) => {
             images: images_Array,
             tags: Array.isArray(tags) ? tags : [],
             category,
+            catId,
             status,
             commentsCount: 0
         });
@@ -268,6 +269,7 @@ router.delete("/deleteImage", async (req, res) => {
         images: req.body.images,
         tags: req.body.tags,
         category: req.body.category,
+        catId: req.body.catId,
         status: req.body.status,
         commentsCount: req.body.commentsCount
       },
