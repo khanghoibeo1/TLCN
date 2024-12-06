@@ -1,9 +1,11 @@
 const { Orders } = require('../models/orders');
 
+
 const express = require('express');
 const router = express.Router();
 const paypal = require('@paypal/checkout-server-sdk');
 const  client  = require('../helper/paypal/paypal.config');
+const { User } = require('../models/user');
 
 router.get(`/`, async (req, res) => {
 
@@ -55,6 +57,10 @@ router.post('/create', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
         }
 
+        if (!amount || typeof amount !== 'number' || amount <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid amount.' });
+          }
+
         const newOrder = new Orders({
             name,
             phoneNumber,
@@ -70,6 +76,15 @@ router.post('/create', async (req, res) => {
         });
 
         const savedOrder = await newOrder.save();
+        const updatedUser = await User.findByIdAndUpdate(
+            userid,
+            { $inc: { totalSpent: amount } },
+            { new: true }
+          );
+      
+          if (!updatedUser) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+          }
         return res.status(201).json(savedOrder);
     }catch(error){
         console.error('Error while creating order:', error);

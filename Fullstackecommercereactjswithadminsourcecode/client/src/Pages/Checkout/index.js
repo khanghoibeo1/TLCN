@@ -67,9 +67,25 @@ const Checkout = () => {
 
   const checkout = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if(user.status === 'active'){
+      if (user.status !== "active") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "You are banned!",
+        });
+        return;
+      }
+    // const user = JSON.parse(localStorage.getItem("user"));
+    // if(user.status === 'active'){
       e.preventDefault();
-
+      if (!cartData || cartData.length === 0) {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Cart is empty!",
+        });
+        return;
+      }
       console.log(cartData);
 
       console.log(formFields);
@@ -184,7 +200,7 @@ const Checkout = () => {
       };
 
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    // const user = JSON.parse(localStorage.getItem("user"));
 
     const payLoad = {
       name: addressInfo.name,
@@ -196,10 +212,12 @@ const Checkout = () => {
       email: user.email,
       userid: user.userId,
       products: cartData,
-      date:addressInfo?.date
+      date:addressInfo?.date,
+      // totalSpent: user.totalSpent + parseInt(totalAmount),
     };
+    // localStorage.setItem("user", JSON.stringify(user));
 
-    user.totalSpent = user.totalSpent + parseInt(totalAmount);
+    // user.totalSpent = user.totalSpent + parseInt(totalAmount);
     console.log(payLoad)
       
     try {
@@ -208,7 +226,8 @@ const Checkout = () => {
       
       setOrderId(createdOrder._id);
 
-      
+      user.totalSpent = (user.totalSpent || 0) + parseInt(totalAmount);
+      localStorage.setItem("user", JSON.stringify(user));
 
       if (paymentMethod === "Paypal") {
           // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId
@@ -233,13 +252,13 @@ const Checkout = () => {
             msg: "Checkout failed. Please try again.",
         });
     }
-  }else {
-    context.setAlertBox({
-      open: true,
-      error: true,
-      msg: "You are banned! ",
-    });
-  }
+  // }else {
+  //   context.setAlertBox({
+  //     open: true,
+  //     error: true,
+  //     msg: "You are banned! ",
+  //   });
+  // }
 };
 
   // useEffect(() => {
