@@ -507,6 +507,12 @@ color: #000;}
 
 .productListing .productItem.three .img_rapper,.productListing .productItem.three .img_rapper .slick-slider,.productItem.three .img_rapper .slick-slider .slick-slide{height: 325px;}
 
+.product_Listing_Page .productListing .content_right .paginationContainer {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 20px !important;
+  width: 100%;
+}
 
 .section{padding: 45px 0px;}
 

@@ -23,38 +23,81 @@ router.get(`/`, async (req, res) => {
 
 
 router.post('/add', async (req, res) => {
-
-    const cartItem = await Cart.find({productId:req.body.productId, userId: req.body.userId});
-
-    if(cartItem.length===0){
-        let cartList = new Cart({
-            productTitle: req.body.productTitle,
-            image: req.body.image,
-            rating: req.body.rating,
-            price: req.body.price,
-            quantity: req.body.quantity,
-            subTotal: req.body.subTotal,
-            productId: req.body.productId,
-            userId: req.body.userId,
-            countInStock:req.body.countInStock,
-        });
-    
-    
-    
-        if (!cartList) {
-            res.status(500).json({
-                error: err,
-                success: false
-            })
+    try{
+        const {
+            productTitle,
+            image,
+            rating,
+            price,
+            quantity,
+            subTotal, // Mặc định là 1 nếu không có quantity
+            countInStock,
+            productId,
+            userId
+        } = req.body;
+        
+        console.log('Product ID received in backend', productId);
+        console.log('User ID sent from backtend:', userId);
+        const cartItem = await Cart.findOne({ productId, userId });
+        if (cartItem) {
+            // Nếu đã tồn tại, tăng số lượng
+            cartItem.quantity += quantity || 1; // Mặc định tăng thêm 1 nếu không có quantity
+            cartItem.subTotal = cartItem.price * cartItem.quantity; // Cập nhật subTotal
+            await cartItem.save();
+            return res.status(200).json({ success: true, message: "Product quantity updated in cart.", cartItem });
+        } else {
+            let cartList = new Cart({
+                productTitle,
+                image,
+                rating,
+                price,
+                quantity,
+                subTotal,
+                productId,
+                userId,
+                countInStock,
+            });
+            cartList = await cartList.save();
+            if (!cartList) {
+                return res.status(500).json({ success: false, message: "Failed to add product to cart." });
+            }
+            return res.status(201).json({ success: true, message: "Product added to cart.", cartItem: cartList});
         }
-    
-    
-        cartList = await cartList.save();
-    
-        res.status(201).json(cartList);
-    }else{
-        res.status(401).json({status:false,msg:"Product already added in the cart"})
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error.", error: error.message });
     }
+    
+
+    // if(cartItem.length===0){
+    //     let cartList = new Cart({
+    //         productTitle: req.body.productTitle,
+    //         image: req.body.image,
+    //         rating: req.body.rating,
+    //         price: req.body.price,
+    //         quantity: req.body.quantity,
+    //         subTotal: req.body.subTotal,
+    //         productId: req.body.productId,
+    //         userId: req.body.userId,
+    //         countInStock:req.body.countInStock,
+    //     });
+    
+    
+    
+    //     if (!cartList) {
+    //         res.status(500).json({
+    //             error: err,
+    //             success: false
+    //         })
+    //     }
+    
+    
+    //     cartList = await cartList.save();
+    
+    //     res.status(201).json(cartList);
+    // }else{
+    //     res.status(401).json({status:false,msg:"Product already added in the cart"})
+    // }
 
    
 
@@ -99,18 +142,19 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
 
+    const updateData = {
+        productTitle: req.body.productTitle,
+        image: req.body.image,
+        rating: req.body.rating,
+        price: req.body.price,
+        quantity: req.body.quantity,
+        subTotal: req.body.subTotal,
+        // countInStock: req.body.countInStock
+    };
+
     const cartList = await Cart.findByIdAndUpdate(
         req.params.id,
-        {
-            productTitle: req.body.productTitle,
-            image: req.body.image,
-            rating: req.body.rating,
-            price: req.body.price,
-            quantity: req.body.quantity,
-            subTotal: req.body.subTotal,
-            productId: req.body.productId,
-            userId: req.body.userId
-        },
+        updateData,
         { new: true }
     )
 

@@ -270,108 +270,189 @@ router.get(`/subCatId`, async (req, res) => {
 });
 
 router.get(`/fiterByPrice`, async (req, res) => {
-  let productList = [];
+  try {
+    const { minPrice, maxPrice, catId, subCatId, location, page = 1, perPage = 12 } = req.query;
 
-  if (req.query.catId !== "" && req.query.catId !== undefined) {
-    const productListArr = await Product.find({
-      catId: req.query.catId,
-    }).populate("category");
-
-    if (req.query.location !== "All") {
-      for (let i = 0; i < productListArr.length; i++) {
-        //console.log(productList[i].location)
-        for (let j = 0; j < productListArr[i].location.length; j++) {
-          if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
-          }
-        }
-      }
-    } else {
-      productList = productListArr;
+    // Xây dựng điều kiện lọc
+    let filter = {};
+    if (catId) filter.catId = catId;
+    if (subCatId) filter.subCatId = subCatId;
+    if (location && location !== "All") {
+      filter["location.value"] = location;
     }
-  } else if (req.query.subCatId !== "" && req.query.subCatId !== undefined) {
-    const productListArr = await Product.find({
-      subCatId: req.query.subCatId,
-    }).populate("category");
-
-    if (req.query.location !== "All") {
-      for (let i = 0; i < productListArr.length; i++) {
-        //console.log(productList[i].location)
-        for (let j = 0; j < productListArr[i].location.length; j++) {
-          if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
-          }
-        }
-      }
-    } else {
-      productList = productListArr;
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseInt(minPrice);
+      if (maxPrice) filter.price.$lte = parseInt(maxPrice);
     }
+
+    // Đếm tổng số sản phẩm phù hợp
+    const totalPosts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalPosts / perPage);
+
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(404).json({ message: "Page not found" });
+    }
+
+    // Lấy danh sách sản phẩm với phân trang
+    const products = await Product.find(filter)
+      .populate("category")
+      .skip((page - 1) * perPage)
+      .limit(parseInt(perPage))
+      .exec();
+
+    res.status(200).json({
+      products,
+      totalPages,
+      page: parseInt(page),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
   }
-
-  const filteredProducts = productList.filter((product) => {
-    if (req.query.minPrice && product.price < parseInt(+req.query.minPrice)) {
-      return false;
-    }
-    if (req.query.maxPrice && product.price > parseInt(+req.query.maxPrice)) {
-      return false;
-    }
-    return true;
-  });
-
-  return res.status(200).json({
-    products: filteredProducts,
-    totalPages: 0,
-    page: 0,
-  });
 });
+
+// router.get(`/fiterByPrice`, async (req, res) => {
+//   let productList = [];
+
+//   if (req.query.catId !== "" && req.query.catId !== undefined) {
+//     const productListArr = await Product.find({
+//       catId: req.query.catId,
+//     }).populate("category");
+
+//     if (req.query.location !== "All") {
+//       for (let i = 0; i < productListArr.length; i++) {
+//         //console.log(productList[i].location)
+//         for (let j = 0; j < productListArr[i].location.length; j++) {
+//           if (productListArr[i].location[j].value === req.query.location) {
+//             productList.push(productListArr[i]);
+//           }
+//         }
+//       }
+//     } else {
+//       productList = productListArr;
+//     }
+//   } else if (req.query.subCatId !== "" && req.query.subCatId !== undefined) {
+//     const productListArr = await Product.find({
+//       subCatId: req.query.subCatId,
+//     }).populate("category");
+
+//     if (req.query.location !== "All") {
+//       for (let i = 0; i < productListArr.length; i++) {
+//         //console.log(productList[i].location)
+//         for (let j = 0; j < productListArr[i].location.length; j++) {
+//           if (productListArr[i].location[j].value === req.query.location) {
+//             productList.push(productListArr[i]);
+//           }
+//         }
+//       }
+//     } else {
+//       productList = productListArr;
+//     }
+//   }
+
+//   const filteredProducts = productList.filter((product) => {
+//     if (req.query.minPrice && product.price < parseInt(+req.query.minPrice)) {
+//       return false;
+//     }
+//     if (req.query.maxPrice && product.price > parseInt(+req.query.maxPrice)) {
+//       return false;
+//     }
+//     return true;
+//   });
+
+//   return res.status(200).json({
+//     products: filteredProducts,
+//     totalPages: 0,
+//     page: 0,
+//   });
+// });
 
 router.get(`/rating`, async (req, res) => {
-  let productList = [];
+  try {
+    const { rating, catId, subCatId, location, page = 1, perPage = 12 } = req.query;
 
-  if (req.query.catId !== "" && req.query.catId !== undefined) {
-    const productListArr = await Product.find({
-      catId: req.query.catId,
-      rating: req.query.rating,
-    }).populate("category");
-
-    if (req.query.location !== "All") {
-      for (let i = 0; i < productListArr.length; i++) {
-        //console.log(productList[i].location)
-        for (let j = 0; j < productListArr[i].location.length; j++) {
-          if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
-          }
-        }
-      }
-    } else {
-      productList = productListArr;
+    // Xây dựng điều kiện lọc
+    let filter = { rating: rating };
+    if (catId) filter.catId = catId;
+    if (subCatId) filter.subCatId = subCatId;
+    if (location && location !== "All") {
+      filter["location.value"] = location;
     }
-  } else if (req.query.subCatId !== "" && req.query.subCatId !== undefined) {
-    const productListArr = await Product.find({
-      subCatId: req.query.subCatId,
-      rating: req.query.rating,
-    }).populate("category");
 
-    if (req.query.location !== "All") {
-      for (let i = 0; i < productListArr.length; i++) {
-        //console.log(productList[i].location)
-        for (let j = 0; j < productListArr[i].location.length; j++) {
-          if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
-          }
-        }
-      }
-    } else {
-      productList = productListArr;
+    // Đếm tổng số sản phẩm phù hợp
+    const totalPosts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalPosts / perPage);
+
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(404).json({ message: "Page not found" });
     }
+
+    // Lấy danh sách sản phẩm với phân trang
+    const products = await Product.find(filter)
+      .populate("category")
+      .skip((page - 1) * perPage)
+      .limit(parseInt(perPage))
+      .exec();
+
+    res.status(200).json({
+      products,
+      totalPages,
+      page: parseInt(page),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
   }
-
-  return res.status(200).json({
-    products: productList,
-    totalPages: 0,
-    page: 0,
-  });
 });
+
+// router.get(`/rating`, async (req, res) => {
+//   let productList = [];
+
+//   if (req.query.catId !== "" && req.query.catId !== undefined) {
+//     const productListArr = await Product.find({
+//       catId: req.query.catId,
+//       rating: req.query.rating,
+//     }).populate("category");
+
+//     if (req.query.location !== "All") {
+//       for (let i = 0; i < productListArr.length; i++) {
+//         //console.log(productList[i].location)
+//         for (let j = 0; j < productListArr[i].location.length; j++) {
+//           if (productListArr[i].location[j].value === req.query.location) {
+//             productList.push(productListArr[i]);
+//           }
+//         }
+//       }
+//     } else {
+//       productList = productListArr;
+//     }
+//   } else if (req.query.subCatId !== "" && req.query.subCatId !== undefined) {
+//     const productListArr = await Product.find({
+//       subCatId: req.query.subCatId,
+//       rating: req.query.rating,
+//     }).populate("category");
+
+//     if (req.query.location !== "All") {
+//       for (let i = 0; i < productListArr.length; i++) {
+//         //console.log(productList[i].location)
+//         for (let j = 0; j < productListArr[i].location.length; j++) {
+//           if (productListArr[i].location[j].value === req.query.location) {
+//             productList.push(productListArr[i]);
+//           }
+//         }
+//       }
+//     } else {
+//       productList = productListArr;
+//     }
+//   }
+
+//   return res.status(200).json({
+//     products: productList,
+//     totalPages: 0,
+//     page: 0,
+//   });
+// });
 
 router.get(`/get/count`, async (req, res) => {
   const productsCount = await Product.countDocuments();

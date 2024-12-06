@@ -62,8 +62,8 @@ const Cart = () => {
             cartFields.price = item?.price
             cartFields.quantity = quantityVal
             cartFields.subTotal = parseInt(item?.price * quantityVal)
-            cartFields.productId = item?.id
-            cartFields.userId = user?.userId
+            // cartFields.productId = item?.id
+            // cartFields.userId = user?.userId
 
             //console.log(item?._id)
 
