@@ -63,15 +63,13 @@ const Orders = () => {
                             <thead className='thead-light'>
                                 <tr>
                                     <th>Order Id</th>
-                                    <th>Paymant Id</th>
-                                    <th>Products</th>
                                     <th>Name</th>
                                     <th>Phone Number</th>
+                                    <th>Products</th>
+                                    <th>Payment Method</th>
                                     <th>Address</th>
                                     <th>Pincode</th>
                                     <th>Total Amount</th>
-                                    <th>Email</th>
-                                    <th>User Id</th>
                                     <th>Order Status</th>
                                     <th>Date</th>
                                 </tr>
@@ -83,17 +81,14 @@ const Orders = () => {
                                         return (
                                             <>
                                                 <tr key={index}>
-                                                 <td><span className='text-blue fonmt-weight-bold'>{order?.id}</span></td>
-                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.paymentId}</span></td>
-                                                    <td><span className='text-blue fonmt-weight-bold cursor' onClick={() => showProducts(order?._id)}>Click here to view</span>
-                                                    </td>
+                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.id}</span></td>
                                                     <td>{order?.name}</td>
                                                     <td>{order?.phoneNumber}</td>
+                                                    <td><span className='text-blue fonmt-weight-bold cursor' onClick={() => showProducts(order?._id)}>Click here to view</span></td>
+                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.payment}</span></td>
                                                     <td>{order?.address}</td>
                                                     <td>{order?.pincode}</td>
                                                     <td>{order?.amount}</td>
-                                                    <td>{order?.email}</td>
-                                                    <td>{order?.userid}</td>
                                                     <td>
                                                         {order?.status === "pending" ?
                                                             <span className='badge badge-danger'>{order?.status}</span> :

@@ -166,8 +166,8 @@ const ProductModal = (props) => {
 
                     <div className='col-md-7'>
                         <div className='d-flex info align-items-center mb-3'>
-                        <span className='oldPrice lg mr-2'>Rs: {props?.data?.oldPrice}</span>
-                            <span className='netPrice text-danger lg'>Rs: {props?.data?.price}</span>
+                            {/* <span className='oldPrice lg mr-2'>${props?.data?.oldPrice}</span> */}
+                            <span className='netPrice text-danger lg'>$: {props?.data?.price}</span>
                         </div>
 
                         <span className="badge bg-success">IN STOCK</span>

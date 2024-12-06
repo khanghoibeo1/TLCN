@@ -8,6 +8,10 @@ import { fetchDataFromApi, postData, deleteData, editData } from "../../utils/ap
 
 import { useNavigate } from "react-router-dom";
 
+import { PayPalButton } from "react-paypal-button-v2";
+
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+
 const Checkout = () => {
   const [formFields, setFormFields] = useState({
     fullName: "",
@@ -21,8 +25,11 @@ const Checkout = () => {
     email: "",
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [shippingMethod, setShippingMethod] = useState('');
   const [cartData, setCartData] = useState([]);
   const [totalAmount, setTotalAmount] = useState();
+  const [orderId, setOrderId] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -46,6 +53,13 @@ const Checkout = () => {
       ...formFields,
       [e.target.name]: e.target.value,
     }));
+
+    const { name, value } = e.target;
+    if (name === "paymentMethod"){ 
+      setPaymentMethod(value)
+      // console.log(value);
+    };
+    if (name === "shippingMethod") setShippingMethod(value);
   };
 
   const context = useContext(MyContext);
@@ -54,7 +68,7 @@ const Checkout = () => {
   const checkout = (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
     if(user.status === 'active'){
-      e.preventDefault();
+    e.preventDefault();
 
       console.log(cartData);
 
@@ -131,14 +145,31 @@ const Checkout = () => {
         return false;
       }
 
-      if (formFields.email === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill email",
-        });
-        return false;
-      }
+    if (formFields.email === "") {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please fill email",
+      });
+      return false;
+    }
+
+    if (!paymentMethod) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Select payment method!",
+      });
+      return false;
+    }
+    if (!shippingMethod) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Select shipping method!",
+      });
+      return false;
+    }
 
       const addressInfo = {
         name: formFields.fullName,
@@ -152,68 +183,101 @@ const Checkout = () => {
         }),
       };
 
-      var options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-        amount: parseInt(totalAmount * 100),
-        currency: "INR",
-        order_receipt: "order_rcptid_" + formFields.fullName,
-        name: "E-Bharat",
-        description: "for testing purpose",
-        handler: function (response) {
-          console.log(response);
 
-          const paymentId = response.razorpay_payment_id;
+    const user = JSON.parse(localStorage.getItem("user"));
 
-          const user = JSON.parse(localStorage.getItem("user"));
+    const payLoad = {
+      name: addressInfo.name,
+      phoneNumber: formFields.phoneNumber,
+      address: addressInfo.address,
+      pincode: addressInfo.pincode,
+      amount: parseInt(totalAmount),
+      payment: paymentMethod,
+      email: user.email,
+      userid: user.userId,
+      products: cartData,
+      date:addressInfo?.date
+    };
 
-          const payLoad = {
-            name: addressInfo.name,
-            phoneNumber: formFields.phoneNumber,
-            address: addressInfo.address,
-            pincode: addressInfo.pincode,
-            amount: parseInt(totalAmount),
-            paymentId: paymentId,
-            email: user.email,
-            userid: user.userId,
-            products: cartData,
-            date:addressInfo?.date
-          };
+    console.log(payLoad)
+      
+    try {
+      const createdOrder = await postData('/api/orders/create', payLoad);
+      console.log('Created Order:', createdOrder);
+      
+      setOrderId(createdOrder._id);
 
-          console.log(payLoad)
+      
 
-          user.totalSpent = user.totalSpent + parseInt(totalAmount);
-          postData(`/api/orders/create`, payLoad).then((res) => {
-              fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-              res?.length!==0 && res?.map((item)=>{
-                  deleteData(`/api/cart/${item?.id}`).then((res) => {
-                  })    
-              })
-                  setTimeout(()=>{
-                      context.getCartData();
-                  },1000);
-                  history("/orders");
-            });
-          
+      if (paymentMethod === "Paypal") {
+          // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId
+          context.setAlertBox({
+              open: true,
+              error: false,
+              msg: "Order created. Please proceed with PayPal payment.",
           });
-        },
+      } else {
+          // Xử lý Cash on Delivery
+          cartData.forEach(async (item) => {
+              await deleteData(`/api/cart/${item.id}`);
+          });
+          context.getCartData();
+          history("/orders");
+      }
+    } catch (error) {
+        console.error('Error during checkout:', error);
+        context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Checkout failed. Please try again.",
+        });
+    }
+  };
 
-        theme: {
-          color: "#3399cc",
-        },
-      };
+  // useEffect(() => {
+  //   console.log('Order ID updated:', orderId);
+  // }, [orderId]);
 
-      var pay = new window.Razorpay(options);
-      pay.open();
-    } else {
+  const createOrder = async (data, actions) => {
+    const response = await postData('/api/orders/create-paypal-order', {orderId});
+
+    if(response.id){
+      return response.id;
+    }else {
       context.setAlertBox({
         open: true,
         error: true,
-        msg: "You are banned! ",
+        msg: "Failed to create PayPal order. Please try again.",
       });
+      throw new Error("Failed to create PayPal order");
     }
+  }
+  const handleCapturePayPalOrder = async (paypalOrderId) => {
+    try {
+        const response = await postData('/api/orders/capture-paypal-order', { paypalOrderId, orderId });
+        if (response.success) {
+            // Xóa giỏ hàng
+            cartData.forEach(async (item) => {
+                await deleteData(`/api/cart/${item.id}`);
+            });
+            context.getCartData();
+            history("/orders");
+        } else {
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: "PayPal payment failed. Please try again.",
+            });
+        }
+    } catch (error) {
+        console.error('Error capturing PayPal order:', error);
+        context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "PayPal payment failed. Please try again.",
+        });
     }
-    
+  };
 
   return (
     <section className="section">
@@ -358,6 +422,38 @@ const Checkout = () => {
                 </div>
               </div>
             </div>
+            
+            <div className="row mt-4">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Payment Method *</label>
+                  <select
+                    name="paymentMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Payment Method</option>
+                    <option value="Paypal">PayPal</option>
+                    <option value="Cash on Delivery">Cash on Delivery</option>
+                  </select>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Shipping Method *</label>
+                  <select
+                    name="shippingMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Shipping Method</option>
+                    <option value="standard">Standard Shipping</option>
+                    <option value="express">Express Shipping</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
 
             <div className="col-md-4">
               <div className="card orderInfo">
@@ -384,7 +480,7 @@ const Checkout = () => {
                               <td>
                                 {item?.subTotal?.toLocaleString("en-US", {
                                   style: "currency",
-                                  currency: "INR",
+                                  currency: "USD",
                                 })}
                               </td>
                             </tr>
@@ -404,20 +500,40 @@ const Checkout = () => {
                             : 0
                           )?.toLocaleString("en-US", {
                             style: "currency",
-                            currency: "INR",
+                            currency: "USD",
                           })}
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+                
+                {paymentMethod === "Paypal" && orderId ? (
+                  <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
+                      <PayPalButtons
+                          style={{ layout: 'vertical' }}
+                          createOrder={createOrder}
+                          onApprove = { async (data, actions) => {
+                              await  handleCapturePayPalOrder(data.orderID)
+                          }}
+                          onError={(err) => {
+                              console.error('PayPal Checkout onError:', err);
+                              context.setAlertBox({
+                                  open: true,
+                                  error: true,
+                                  msg: "PayPal payment failed. Please try again.",
+                              });
+                          }}
+                      />
+                  </PayPalScriptProvider>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="btn-blue bg-red btn-lg btn-big">
+                      <IoBagCheckOutline /> &nbsp; Checkout
+                  </Button>
+                )}
 
-                <Button
-                  type="submit"
-                  className="btn-blue bg-red btn-lg btn-big"
-                >
-                  <IoBagCheckOutline /> &nbsp; Checkout
-                </Button>
               </div>
             </div>
           </div>

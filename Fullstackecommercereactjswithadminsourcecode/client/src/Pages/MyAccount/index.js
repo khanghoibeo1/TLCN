@@ -291,7 +291,7 @@ const MyAccount = () => {
           error: true,
           msg: "Password and confirm password not match",
         });
-      } else {
+      }else {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const data = {
@@ -305,11 +305,15 @@ const MyAccount = () => {
 
         editData(`/api/user/changePassword/${user.userId}`, data).then(
           (res) => {
-          
-          }
-        );
+              context.setAlertBox({
+                open: true,
+                error: false,
+                msg: "Password is changed"
+              })
+            })
+        }
       }
-    } else {
+      else {
       context.setAlertBox({
         open: true,
         error: true,
@@ -433,6 +437,7 @@ const MyAccount = () => {
                           label="Old Password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="oldPassword"
                           onChange={changeInput2}
                         />
@@ -445,6 +450,7 @@ const MyAccount = () => {
                           label="New password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="password"
                           onChange={changeInput2}
                         />
@@ -457,6 +463,7 @@ const MyAccount = () => {
                           label="Confirm Password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="confirmPassword"
                           onChange={changeInput2}
                         />

@@ -174,6 +174,14 @@ const ProductDetails = () => {
     if (activeSize !== null) {
       const user = JSON.parse(localStorage.getItem("user"));
 
+      if (productQuantity > productData.countInStock) {
+        context.setAlertBox({
+            open: true,
+            error: true,
+            msg: `Only ${productData.countInStock} items are available in stock.`,
+        });
+        return;
+     }
       cartFields.productTitle = productData?.name;
       cartFields.image = productData?.images[0];
       cartFields.rating = productData?.rating;
@@ -184,6 +192,7 @@ const ProductDetails = () => {
       cartFields.countInStock = productData?.countInStock;
       cartFields.userId = user?.userId;
 
+      console.log('Product ID sent from frontend:', cartFields.productId);
       context.addToCart(cartFields);
     } else {
       setTabError(true);
@@ -295,9 +304,9 @@ const ProductDetails = () => {
                 </ul>
 
                 <div className="d-flex info mb-3">
-                  {productData?.discount > 0 && (<span className="oldPrice">Rs: {productData?.oldPrice}</span>)}
+                  {productData?.discount > 0 && (<span className="oldPrice">$: {productData?.oldPrice}</span>)}
                   <span className="netPrice text-danger ml-2">
-                    Rs: {productData?.price}
+                    $: {productData?.price}
                   </span>
                 </div>
 
