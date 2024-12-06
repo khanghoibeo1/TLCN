@@ -105,13 +105,13 @@ const MyAccount = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
-      setUserData(res);
+      setUserData(res.data);
       setPreviews(res.images);
 
       setFormFields({
-        name: res.name,
-        email: res.email,
-        phone: res.phone,
+        name: res.data.name,
+        email: res.data.email,
+        phone: res.data.phone,
       });
     });
 
