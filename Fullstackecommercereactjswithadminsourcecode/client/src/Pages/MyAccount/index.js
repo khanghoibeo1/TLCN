@@ -106,7 +106,7 @@ const MyAccount = () => {
 
     fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
       setUserData(res.data);
-      setPreviews(res.images);
+      setPreviews(res.data.images);
 
       setFormFields({
         name: res.data.name,
