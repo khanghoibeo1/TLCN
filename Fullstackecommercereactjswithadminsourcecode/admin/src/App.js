@@ -147,6 +147,7 @@ function App() {
   const fetchCategory = () => {
     fetchDataFromApi("/api/category").then((res) => {
       setCatData(res);
+      console.log(res);
       setProgress(100);
     });
   };

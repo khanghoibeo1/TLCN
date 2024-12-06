@@ -1,0 +1,15 @@
+{
+    "general": {
+      "primaryColor": "#2A2A2A",
+      "secondaryColor": "#00FF00",
+      "showFooter": true
+    },
+    "header": {
+      "showAvatar": true,
+      "title": "SHOPIFY - ChatBot"
+    },
+    "botBubble": {
+      "simStream": true
+    }
+  }
+  

@@ -1,0 +1,31 @@
+.rcb-bot-avatar {
+  border-radius: 50%;
+  border: 2px solid #00ff00; /* Neon Green Glow around Avatar */
+}
+
+.rcb-options-container {
+  height: 41px;
+  background-color: #2a2a2a; /* Dark Metallic Gray */
+}
+
+.rcb-close-chat-icon::after {
+  background-color: transparent;
+  transition: none;
+}
+
+.rcb-checkbox-row-container:hover {
+  margin-top: 1px;
+  margin-left: 1px;
+  background-color: #333333; /* Darker Metallic Gray on Hover */
+  border: 1px solid #00ff00; /* Neon Green Glow on Hover */
+}
+
+.rcb-checkbox-next-button:hover {
+  margin-top: 1px;
+  margin-left: 1px;
+  background-color: #00ff00; /* Neon Green Glow on Hover */
+}
+
+.rcb-dot {
+  background-color: #00ffff; /* Cyan LED Glow for dots */
+}
