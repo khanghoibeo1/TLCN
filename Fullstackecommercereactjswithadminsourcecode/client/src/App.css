@@ -148,6 +148,30 @@ color: #000 !important; justify-content: flex-start !important; padding: 10px 20
 
 .close_ svg{font-size: 22px; color: #000 !important; opacity: 0.7;}
 
+/* Căn chỉnh Blog để ngang hàng với Category */
+.blog-item {
+  display: inline-flex; /* Đảm bảo cùng kiểu hiển thị */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  padding: 0 10px;
+}
+
+.blog-item a {
+  text-decoration: none;
+  color: #333; /* Màu chữ phù hợp */
+}
+
+.blog-item a Button {
+  background: transparent; /* Nền trong suốt giống các mục khác */
+  border: none; /* Loại bỏ viền */
+  font-size: 14px; /* Kích thước chữ */
+  display: flex;
+  align-items: center;
+}
+
+.blog-item a Button:hover {
+  color: #007bff; /* Thay đổi màu chữ khi hover */
+}
+
 
 nav .navPart1{max-width: 17%; flex: 0 0 17%;}
 nav .navPart2{max-width: 83%; flex: 0 0 83%;}

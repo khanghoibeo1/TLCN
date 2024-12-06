@@ -8,6 +8,7 @@ import { MyContext } from "../../../App";
 import CountryDropdown from "../../CountryDropdown";
 import Logo from "../../../assets/images/logo.jpg";
 import { RiLogoutCircleRFill } from "react-icons/ri";
+import { FaBlog } from "react-icons/fa";
 
 const Navigation = (props) => {
   const [isopenSidebarVal, setisopenSidebarVal] = useState(false);
@@ -134,7 +135,7 @@ const Navigation = (props) => {
                   .filter((item, idx) => idx < 7)
                   .map((item, index) => {
                     return (
-                      <li className="list-inline-item">
+                      <li className="list-inline-item ">
                         <Link
                           to={`/products/category/${item?._id}`}
                           onClick={props.closeNav}
@@ -187,9 +188,13 @@ const Navigation = (props) => {
                       </li>
                     );
                   })}
-                <li className="list-inline-item" onClick={props.closeNav}>
-                  <Link to="/blog">
-                    <Button>Blogs</Button>
+                <li className="list-inline-item blog-item" >
+                  <Link to="/blog" onClick={props.closeNav}>
+                    <Button>
+                      <span className="mr-2">
+                      </span>
+                      Blogs
+                    </Button>
                   </Link>
                 </li>
               </ul>

@@ -122,8 +122,7 @@ const Header = () => {
           <div className="top-strip bg-blue">
             <div className="container">
               <p className="mb-0 mt-0 text-center">
-                Due to the <b>COVID 19</b> epidemic, orders may be processed
-                with a slight delay
+                Welcome to ecommerce website <b>Shopify</b>
               </p>
             </div>
           </div>
