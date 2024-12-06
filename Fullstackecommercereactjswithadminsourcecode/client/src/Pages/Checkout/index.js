@@ -238,7 +238,8 @@ const Checkout = () => {
       error: true,
       msg: "You are banned! ",
     });
-  };
+  }
+};
 
   // useEffect(() => {
   //   console.log('Order ID updated:', orderId);
