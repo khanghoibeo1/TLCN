@@ -199,6 +199,7 @@ const Checkout = () => {
       date:addressInfo?.date
     };
 
+    user.totalSpent = user.totalSpent + parseInt(totalAmount);
     console.log(payLoad)
       
     try {
