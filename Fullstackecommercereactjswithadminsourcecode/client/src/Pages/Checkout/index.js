@@ -65,10 +65,10 @@ const Checkout = () => {
   const context = useContext(MyContext);
   const history = useNavigate();
 
-  const checkout = (e) => {
+  const checkout = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
     if(user.status === 'active'){
-    e.preventDefault();
+      e.preventDefault();
 
       console.log(cartData);
 
@@ -542,5 +542,6 @@ const Checkout = () => {
     </section>
   );
 };
+
 
 export default Checkout;
