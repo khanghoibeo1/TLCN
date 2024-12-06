@@ -249,17 +249,17 @@ const EditUser = () => {
 
         <div className="form-group">
           <h6>Name</h6>
-          <input type="text" name="name" value={formFields.name} onChange={handleChange} />
+          <input readOnly type="text" name="name" value={formFields.name} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <h6>Phone</h6>
-          <textarea rows={5} name="phone" value={formFields.phone} onChange={handleChange} />
+          <textarea readOnly rows={5} name="phone" value={formFields.phone} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <h6>Email</h6>
-          <input type="text" name="email" value={formFields.email} onChange={handleChange} />
+          <input readOnly type="text" name="email" value={formFields.email} onChange={handleChange} />
         </div>
         
         <div className="form-group">

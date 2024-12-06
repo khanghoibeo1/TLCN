@@ -81,6 +81,7 @@ const createCategories = (categories, parentId=null) => {
       images:cat.images,
       color:cat.color,
       slug: cat.slug,
+      parentId: cat.parentId,
       children: createCategories(categories, cat._id)
     });
   }
@@ -164,6 +165,7 @@ const createCat = (categories, parentId=null,cat) => {
     images:cat.images,
     color:cat.color,
     slug: cat.slug,
+    parentId: cat.parentId,
     children: category
   });
 

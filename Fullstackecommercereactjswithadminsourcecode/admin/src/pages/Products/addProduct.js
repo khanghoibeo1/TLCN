@@ -653,7 +653,9 @@ const ProductUpload = () => {
                           <em value={null}>None</em>
                         </MenuItem>
                         {subCatData?.length !== 0 &&
-                          subCatData?.map((subCat, index) => {
+                          subCatData
+                          .filter((subCat) => subCat.parentId === categoryVal)
+                          .map((subCat, index) => {
                             return (
                               <MenuItem
                                 className="text-capitalize"

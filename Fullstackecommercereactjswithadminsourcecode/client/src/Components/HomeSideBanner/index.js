@@ -18,7 +18,9 @@ const HomeSideBanner = (props) => {
     <>
         <div className="sticky">
         {props?.data.length !== 0 &&
-        props?.data.map((item, index) => {
+        props?.data
+        .filter(item => item.display)
+        .map((item, index) => {
             return (
             <div className="banner mb-3" key={index}>
                 {item?.subCatId || item?.catId ? (
