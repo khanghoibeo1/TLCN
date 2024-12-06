@@ -232,6 +232,12 @@ const Checkout = () => {
             msg: "Checkout failed. Please try again.",
         });
     }
+  }else {
+    context.setAlertBox({
+      open: true,
+      error: true,
+      msg: "You are banned! ",
+    });
   };
 
   // useEffect(() => {
