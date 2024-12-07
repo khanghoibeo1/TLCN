@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { emphasize, styled } from "@mui/material/styles";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Chip from "@mui/material/Chip";
+import SearchBox from '../../components/SearchBox';
 import HomeIcon from "@mui/icons-material/Home";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pagination from "@mui/material/Pagination";
@@ -105,6 +106,19 @@ const Orders = () => {
     });
   };
 
+  const onSearch = (keyword) => {
+    if (keyword !== "") {
+      fetchDataFromApi(`/api/search/order?q=${keyword}`).then((res) => {
+        setOrders(res);
+      });
+    } else {
+      fetchDataFromApi(`/api/orders`).then((res) => {
+        setOrders(res);
+        console.log(orders);
+      });
+    }
+  };
+
   //   const orderStatus = (orderStatus, id) => {
   //     fetchDataFromApi(`/api/orders/${id}`).then((res) => {
   //       const order = {
@@ -162,6 +176,11 @@ const Orders = () => {
 
         <div className="card shadow border-0 p-3 mt-4">
           <div className="table-responsive mt-3 orderTable">
+          <div className="col-md-6 d-flex justify-content-end">
+              <div className="searchWrap d-flex  pb-4">
+                <SearchBox onSearch={onSearch} />
+              </div>
+            </div>
             <table className="table table-bordered table-striped v-align">
               <thead className="thead-dark">
                 <tr>
