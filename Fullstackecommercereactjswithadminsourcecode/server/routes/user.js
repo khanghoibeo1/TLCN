@@ -198,30 +198,26 @@ router.post(`/verify-email`, async(req, res) => {
 
 router.put(`/changePassword/:id`, async (req, res) => {
    try{
-    const { name, phone, email, password, newPass, images } = req.body;
+    const { email, password, newPass} = req.body;
 
-   // console.log(req.body)
+//    console.log(req.body)
 
     const existingUser = await User.findOne({ email: email });
     if(!existingUser){
-        return res.status(404).json({error:true, status: "FAILED", msg:"User not found!"})
+        return res.status(400).json({error:true, status: "FAILED", msg:"User not found!"})
     }
 
     const matchPassword = await bcrypt.compare(password, existingUser.password);
 
     if(!matchPassword){
-        return res.status(404).json({error:true, status: "FAILED", msg:"current password wrong"})
+        return res.status(400).json({error:true, status: "FAILED", msg:"current password wrong"})
     }
 
     const newPassword =  await bcrypt.hash(newPass,10);
     const user = await User.findByIdAndUpdate(
         req.params.id,
         {
-            name:name,
-            phone:phone,
-            email:email,
             password:newPassword,
-            images: images,
         },
         { new: true}
     )
@@ -232,7 +228,7 @@ router.put(`/changePassword/:id`, async (req, res) => {
     return res.status(200).json({ error: false, status: "SUCCESS", msg: "Password updated successfully!" });
     }catch(error){
         console.error(error);
-    return res.status(500).json({ error: true, status: "FAILED", msg: "Internal server error" });
+        return res.status(500).json({ error: true, status: "FAILED", msg: "Internal server error" });
     }
 })
 

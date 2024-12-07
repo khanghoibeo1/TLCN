@@ -295,24 +295,19 @@ const MyAccount = () => {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const data = {
-          name: user?.name,
           email: user?.email,
           password: fields.oldPassword,
           newPass: fields.password,
-          phone: formFields.phone,
-          images: formFields.images,
         };
 
         editData(`/api/user/changePassword/${user.userId}`, data).then(
           (res) => {
-              context.setAlertBox({
-                open: true,
-                error: false,
-                msg: "Password is changed"
-              })
-            })
-        }
-      }
+                context.setAlertBox({
+                  open: true,
+                  error: false,
+                  msg: "Password is changed"
+              }) 
+      })}}
       else {
       context.setAlertBox({
         open: true,
