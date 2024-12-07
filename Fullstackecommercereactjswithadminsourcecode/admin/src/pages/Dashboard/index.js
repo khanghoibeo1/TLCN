@@ -130,7 +130,7 @@ const Dashboard = () => {
     <>
       <div className="right-content w-100">
         <div className="row dashboardBoxWrapperRow dashboard_Box dashboardBoxWrapperRowV2">
-          <div className="col-md-12">
+          <div className="col-md-12 ml-4">
             <div className="dashboardBoxWrapper d-flex">
               <DashboardBox
                 color={["#1da256", "#48d483"]}
@@ -222,7 +222,7 @@ const Dashboard = () => {
             {/* Row 2 */}
             <div className="row mt-4 d-flex justify-content-between">
               <div className="col-md-4">
-                <div className=" bg-dark p-3">
+                <div className="box bg-dark p-3">
                   <h6 className="text-white mb-3">Order Status</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
@@ -282,7 +282,7 @@ const Dashboard = () => {
             </div>
 
             {/* Row 3 */}
-            <div className="row mt-4 d-flex justify-content-between">
+            <div className="row mt-2 d-flex justify-content-between">
               <div className="col-md-7 mt-4 ">
                 <div className="box p-3 bg-dark">
                       <h6 className="text-white mb-3">Top 10 Users</h6>
@@ -298,7 +298,7 @@ const Dashboard = () => {
                     </div>
               </div>
               <div className="col-md-5 mt-4 pl-0">
-                <div className=" p-3 bg-dark">
+                <div className="box p-3 bg-dark">
                     <h6 className="text-white mb-3">Product Rating Stats</h6>
                     <ResponsiveContainer width="95%" height={350}>
                       <BarChart data={reviewStatsData} layout="vertical">
