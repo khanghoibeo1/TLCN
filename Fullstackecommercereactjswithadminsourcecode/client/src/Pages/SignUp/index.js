@@ -56,7 +56,7 @@ const SignUp = () => {
     console.log(formfields);
     e.preventDefault();
     const phoneRegex = /^[0-9]{10}$/; // 10 chữ số
-    const nameRegex = /^[A-Za-z\s]+$/; // Chỉ chứa chữ cái và khoảng trắng
+    const nameRegex = /^[\p{L}\s]+$/u; // Chỉ chứa chữ cái và khoảng trắng
     try {
       if (!formfields.name.match(nameRegex)) {
         context.setAlertBox({

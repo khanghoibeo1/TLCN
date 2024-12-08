@@ -12,6 +12,7 @@ import {
   deleteData,
   deleteImages,
   editData,
+  editData2,
   fetchDataFromApi,
   postData,
   uploadImage,
@@ -300,13 +301,22 @@ const MyAccount = () => {
           newPass: fields.password,
         };
 
-        editData(`/api/user/changePassword/${user.userId}`, data).then(
+        editData2(`/api/user/changePassword/${user.userId}`, data).then(
           (res) => {
+            console.log(res);
+            if(res.status === "SUCCESS"){
                 context.setAlertBox({
                   open: true,
                   error: false,
-                  msg: "Password is changed"
-              }) 
+                  msg: res.msg || "Password is changed"
+              })
+            }else {
+              context.setAlertBox({
+                open: true,
+                error: true,
+                msg: res.msg || "Change password failed"
+              })
+            } 
       })}}
       else {
       context.setAlertBox({

@@ -83,7 +83,7 @@ router.post(`/signup`, async (req, res) => {
 
      // Validation rules
     const phoneRegex = /^[0-9]{10}$/;
-    const nameRegex = /^[A-Za-z\s]+$/;
+    const nameRegex = /^[\p{L}\s]+$/u;
 
     if (!name.match(nameRegex)) {
         return res.json({ status: "FAILED", msg: "Name should only contain letters!" });
@@ -222,13 +222,15 @@ router.put(`/changePassword/:id`, async (req, res) => {
     if(!existingUser){
         return res.status(400).json({error:true, status: "FAILED", msg:"User not found!"})
     }
-
+    
     const matchPassword = await bcrypt.compare(password, existingUser.password);
 
     if(!matchPassword){
         return res.status(400).json({error:true, status: "FAILED", msg:"current password wrong"})
     }
-
+    if (newPass.length < 6) {
+        return res.status(400).json({ error:true, status: "FAILED", msg: "Password must be at least 6 characters long!" });
+    }
     const newPassword =  await bcrypt.hash(newPass,10);
     const user = await User.findByIdAndUpdate(
         req.params.id,
