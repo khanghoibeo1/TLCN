@@ -81,7 +81,7 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    postData("/api/user/signin", formfields).then((res) => {
+    postData("/api/user/admin", formfields).then((res) => {
       try {
         if (res.error !== true) {
           localStorage.setItem("token", res.token);

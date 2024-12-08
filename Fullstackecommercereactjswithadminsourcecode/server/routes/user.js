@@ -250,7 +250,8 @@ router.get('/', async (req, res) => {
     const locationFilter = req.query.location;
 
     try {
-        const totalUsers = await User.countDocuments();
+        const query = { isAdmin: false };
+        const totalUsers = await User.countDocuments(query);
         const totalPages = Math.ceil(totalUsers / perPage);
 
         if (page > totalUsers) {
@@ -260,7 +261,7 @@ router.get('/', async (req, res) => {
         let users = [];
 
         if (locationFilter) {
-            const allUsers = await User.find()
+            const allUsers = await User.find(query)
                 .populate("name")
                 .exec();
 
@@ -268,7 +269,7 @@ router.get('/', async (req, res) => {
                 user.location && user.location.some(loc => loc.value === locationFilter)
             ).slice((page - 1) * perPage, page * perPage);
         } else {
-            users = await User.find()
+            users = await User.find(query)
                 .populate("name")
                 .skip((page - 1) * perPage)
                 .limit(perPage)
@@ -500,6 +501,40 @@ router.get('/get/data/user-spent', async (req, res) => {
   });
   
 
+router.post(`/admin`, async (req, res) => {
+    const {email, password} = req.body;
 
+    try{
+
+        const existingUser = await User.findOne({ email: email });
+        if(!existingUser){
+            res.status(404).json({error:true, msg:"User not found!"})
+            return;
+        }
+        if(!existingUser.isVerified) {
+            res.status(400).json({error:true, msg:"Email is not verify!"})
+            return;
+        }
+        const matchPassword = await bcrypt.compare(password, existingUser.password);
+        if(!matchPassword){
+            return res.status(400).json({error:true,msg:"Invailid credentials"})
+        }
+
+        const token = jwt.sign({email:existingUser.email, id: existingUser._id}, process.env.JSON_WEB_TOKEN_SECRET_KEY);
+
+
+       return res.status(200).send({
+            user:existingUser,
+            token:token,
+            msg:"user Authenticated"
+        })
+
+    }catch (error) {
+        res.status(500).json({error:true,msg:"something went wrong"});
+        return;
+    }
+
+
+})
 
 module.exports = router;

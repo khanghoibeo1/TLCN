@@ -226,8 +226,8 @@ const Checkout = () => {
       
       setOrderId(createdOrder._id);
 
-      user.totalSpent = (user.totalSpent || 0) + parseInt(totalAmount);
-      localStorage.setItem("user", JSON.stringify(user));
+      // user.totalSpent = (user.totalSpent || 0) + parseInt(totalAmount);
+      // localStorage.setItem("user", JSON.stringify(user));
 
       if (paymentMethod === "Paypal") {
           // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId

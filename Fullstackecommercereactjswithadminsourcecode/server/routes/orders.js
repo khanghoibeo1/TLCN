@@ -10,19 +10,39 @@ const { User } = require('../models/user');
 router.get(`/`, async (req, res) => {
 
     try {
-    
+        const { page = 1, limit = 10, q } = req.query;
 
-        const ordersList = await Orders.find(req.query)
+        // Chuyển đổi sang số nguyên
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
 
+        const searchQuery = q
+            ? {
+                $or: [
+                    { name: { $regex: q, $options: "i" } }, // Tìm theo tên
+                    { email: { $regex: q, $options: "i" } }, // Tìm theo email
+                    { phoneNumber: { $regex: q, $options: "i" } }, // Tìm theo số điện thoại
+                ],
+            }
+            : {};
 
-        if (!ordersList) {
-            res.status(500).json({ success: false })
-        }
+        // Lấy danh sách hóa đơn, phân trang và sắp xếp
+        const ordersList = await Orders.find(searchQuery)
+            .sort({ date: -1 }) // Sắp xếp theo ngày mới nhất
+            .skip((pageInt - 1) * limitInt) // Bỏ qua các hóa đơn trước trang hiện tại
+            .limit(limitInt); // Lấy số lượng hóa đơn theo limit
 
-        return res.status(200).json(ordersList);
+        const totalOrders = await Orders.countDocuments(searchQuery); // Tổng số hóa đơn
 
+        return res.status(200).json({
+            orders: ordersList,
+            currentPage: pageInt,
+            totalPages: Math.ceil(totalOrders / limitInt),
+            totalOrders,
+        });
     } catch (error) {
-        res.status(500).json({ success: false })
+        console.error('Error fetching orders:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 });
 
@@ -76,15 +96,6 @@ router.post('/create', async (req, res) => {
         });
 
         const savedOrder = await newOrder.save();
-        const updatedUser = await User.findByIdAndUpdate(
-            userid,
-            { $inc: { totalSpent: amount } },
-            { new: true }
-          );
-      
-          if (!updatedUser) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-          }
         return res.status(201).json(savedOrder);
     }catch(error){
         console.error('Error while creating order:', error);
@@ -386,5 +397,85 @@ router.get("/get/data/stats/sales", async (req, res) => {
       res.status(500).json({ message: "Error fetching sales data", error });
     }
   });
+
+  router.put('/client-update/:id', async (req, res) => {
+    try {
+        const { status } = req.body; // Client chỉ cập nhật status
+        const order = await Orders.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found.' });
+        }
+
+        // Kiểm tra logic trạng thái từ phía client
+        // pending -> cancel (nếu payment=COD)
+        if (order.status === 'pending' && order.payment === 'Cash on Delivery' && status === 'cancel') {
+            order.status = 'cancel';
+            await order.save();
+            return res.status(200).json(order);
+        }
+
+        // verify -> paid
+        if (order.status === 'verify' && status === 'paid') {
+            order.status = 'paid';
+            await order.save();
+            // Cập nhật totalSpent khi order chuyển sang paid
+            const updatedUser = await User.findByIdAndUpdate(
+                order.userid,
+                { $inc: { totalSpent: order.amount } },
+                { new: true }
+            );
+            
+            return res.status(200).json({
+                success: true,
+                message: 'Order paid successfully!',
+                order,
+                updatedUser
+            });
+            // return res.status(200).json(order);
+        }
+
+        // Nếu đã là cancel hoặc paid thì không cập nhật được nữa
+        if (order.status === 'cancel' || order.status === 'paid') {
+            return res.status(400).json({ success: false, message: 'Cannot update a cancelled or paid order.' });
+        }
+        
+        // Nếu request cập nhật status không phù hợp logic
+        return res.status(400).json({ success: false, message: 'Invalid status transition.' });
+
+    } catch (error) {
+        console.error('Order cannot be updated by client!', error);
+        return res.status(500).json({ success: false, message: 'Server error.' });
+    }
+});
+
+router.put('/admin-update/:id', async (req, res) => {
+  try {
+      const { status } = req.body; // Admin chỉ cập nhật status
+      const order = await Orders.findById(req.params.id);
+
+      if (!order) {
+          return res.status(404).json({ success: false, message: 'Order not found.' });
+      }
+
+      // pending -> verify
+      if (order.status === 'pending' && status === 'verify') {
+          order.status = 'verify';
+          await order.save();
+          return res.status(200).json(order);
+      }
+
+      // Nếu order đã là verify, cancel, paid => admin không cập nhật nữa
+      if (['verify', 'cancel', 'paid'].includes(order.status)) {
+          return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
+      }
+
+      return res.status(400).json({ success: false, message: 'Invalid status transition.' });
+
+  } catch (error) {
+      console.error('Order cannot be updated by admin!', error);
+      return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
 module.exports = router;
 

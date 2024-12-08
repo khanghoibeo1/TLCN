@@ -62,6 +62,7 @@ const Navigation = (props) => {
                 }`}
               >
                 <ul>
+                
                   {props.navData?.map((item, index) => {
                     return (
                       <li>
@@ -125,11 +126,15 @@ const Navigation = (props) => {
                   </>
                 )}
                 {
-                  //   <li className="list-inline-item" onClick={props.closeNav}>
-                  //   <Link to="/">
-                  //     <Button>Home</Button>
-                  //   </Link>
-                  // </li>
+                  <li className="list-inline-item blog-item" >
+                    <Link to="/" onClick={props.closeNav}>
+                      <Button>
+                        <span className="mr-2">
+                        </span>
+                        Home
+                      </Button>
+                    </Link>
+                  </li>
                 }
                 {props.navData
                   .filter((item, idx) => idx < 7)
