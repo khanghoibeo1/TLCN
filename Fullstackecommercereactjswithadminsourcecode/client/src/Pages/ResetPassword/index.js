@@ -4,10 +4,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { postData } from "../../utils/api";
 import { TextField, Button, CircularProgress } from "@mui/material";
 import Logo from "../../assets/images/logo.jpg";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const ResetPassword = () => {
 
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const context = useContext(MyContext);
     const history = useNavigate();
     const { token } = useParams()
@@ -22,6 +25,10 @@ const ResetPassword = () => {
         confirmPassword: "",
     });
 
+    const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+    const toggleConfirmPasswordVisibility = () =>
+        setShowConfirmPassword((prev) => !prev);
+
     const onchangeInput = (e) => {
         setFormfields(() => ({
             ...formfields,
@@ -35,24 +42,15 @@ const ResetPassword = () => {
 
         const {password, confirmPassword} = formfields;
         
-        if (password === "") {
+        if (password.length < 6) {
             context.setAlertBox({
               open: true,
               error: true,
-              msg: "password can not be blank!",
+              msg: "Password must be at least 6 characters!",
             });
             setIsLoading(false);
             return;
-        }
-        if (confirmPassword === "") {
-            context.setAlertBox({
-              open: true,
-              error: true,
-              msg: "confirmpassword can not be blank!",
-            });
-            setIsLoading(false);
-            return;
-        }
+          }
         if (password !== confirmPassword){
             context.setAlertBox({
                 open: true,
@@ -94,7 +92,7 @@ const ResetPassword = () => {
     }
 
     return(
-        <section className="section resetPasswordPage">
+        <section className="section signInPage resetPasswordPage">
             <div className="shape-bottom">
                 <svg
                 fill="#fff"
@@ -121,11 +119,11 @@ const ResetPassword = () => {
                     <form className="mt-2" onSubmit={handleSubmit}>
                         <h2 className="mb-3">Reset Password</h2>
 
-                        <div className="form-group">
+                        <div className="form-group password-input-container">
                             <TextField
                                 id="password"
                                 label="New Password"
-                                type="password"
+                                type={showPassword ? "text" : "password"} // Conditional type
                                 required
                                 variant="standard"
                                 className="w-100"
@@ -133,13 +131,19 @@ const ResetPassword = () => {
                                 value={formfields.password}
                                 onChange={onchangeInput}
                             />
-                        </div>
+                            <span
+                                className="password-toggle"
+                                onClick={togglePasswordVisibility}
+                            >
+                                {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                            </span>
+                            </div>
 
-                        <div className="form-group">
+                            <div className="form-group password-input-container">
                             <TextField
                                 id="confirmPassword"
                                 label="Confirm New Password"
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"} // Conditional type
                                 required
                                 variant="standard"
                                 className="w-100"
@@ -147,7 +151,13 @@ const ResetPassword = () => {
                                 value={formfields.confirmPassword}
                                 onChange={onchangeInput}
                             />
-                        </div>
+                            <span
+                                className="password-toggle"
+                                onClick={toggleConfirmPasswordVisibility}
+                            >
+                                {showConfirmPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                            </span>
+                            </div>
 
                         <div className="d-flex align-items-center mt-3 mb-3">
                             <Button

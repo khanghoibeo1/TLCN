@@ -81,6 +81,22 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 router.post(`/signup`, async (req, res) => {
     const { name, phone, email, password, isAdmin } = req.body;
 
+     // Validation rules
+    const phoneRegex = /^[0-9]{10}$/;
+    const nameRegex = /^[A-Za-z\s]+$/;
+
+    if (!name.match(nameRegex)) {
+        return res.json({ status: "FAILED", msg: "Name should only contain letters!" });
+    }
+
+    if (!phone.match(phoneRegex)) {
+        return res.json({ status: "FAILED", msg: "Phone number must be 10 digits and contain only numbers!" });
+    }
+
+    if (password.length < 6) {
+        return res.json({ status: "FAILED", msg: "Password must be at least 6 characters long!" });
+    }
+
     try {
 
         const existingUser = await User.findOne({ email: email });

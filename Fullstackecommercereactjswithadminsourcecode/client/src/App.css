@@ -666,6 +666,17 @@ color: #000;}
   z-index: -1;
 }
 
+.signInPage .password-input-container {
+  position: relative;
+}
+
+.signInPage .password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
 
 .border-effect{position:relative;color:#337ab7;text-decoration:none}.border-effect:after{display:block;position:absolute;left:0;bottom:-2px;width:0;height:1px;background-color:#102a44;content:"";-webkit-transition:.2s;-moz-transition:.2s;-o-transition:.2s;transition:.2s}.border-effect:hover{text-decoration:none;color:#000}.border-effect:hover:after{width:100%}
 
