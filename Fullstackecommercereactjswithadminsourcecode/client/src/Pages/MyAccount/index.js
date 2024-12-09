@@ -243,6 +243,7 @@ const MyAccount = () => {
     formdata.append("phone", formFields.phone);
 
     formdata.append("images", appendedArray);
+    console.log(formdata);
 
     formFields.images = appendedArray;
 
@@ -255,17 +256,22 @@ const MyAccount = () => {
       setIsLoading(true);
       const user = JSON.parse(localStorage.getItem("user"));
 
-      editData(`/api/user/${user?.userId}`, formFields).then((res) => {
-        // console.log(res);
+      editData2(`/api/user/${user?.userId}`, formFields).then((res) => {
+        console.log(res?.status);
         setIsLoading(false);
 
         deleteData("/api/imageUpload/deleteAllImages");
-
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "user updated",
-        });
+        if(res?.status === "SUCCESS"){
+          context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "user updated",
+        })}else {
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: res?.msg,
+        })}
       });
     } else {
       context.setAlertBox({
@@ -278,6 +284,7 @@ const MyAccount = () => {
   };
 
   const changePassword = (e) => {
+    setValue(1)
     e.preventDefault();
     formdata.append("password", fields.password);
 
@@ -300,21 +307,20 @@ const MyAccount = () => {
           password: fields.oldPassword,
           newPass: fields.password,
         };
-
-        editData2(`/api/user/changePassword/${user.userId}`, data).then(
+        editData2(`/api/user/changePassword/${user?.userId}`, data).then(
           (res) => {
-            console.log(res);
-            if(res.status === "SUCCESS"){
+            console.log(res?.length);
+            if(res?.status === "SUCCESS"){
                 context.setAlertBox({
                   open: true,
                   error: false,
-                  msg: res.msg || "Password is changed"
+                  msg: res?.msg || "Password is changed"
               })
             }else {
               context.setAlertBox({
                 open: true,
                 error: true,
-                msg: res.msg || "Change password failed"
+                msg: res?.msg || "Change password failed"
               })
             } 
       })}}

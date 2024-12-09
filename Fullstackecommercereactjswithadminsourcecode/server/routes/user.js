@@ -389,16 +389,19 @@ router.post(`/authWithGoogle`, async (req, res) => {
 
 router.put('/:id',async (req, res)=> {
 
-    const { name, phone, email, status, totalSpent } = req.body;
+    const { name, phone, email, status, images} = req.body;
 
     const userExist = await User.findById(req.params.id);
+    const phoneRegex = /^[0-9]{10}$/;
+    const nameRegex = /^[\p{L}\s]+$/u;
 
-    if(req.body.password) {
-        newPassword = bcrypt.hashSync(req.body.password, 10)
-    } else {
-        newPassword = userExist.passwordHash;
+    if (!name.match(nameRegex)) {
+        return res.json({ status: "FAILED", msg: "Name should only contain letters!" });
     }
 
+    if (!phone.match(phoneRegex)) {
+        return res.json({ status: "FAILED", msg: "Phone number must be 10 digits and contain only numbers!" });
+    }
     const user = await User.findByIdAndUpdate(
         req.params.id,
         {
@@ -406,9 +409,7 @@ router.put('/:id',async (req, res)=> {
             phone:phone,
             email:email,
             status:status,
-            totalSpent: totalSpent || userExist.totalSpent,
-            password:newPassword,
-            images: imagesArr,
+            images: images,
         },
         { new: true}
     )
