@@ -35,6 +35,8 @@ const homeBottomBannerSchema = require('./routes/homeBottomBanner.js');
 const postRoutes = require('./routes/posts.js');
 const commentRoutes = require('./routes/comments.js');
 
+const promotionCodeRoutes = require('./routes/promotionCode.js');
+
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
 app.use(`/api/category`, categoryRoutes);
@@ -55,6 +57,8 @@ app.use(`/api/homeBottomBanners`, homeBottomBannerSchema);
 
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+
+app.use("/api/promotionCode", promotionCodeRoutes)
 
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {

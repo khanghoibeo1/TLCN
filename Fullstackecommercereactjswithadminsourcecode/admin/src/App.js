@@ -26,10 +26,14 @@ import HomeBannerSlideList from "./pages/HomeBanner/homeSlideList";
 import EditHomeBannerSlide from "./pages/HomeBanner/editSlide";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-
+//quản lý blog
 import Blogs from "./pages/Blogs";
 import EditBlog from "./pages/Blogs/editBlogs";
 import AddBlog from "./pages/Blogs/addBlogs";
+//quản lý mã khuyến mãi
+import PromotionCode from "./pages/PromotionCode";
+import EditPromotionCode from "./pages/PromotionCode/editPromotionCode";
+import AddPromotionCode from "./pages/PromotionCode/addPromotionCode";
 
 import Users from "./pages/Users";
 import EditUser from "./pages/Users/editUsers";
@@ -50,7 +54,10 @@ import HomeBottomBannersList from "./pages/HomeBottomBanners/bannerList";
 import AddHomeBottomBanner from "./pages/HomeBottomBanners/addHomeBottomBanner";
 import EditHomeBottomBanner from "./pages/HomeBottomBanners/editHomeBottomBanner";
 import MyAccount from "./pages/MyAccount";
+//xem bài viết chi tiết
 import BlogDetails from "./pages/BlogDetails";
+//Xem mã khuyễn mãi chi tiết
+import PromotionCodeDetails from "./pages/PromotionCodeDetails";
 
 const MyContext = createContext();
 
@@ -258,6 +265,11 @@ function App() {
               <Route path="/blog/edit/:id" exact={true} element={<EditBlog />} />
               <Route path="/blog/details/:id" exact={true} element={<BlogDetails />} />
               <Route path="/blog/add" exact={true} element={<AddBlog />} />
+
+              <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
+              <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />
+              <Route path="/promotionCode/details/:id" exact={true} element={<PromotionCodeDetails />} />
+              <Route path="/promotionCode/add" exact={true} element={<AddPromotionCode />} />
 
               <Route path="/users" exact={true} element={<Users />} />
               <Route path="/user/edit/:id" exact={true} element={<EditUser />} />
