@@ -32,7 +32,7 @@ const Orders = () => {
         }
 
         const user = JSON.parse(localStorage.getItem("user"));
-        fetchDataFromApi(`/api/orders?userid=${user?.userId}`).then((res) => {
+        fetchDataFromApi(`/api/orders/user?userid=${user?.userId}`).then((res) => {
             setOrders(res);
         })
 

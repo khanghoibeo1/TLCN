@@ -497,6 +497,11 @@ router.get('/get/data/user-spent', async (req, res) => {
     try {
         const result = await User.aggregate([
             {
+                $match: {
+                  isAdmin: false // Lọc bỏ các tài khoản có vai trò 'admin'
+                }
+            },
+            {
               $project: {
                 name: 1, // Chỉ lấy trường 'name'
                 totalSpent: 1, // Chỉ lấy trường 'totalSpent'
