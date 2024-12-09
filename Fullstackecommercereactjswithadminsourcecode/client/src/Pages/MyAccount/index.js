@@ -206,15 +206,17 @@ const MyAccount = () => {
           const user = JSON.parse(localStorage.getItem("user"));
 
           fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
+
             const data = {
-              name: res?.name,
-              email: res?.email,
-              phone: res?.phone,
+              name: res.data?.name,
+              email: res.data?.email,
+              phone: res.data?.phone,
               images: uniqueArray,
-              isAdmin: res?.isAdmin
+              isAdmin: res.data?.isAdmin
             };
 
-            editData(`/api/user/${user?.userId}`, data).then((res) => {
+
+            editData2(`/api/user/${user?.userId}`, data).then((res) => {
               setTimeout(() => {
                 setUploading(false);
                 img_arr = [];
@@ -255,8 +257,15 @@ const MyAccount = () => {
     ) {
       setIsLoading(true);
       const user = JSON.parse(localStorage.getItem("user"));
-
-      editData2(`/api/user/${user?.userId}`, formFields).then((res) => {
+      const data = {
+        name: formFields.name,
+        email: formFields.email,
+        phone: formFields.phone,
+        images: formFields.images,
+        isAdmin: false,
+      };
+      // console.log(data);
+      editData2(`/api/user/${user?.userId}`, data).then((res) => {
         console.log(res?.status);
         setIsLoading(false);
 
@@ -265,7 +274,7 @@ const MyAccount = () => {
           context.setAlertBox({
             open: true,
             error: false,
-            msg: "user updated",
+            msg: "User updated",
         })}else {
           context.setAlertBox({
             open: true,
@@ -307,9 +316,11 @@ const MyAccount = () => {
           password: fields.oldPassword,
           newPass: fields.password,
         };
-        editData2(`/api/user/changePassword/${user?.userId}`, data).then(
+        console.log(data);
+        editData(`/api/user/changePassword/${user?.userId}`, data).then(
           (res) => {
-            console.log(res?.length);
+            console.log(res?.error);
+            console.log(res?.status);
             if(res?.status === "SUCCESS"){
                 context.setAlertBox({
                   open: true,

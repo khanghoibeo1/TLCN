@@ -198,7 +198,7 @@ router.post(`/verify-email`, async(req, res) => {
 
         await sendWelcomeEmail(user.email, user.name)
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Email verified successfully',
             user: {
@@ -208,7 +208,7 @@ router.post(`/verify-email`, async(req, res) => {
         })
     }catch (error) {
         console.log("Error in verify-email", error);
-        res.status(500).json({status:'FAILED', msg:"something went wrong"});
+        return res.status(500).json({status:'FAILED', msg:"something went wrong"});
     }
 })
 
@@ -216,20 +216,21 @@ router.put(`/changePassword/:id`, async (req, res) => {
    try{
     const { email, password, newPass} = req.body;
 
-//    console.log(req.body)
+   console.log(req.body)
+   console.log(req.params.id)
 
     const existingUser = await User.findOne({ email: email });
     if(!existingUser){
-        return res.status(400).json({error:true, status: "FAILED", msg:"User not found!"})
+        return res.status(400).send({error:true, status: 'FAILED', msg:"User not found!"})
     }
     
     const matchPassword = await bcrypt.compare(password, existingUser.password);
 
     if(!matchPassword){
-        return res.status(400).json({error:true, status: "FAILED", msg:"current password wrong"})
+        return res.status(400).json({error:true, status: 'FAILED', msg:"current password wrong"})
     }
     if (newPass.length < 6) {
-        return res.status(400).json({ error:true, status: "FAILED", msg: "Password must be at least 6 characters long!" });
+        return res.status(400).json({ error:true, status: 'FAILED', msg: "Password must be at least 6 characters long!" });
     }
     const newPassword =  await bcrypt.hash(newPass,10);
     const user = await User.findByIdAndUpdate(
@@ -241,12 +242,12 @@ router.put(`/changePassword/:id`, async (req, res) => {
     )
 
     if(!user){
-        return res.status(400).json({error:true,  status: "FAILED", msg:'The user cannot be Updated!'})
+        return res.status(400).json({error:true,  status: 'FAILED', msg:'The user cannot be Updated!'})
     }
-    return res.status(200).json({ error: false, status: "SUCCESS", msg: "Password updated successfully!" });
+    return res.status(200).json({ error: false, status: 'SUCCESS', msg: "Password updated successfully!" });
     }catch(error){
         console.error(error);
-        return res.status(500).json({ error: true, status: "FAILED", msg: "Internal server error" });
+        return res.status(500).json({ error: true, status: 'FAILED', msg: "Internal server error" });
     }
 })
 
@@ -311,7 +312,7 @@ router.get('/:id', async(req,res)=>{
     if(!user) {
         res.status(500).json({ success: false, message: 'The user with the given ID was not found.' })
     } else{
-        res.status(200).send({ success: true, data: user });
+        res.status(200).json({ success: true, data: user });
     }
     
 })
@@ -389,7 +390,8 @@ router.post(`/authWithGoogle`, async (req, res) => {
 
 router.put('/:id',async (req, res)=> {
 
-    const { name, phone, email, status, images} = req.body;
+    const { name,  email,phone, images, isAdmin} = req.body;
+    console.log(req.body)
 
     const userExist = await User.findById(req.params.id);
     const phoneRegex = /^[0-9]{10}$/;
@@ -408,16 +410,16 @@ router.put('/:id',async (req, res)=> {
             name:name,
             phone:phone,
             email:email,
-            status:status,
             images: images,
+            isAdmin: isAdmin,
         },
         { new: true}
     )
 
     if(!user)
-    return res.status(400).send('the user cannot be Updated!')
+        {return res.status(400).json({error: false, msg: 'the user cannot be Updated!'})}
 
-    res.send(user);
+    return res.status(200).json({ error: false, status: "SUCCESS" });;
 })
 
 router.post('/forgot-password', async (req, res) => {
