@@ -192,11 +192,6 @@ const Cart = () => {
                                             <span className="ml-auto"><b>Free</b></span>
                                         </div>
 
-                                        <div className="d-flex align-items-center mb-3">
-                                            <span>Estimate for</span>
-                                            <span className="ml-auto"><b>United Kingdom</b></span>
-                                        </div>
-
                                         <div className="d-flex align-items-center">
                                             <span>Total</span>
                                             <span className="ml-auto text-red font-weight-bold">

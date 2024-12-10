@@ -32,7 +32,7 @@ const Orders = () => {
         }
 
         const user = JSON.parse(localStorage.getItem("user"));
-        fetchDataFromApi(`/api/orders?userid=${user?.userId}`).then((res) => {
+        fetchDataFromApi(`/api/orders/user?userid=${user?.userId}`).then((res) => {
             setOrders(res);
         })
 
@@ -58,7 +58,8 @@ const Orders = () => {
             if(res && res.id){
                 // Cập nhật lại danh sách orders sau khi cập nhật trạng thái
                 const user = JSON.parse(localStorage.getItem("user"));
-                fetchDataFromApi(`/api/orders?userid=${user?.userId}`).then((res) => {
+                fetchDataFromApi(`/api/orders//user?userid=${user?.userId}`).then((res) => {
+                    console.log(res);
                     setOrders(res);
                 });
             }

@@ -213,6 +213,11 @@ const Navigation = (props) => {
                           Sign In
                         </Button>
                       </Link>
+                      <Link to="/signUp" className="mt-2">
+                        <Button className="btn-green w-100 btn-big">
+                          Sign Up
+                        </Button>
+                      </Link>
                     </div>
                   ) : (
                     <div className="pt-3 pl-3 pr-3"  onClick={logout}>

@@ -2,6 +2,7 @@ const { Product } = require("../models/products.js");
 const { Post } = require("../models/post.js");
 const { User } = require("../models/user.js");
 const { Orders } = require("../models/orders.js");
+const { PromotionCode } = require("../models/promotionCode.js");
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -240,6 +241,33 @@ router.get("/order", async (req, res) => {
     console.log(orders);
     // Trả về danh sách đơn hàng
     return res.status(200).json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+router.get("/promotionCode", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    // Kiểm tra xem query có tồn tại hay không
+    if (!query) {
+      return res.status(400).json({ msg: "Query is required" });
+    }
+
+    // Tìm kiếm đơn hàng với các tiêu chí
+    const searchConditions = {
+      $or: [
+        { code: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    // Tìm tất cả đơn hàng khớp với query
+    const promotionCodes = await PromotionCode.find(searchConditions);
+    console.log(promotionCodes);
+    // Trả về danh sách đơn hàng
+    return res.status(200).json({data: promotionCodes});
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error" });

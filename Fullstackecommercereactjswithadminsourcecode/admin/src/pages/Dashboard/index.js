@@ -96,7 +96,7 @@ const Dashboard = () => {
     });
 
     let sales = 0;
-    fetchDataFromApi("/api/orders/").then((res) => {
+    fetchDataFromApi("/api/orders/user").then((res) => {
       res?.length !== 0 &&
         res?.orders?.map((item) => {
           sales += parseInt(item.amount);

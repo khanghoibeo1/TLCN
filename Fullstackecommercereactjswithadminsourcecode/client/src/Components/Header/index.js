@@ -174,11 +174,19 @@ const Header = () => {
 
                   <div className="part3 d-flex align-items-center ml-auto">
                     {context.isLogin !== true && context.windowWidth > 992 && (
-                      <Link to="/signIn">
-                        <Button className="btn-blue btn-round mr-3">
-                          Sign In
-                        </Button>
-                      </Link>
+                      <>
+                        <Link to="/signIn">
+                          <Button className="btn-blue btn-round mr-3">
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link to="/signUp">
+                          <Button className="btn-green btn-round ">
+                            Sign Up
+                          </Button>
+                        </Link>
+                      </>
+
                     )}
 
                     {context.isLogin === true && (
