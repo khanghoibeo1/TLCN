@@ -62,8 +62,8 @@ const Cart = () => {
             cartFields.price = item?.price
             cartFields.quantity = quantityVal
             cartFields.subTotal = parseInt(item?.price * quantityVal)
-            cartFields.productId = item?.id
-            cartFields.userId = user?.userId
+            // cartFields.productId = item?.id
+            // cartFields.userId = user?.userId
 
             //console.log(item?._id)
 
@@ -150,11 +150,17 @@ const Cart = () => {
                                                                         </div>
                                                                     </Link>
                                                                 </td>
-                                                                <td width="15%">Rs {item?.price}</td>
+                                                                <td width="15%">{item?.price.toLocaleString("en-US", {
+                                                                    style: "currency",
+                                                                    currency: "USD",
+                                                                })}</td>
                                                                 <td width="25%">
                                                                     <QuantityBox quantity={quantity} item={item} selectedItem={selectedItem} value={item?.quantity} />
                                                                 </td>
-                                                                <td width="15%">Rs. {item?.subTotal}</td>
+                                                                <td width="15%">{item?.subTotal.toLocaleString("en-US", {
+                                                                    style: "currency",
+                                                                    currency: "USD",
+                                                                })}</td>
                                                                 <td width="10%"><span className="remove" onClick={() => removeItem(item?._id)}><IoIosClose /></span></td>
                                                             </tr>
                                                         )
@@ -176,7 +182,7 @@ const Cart = () => {
                                             <span className="ml-auto text-red font-weight-bold">
                                             {
                                                 (context.cartData?.length !== 0 ?
-                                                    context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'INR' })
+                                                    context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                                             }
                                             </span>
                                         </div>
@@ -196,7 +202,7 @@ const Cart = () => {
                                             <span className="ml-auto text-red font-weight-bold">
                                             {
                                                 (context.cartData?.length !== 0 ?
-                                                    context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'INR' })
+                                                    context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                                             }
                                             </span>
                                         </div>

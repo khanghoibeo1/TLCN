@@ -99,7 +99,7 @@ const Products = () => {
 
   const deleteProduct = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if(userInfo?.email==="admin9643@gmail.com"){
+    if(userInfo?.email==="admin@admin.com"){
     context.setProgress(40);
       setIsLoadingBar(true);
       deleteData(`/api/products/${id}`).then((res) => {
@@ -366,9 +366,9 @@ else{
                         <td>{item?.brand}</td>
                         <td>
                           <div style={{ width: "70px" }}>
-                            <del className="old">Rs {item?.oldPrice}</del>
+                            <del className="old">${item?.oldPrice}</del>
                             <span className="new text-danger">
-                              Rs {item?.price}
+                               ${item?.price}
                             </span>
                           </div>
                         </td>

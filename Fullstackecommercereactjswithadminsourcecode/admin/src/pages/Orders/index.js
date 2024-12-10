@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { editData, fetchDataFromApi } from "../../utils/api";
+import { editData, editData2, fetchDataFromApi } from "../../utils/api";
 import { useState } from "react";
 import { useEffect } from "react";
 
@@ -48,6 +48,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [products, setproducts] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -60,10 +61,23 @@ const Orders = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    fetchDataFromApi(`/api/orders`).then((res) => {
-      setOrders(res);
-    });
-  }, []);
+    fetchOrders();
+    }, [page]);
+
+
+  const fetchOrders = () => {
+    fetchDataFromApi(`/api/orders?page=${page}&limit=10`).then((res) => {
+        setOrders(res.orders);
+        setTotalPages(res.totalPages);
+    })
+    .catch((err) => {
+      console.error("Error fetching orders:", err);
+    });;
+  };
+
+const handlePageChange = (event, value) => {
+  setPage(value);
+};
 
   const showProducts = (id) => {
     fetchDataFromApi(`/api/orders/${id}`).then((res) => {
@@ -76,77 +90,33 @@ const Orders = () => {
     setstatusVal(e.target.value);
     setIsLoading(true);
     context.setProgress(40);
-    fetchDataFromApi(`/api/orders/${orderId}`).then((res) => {
-      const order = {
-        name: res.name,
-        phoneNumber: res.phoneNumber,
-        address: res.address,
-        pincode: res.pincode,
-        amount: parseInt(res.amount),
-        paymentId: res.paymentId,
-        email: res.email,
-        userid: res.userId,
-        products: res.products,
-        status: e.target.value,
-      };
-
-      editData(`/api/orders/${orderId}`, order).then((res) => {
-        fetchDataFromApi(`/api/orders`).then((res) => {
-          setOrders(res);
-          // window.scrollTo({
-          //   top: 200,
-          //   behavior: "smooth",
-          // });
-        });
+    editData2(`/api/orders/admin-update/${orderId}`, { status: e.target.value })
+      .then((res) => {
+        
+          fetchOrders();
+          context.setProgress(100);
+          setIsLoading(false);
+        
+      }).catch((err) => {
+        console.error("Error updating order status by admin:", err);
         context.setProgress(100);
         setIsLoading(false);
       });
-
-      setSingleOrder(res.products);
-    });
-  };
+      };
+  
 
   const onSearch = (keyword) => {
-    if (keyword !== "") {
-      fetchDataFromApi(`/api/search/order?q=${keyword}`).then((res) => {
-        setOrders(res);
-      });
-    } else {
-      fetchDataFromApi(`/api/orders`).then((res) => {
-        setOrders(res);
-        console.log(orders);
-      });
-    }
+    const query = keyword ? `q=${keyword}&` : "";
+    fetchDataFromApi(`/api/orders?${query}page=${page}&limit=10`)
+      .then((res) => {
+        setOrders(res.orders);
+        setTotalPages(res.totalPages);
+        setPage(res.currentPage);
+      })
+      .catch((err) => {
+        console.error("Error during search:", err);
+    });
   };
-
-  //   const orderStatus = (orderStatus, id) => {
-  //     fetchDataFromApi(`/api/orders/${id}`).then((res) => {
-  //       const order = {
-  //         name: res.name,
-  //         phoneNumber: res.phoneNumber,
-  //         address: res.address,
-  //         pincode: res.pincode,
-  //         amount: parseInt(res.amount),
-  //         paymentId: res.paymentId,
-  //         email: res.email,
-  //         userid: res.userId,
-  //         products: res.products,
-  //         status: orderStatus,
-  //       };
-
-  //       editData(`/api/orders/${id}`, order).then((res) => {
-  //         fetchDataFromApi(`/api/orders`).then((res) => {
-  //           setOrders(res);
-  //           window.scrollTo({
-  //             top: 200,
-  //             behavior: "smooth",
-  //           });
-  //         });
-  //       });
-
-  //       setSingleOrder(res.products);
-  //     });
-  //   };
 
   return (
     <>
@@ -183,20 +153,20 @@ const Orders = () => {
             </div>
             <table className="table table-bordered table-striped v-align">
               <thead className="thead-dark">
-                <tr>
-                  <th>Order Id</th> 
-                  <th>Paymant Id</th>
-                  <th>Products</th>
-                  <th>Name</th>
-                  <th>Phone Number</th>
-                  <th>Address</th>
-                  <th>Pincode</th>
-                  <th>Total Amount</th>
-                  <th>Email</th>
-                  <th>User Id</th>
-                  <th>Order Status</th>
-                  <th>Date</th>
-                </tr>
+              <tr>
+                <th>Order Id</th> 
+                <th>Payment Method</th>
+                <th>Products</th>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <th>Address</th>
+                <th>Pincode</th>
+                <th>Total Amount</th>
+                <th>Email</th>
+                <th>User Id</th>
+                <th>Order Status</th>
+                <th>Date</th>
+            </tr>
               </thead>
 
               <tbody>
@@ -212,7 +182,7 @@ const Orders = () => {
                       </td>
                           <td>
                             <span className="text-blue fonmt-weight-bold">
-                              {order?.paymentId}
+                              {order?.payment}
                             </span>
                           </td>
                           <td>
@@ -230,38 +200,38 @@ const Orders = () => {
                           <td>{order?.address}</td>
                           <td>{order?.pincode}</td>
                           <td>
-                            <MdOutlineCurrencyRupee /> {order?.amount}
+                             ${order?.amount}
                           </td>
                           <td>
                             <MdOutlineEmail /> {order?.email}
                           </td>
                           <td>{order?.userid}</td>
                           <td>
-                            <Select
-                            disabled={isLoading===true ? true: false}
-                              value={
-                                order?.status !== null
-                                  ? order?.status
-                                  : statusVal
-                              }
-                              onChange={(e) =>
-                                handleChangeStatus(e, order?._id)
-                              }
-                              displayEmpty
-                              inputProps={{ "aria-label": "Without label" }}
-                              size="small"
-                              className="w-100"
-                            >
-                              <MenuItem value={null}>
-                                <em value={null}>None</em>
-                              </MenuItem>
-
-                              <MenuItem value="pending">Pending</MenuItem>
-
-                              <MenuItem value="confirm">Confirm</MenuItem>
-
-                              <MenuItem value="delivered">Delivered</MenuItem>
-                            </Select>
+                            {/* Nếu order đang pending, admin có thể chuyển sang verify */}
+                            {order?.status === 'pending' ? (
+                              <Select
+                                disabled={isLoading}
+                                value={order?.status}
+                                onChange={(e) => handleChangeStatus(e, order?._id)}
+                                displayEmpty
+                                size="small"
+                                className="w-100"
+                              >
+                                <MenuItem value="pending">Pending</MenuItem>
+                                <MenuItem value="verify">Verify</MenuItem>
+                              </Select>
+                            ) : (
+                              order?.status === 'cancel' ? (
+                                <span className="badge badge-danger">{order?.status}</span>
+                              ) : order?.status === 'verify' ? (
+                                <span className="badge badge-success">{order?.status}</span>
+                              ) : order?.status === 'paid' ? (
+                                <span className="badge badge-info">{order?.status}</span>
+                              ) : (
+                                // fallback cho các trạng thái khác, ví dụ info
+                                <span className="badge badge-info">{order?.status}</span>
+                              )
+                            )}
                           </td>
                           <td>
                             <MdOutlineDateRange /> {order?.date?.split("T")[0]}
@@ -273,6 +243,14 @@ const Orders = () => {
               </tbody>
             </table>
           </div>
+          <div className="pagination-wrap d-flex justify-content-center mt-4">
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </div>
         </div>
       </div>
 
@@ -317,6 +295,7 @@ const Orders = () => {
                 })}
             </tbody>
           </table>
+          
         </div>
       </Dialog>
     </>

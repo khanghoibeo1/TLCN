@@ -80,7 +80,7 @@ const PostList = () => {
 
   const deletePost = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       context.setProgress(40);
       setIsLoadingBar(true);
       deleteData(`/api/posts/${id}`).then((res) => {

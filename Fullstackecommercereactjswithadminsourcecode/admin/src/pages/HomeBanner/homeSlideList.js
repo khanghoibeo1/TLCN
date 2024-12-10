@@ -61,7 +61,7 @@ const HomeSlidesList = () => {
 
   const deleteSlide = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if(userInfo?.email==="admin9643@gmail.com"){
+    if(userInfo?.email==="admin@admin.com"){
     context.setProgress(30);
       deleteData(`/api/homeBanner/${id}`).then((res) => {
         context.setProgress(100);

@@ -107,7 +107,7 @@ const AddProductRAMS = () => {
 
   const deleteItem = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       deleteData(`/api/productRAMS/${id}`).then((res) => {
         fetchDataFromApi("/api/productRAMS").then((res) => {
           setproductRamData(res);
