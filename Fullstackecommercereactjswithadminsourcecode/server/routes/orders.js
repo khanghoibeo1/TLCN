@@ -47,9 +47,10 @@ router.get(`/`, async (req, res) => {
         // Lấy danh sách hóa đơn, phân trang và sắp xếp
         const ordersList = await Orders.find(searchQuery)
             .sort({ date: -1 }) // Sắp xếp theo ngày mới nhất
-            .skip((pageInt - 1) * limitInt) // Bỏ qua các hóa đơn trước trang hiện tại
-            .limit(limitInt); // Lấy số lượng hóa đơn theo limit
-
+            .skip(limitInt ? (pageInt - 1) * limitInt : 0) // Bỏ qua các hóa đơn trước trang hiện tại
+            .limit(limitInt || 0); // Lấy số lượng hóa đơn theo limit
+        
+        console.log(("orde : ", ordersList))
         const totalOrders = await Orders.countDocuments(searchQuery); // Tổng số hóa đơn
 
         return res.status(200).json({

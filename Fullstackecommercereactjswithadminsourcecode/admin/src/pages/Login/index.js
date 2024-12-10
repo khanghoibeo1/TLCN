@@ -274,35 +274,7 @@ const Login = () => {
                 </Button>
               </div>
 
-              <div className="form-group text-center mb-0">
-                <Link to={"/forgot-password"} className="link">
-                  FORGOT PASSWORD
-                </Link>
-                <div className="d-flex align-items-center justify-content-center or mt-3 mb-3">
-                  <span className="line"></span>
-                  <span className="txt">or</span>
-                  <span className="line"></span>
-                </div>
-
-                <Button
-                  variant="outlined"
-                  className="w-100 btn-lg btn-big loginWithGoogle"
-                  onClick={signInWithGoogle}
-                >
-                  <img src={googleIcon} width="25px" /> &nbsp; Sign In with
-                  Google
-                </Button>
-              </div>
             </form>
-          </div>
-
-          <div className="wrapper mt-3 card border footer p-3">
-            <span className="text-center">
-              Don't have an account?
-              <Link to={"/signUp"} className="link color ml-2">
-                Register
-              </Link>
-            </span>
           </div>
         </div>
       </section>

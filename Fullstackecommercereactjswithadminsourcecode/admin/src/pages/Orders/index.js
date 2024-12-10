@@ -66,8 +66,10 @@ const Orders = () => {
 
 
   const fetchOrders = () => {
-    fetchDataFromApi(`/api/orders?page=${page}&limit=10`).then((res) => {
+    const query = "";
+    fetchDataFromApi(`/api/orders?${query ? `${query}&` : ""  }page=${page}&limit=10`).then((res) => {
         setOrders(res.orders);
+        console.log('oders :', res.orders);
         setTotalPages(res.totalPages);
     })
     .catch((err) => {

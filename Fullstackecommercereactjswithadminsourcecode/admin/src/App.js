@@ -34,6 +34,10 @@ import AddBlog from "./pages/Blogs/addBlogs";
 import Users from "./pages/Users";
 import EditUser from "./pages/Users/editUsers";
 
+import PromotionCode from "./pages/PromotionCode";
+import EditPromotionCode from "./pages/PromotionCode/editPromotionCode";
+import AddPromotionCode from "./pages/PromotionCode/addPromotionCode";
+
 import LoadingBar from "react-top-loading-bar";
 import { fetchDataFromApi } from "./utils/api";
 
@@ -51,6 +55,7 @@ import AddHomeBottomBanner from "./pages/HomeBottomBanners/addHomeBottomBanner";
 import EditHomeBottomBanner from "./pages/HomeBottomBanners/editHomeBottomBanner";
 import MyAccount from "./pages/MyAccount";
 import BlogDetails from "./pages/BlogDetails";
+import PromotionCodeDetails from "./pages/PromotionCodeDetails";
 
 const MyContext = createContext();
 
@@ -261,7 +266,10 @@ function App() {
 
               <Route path="/users" exact={true} element={<Users />} />
               <Route path="/user/edit/:id" exact={true} element={<EditUser />} />
-
+              <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
+              <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />
+              <Route path="/promotionCode/details/:id" exact={true} element={<PromotionCodeDetails />} />
+              <Route path="/promotionCode/add" exact={true} element={<AddPromotionCode />} />
               <Route path="/orders/" exact={true} element={<Orders />} />
 
               <Route path="/homeBannerSlide/add" exact={true} element={<AddHomeBannerSlide />} />
