@@ -59,7 +59,7 @@ const Orders = () => {
                 // Cập nhật lại danh sách orders sau khi cập nhật trạng thái
                 const user = JSON.parse(localStorage.getItem("user"));
                 fetchDataFromApi(`/api/orders?userid=${user?.userId}`).then((res) => {
-                    setOrders(res);
+                    setOrders(res.data);
                 });
             }
         }).catch(err => {
