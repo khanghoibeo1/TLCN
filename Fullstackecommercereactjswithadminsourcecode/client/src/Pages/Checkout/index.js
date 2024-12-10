@@ -130,7 +130,6 @@ const Checkout = () => {
 
   const checkout = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
-<<<<<<< HEAD
     const updatedUsers = [...currentPromotion.users, { userId: user.userId, username: user.name }]; // Thêm user mới
     const updatedUsedCount = currentPromotion.usedCount + 1;
     // Cập nhật dữ liệu
@@ -141,18 +140,6 @@ const Checkout = () => {
     };
 
     if(user.status === 'active'){
-=======
-      if (user.status !== "active") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "You are banned!",
-        });
-        return;
-      }
-    // const user = JSON.parse(localStorage.getItem("user"));
-    // if(user.status === 'active'){
->>>>>>> demo
       e.preventDefault();
       if (!cartData || cartData.length === 0) {
         context.setAlertBox({
@@ -337,7 +324,7 @@ const Checkout = () => {
   //     msg: "You are banned! ",
   //   });
   // }
-};
+  };
 
   // useEffect(() => {
   //   console.log('Order ID updated:', orderId);
@@ -704,6 +691,6 @@ const Checkout = () => {
     </section>
   );
 };
-
+}
 
 export default Checkout;
