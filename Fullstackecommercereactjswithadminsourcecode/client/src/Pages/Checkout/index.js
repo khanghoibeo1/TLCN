@@ -29,6 +29,7 @@ const Checkout = () => {
   const [shippingMethod, setShippingMethod] = useState('');
   const [cartData, setCartData] = useState([]);
   const [totalAmount, setTotalAmount] = useState();
+  const [orderId, setOrderId] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,17 +44,6 @@ const Checkout = () => {
           res
             .map((item) => parseInt(item.price) * item.quantity)
             .reduce((total, value) => total + value, 0)
-            -
-            (discount > 0 ? ( 
-              (cartData?.length !== 0 ? 
-                cartData ?.map((item) => parseInt(item.price) * item.quantity)
-                        .reduce((total, value) => total + value, 0) 
-                        : 0
-                      ) 
-                      * (discount / 100)
-                )
-              : 0
-            )
       );
     });
   }, []);
@@ -71,46 +61,22 @@ const Checkout = () => {
     };
     if (name === "shippingMethod") setShippingMethod(value);
   };
-  //Chỉnh lại để khi  nào nhấn checkout thì mới thêm vào promotioncode, đồng thời chỉnh sửa chỗ kiểm tra đã có user chưa, 
-  const handlePromotionCode = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    fetchDataFromApi(`/api/search/promotionCode?q=${promotionCode}`).then((res) => {
-      if (res.data[0].code === promotionCode &&
-          res.data[0].status === "active" &&
-          res.data[0].usedCount < res.data[0].maxUsage &&
-          !res.data[0].users.some((existingUser) => existingUser.userId === user.userId)) {
-        setCurrentPromotion(res.data[0]);
-        
-         
-        setDiscount(res.data[0].discountPercent); // Áp dụng discount
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "Promotion code applied successfully!",
-        });
-          
-      } else {
-        setDiscount(0);
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Invalid or already used promotion code.",
-        });
-      }
-    });
-  };
-
-  useEffect(()=>{
-    console.log(discount);
-  },[discount])
-  
 
   const context = useContext(MyContext);
   const history = useNavigate();
 
   const checkout = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if(user.status === 'active'){
+      if (user.status !== "active") {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "You are banned!",
+        });
+        return;
+      }
+    // const user = JSON.parse(localStorage.getItem("user"));
+    // if(user.status === 'active'){
       e.preventDefault();
       if (!cartData || cartData.length === 0) {
         context.setAlertBox({
@@ -232,9 +198,6 @@ const Checkout = () => {
           year: "numeric",
         }),
       };
-      //Sửa lại promotion code để thêm user này vào và tăng số lượng người app mã
-      //đặt dòng này sau các thao tác và chuyển đến phần xử lý
-      editData(`/api/promotionCode/${currentPromotion.id}`, updatedPromotion).then((res) => { });
 
 
     // const user = JSON.parse(localStorage.getItem("user"));
@@ -254,32 +217,60 @@ const Checkout = () => {
     };
     // localStorage.setItem("user", JSON.stringify(user));
 
-          console.log(payLoad)
+    // user.totalSpent = user.totalSpent + parseInt(totalAmount);
+    console.log(payLoad)
+      
+    try {
+      const createdOrder = await postData('/api/orders/create', payLoad);
+      console.log('Created Order:', createdOrder);
+      
+      setOrderId(createdOrder._id);
 
-          user.totalSpent = user.totalSpent + parseInt(totalAmount);
-          postData(`/api/orders/create`, payLoad).then((res) => {
-              fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-              res?.length!==0 && res?.map((item)=>{
-                  deleteData(`/api/cart/${item?.id}`).then((res) => {
-                  })    
-              })
-                  setTimeout(()=>{
-                      context.getCartData();
-                  },1000);
-                  history("/orders");
-            });
-          
+      // user.totalSpent = (user.totalSpent || 0) + parseInt(totalAmount);
+      // localStorage.setItem("user", JSON.stringify(user));
+
+      if (paymentMethod === "Paypal") {
+          // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId
+          context.setAlertBox({
+              open: true,
+              error: false,
+              msg: "Order created. Please proceed with PayPal payment.",
           });
-        },
+      } else {
+          // Xử lý Cash on Delivery
+          cartData.forEach(async (item) => {
+              await deleteData(`/api/cart/${item.id}`);
+          });
+          context.getCartData();
+          history("/orders");
+      }
+    } catch (error) {
+        console.error('Error during checkout:', error);
+        context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Checkout failed. Please try again.",
+        });
+    }
+  // }else {
+  //   context.setAlertBox({
+  //     open: true,
+  //     error: true,
+  //     msg: "You are banned! ",
+  //   });
+  // }
+};
 
-        theme: {
-          color: "#3399cc",
-        },
-      };
+  // useEffect(() => {
+  //   console.log('Order ID updated:', orderId);
+  // }, [orderId]);
 
-      var pay = new window.Razorpay(options);
-      pay.open();
-    } else {
+  const createOrder = async (data, actions) => {
+    const response = await postData('/api/orders/create-paypal-order', {orderId});
+
+    if(response.id){
+      return response.id;
+    }else {
       context.setAlertBox({
         open: true,
         error: true,
@@ -457,26 +448,39 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
-              <div className="row d-flex">
-                <div className="col-md-9">
-                  <div className="form-group">
-                    <TextField
-                      label="Promotion Code (Optional)"
-                      variant="outlined"
-                      size="small"
-                      name="promotionCode"
-                      value={promotionCode}
-                      onChange={(e) => setPromotionCode(e.target.value)}
-                      fullWidth
-                    />
-                  </div>
-                </div>
-                <Button onClick={handlePromotionCode} variant="contained" color="primary">
-                  Apply Promotion
-                </Button>
-              </div>
-
             </div>
+            
+            <div className="row mt-4">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Payment Method *</label>
+                  <select
+                    name="paymentMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Payment Method</option>
+                    <option value="Paypal">PayPal</option>
+                    <option value="Cash on Delivery">Cash on Delivery</option>
+                  </select>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>Shipping Method *</label>
+                  <select
+                    name="shippingMethod"
+                    className="form-control"
+                    onChange={onChangeInput}
+                  >
+                    <option value="">Select Shipping Method</option>
+                    <option value="standard">Standard Shipping</option>
+                    <option value="express">Express Shipping</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
 
             <div className="col-md-4">
               <div className="card orderInfo">
@@ -524,43 +528,6 @@ const Checkout = () => {
                           )?.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
-                          })}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Discount</td>
-                        <td>
-                          {discount}%
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td>Total</td>
-                        <td>
-                          {(
-                            (cartData?.length !== 0
-                              ? cartData
-                                  ?.map(
-                                    (item) => parseInt(item.price) * item.quantity
-                                  )
-                                  .reduce((total, value) => total + value, 0)
-                              : 0) - 
-                            // Trừ đi phần discount
-                            (discount > 0
-                              ? (
-                                  (cartData?.length !== 0
-                                    ? cartData
-                                        ?.map(
-                                          (item) => parseInt(item.price) * item.quantity
-                                        )
-                                        .reduce((total, value) => total + value, 0)
-                                    : 0
-                                  ) * (discount / 100)
-                                )
-                              : 0)
-                          )?.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "INR",
                           })}
                         </td>
                       </tr>
