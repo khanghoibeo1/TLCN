@@ -163,6 +163,7 @@ const handlePageChange = (event, value) => {
                 <th>Phone Number</th>
                 <th>Address</th>
                 <th>Pincode</th>
+                <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
                 <th>User Id</th>
@@ -201,6 +202,7 @@ const handlePageChange = (event, value) => {
                           </td>
                           <td>{order?.address}</td>
                           <td>{order?.pincode}</td>
+                          <td>{order?.orderDiscount}</td>
                           <td>
                              ${order?.amount}
                           </td>

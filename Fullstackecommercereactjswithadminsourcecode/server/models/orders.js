@@ -61,6 +61,10 @@ const ordersSchema = mongoose.Schema({
         enum: ["pending", "paid", "cancel", "verify"],
         default:"pending"
     },
+    orderDiscount: {
+        type: Number,
+        default: 0 // Phần trăm giảm giá
+      },
     date: {
         type: Date,
         default: Date.now

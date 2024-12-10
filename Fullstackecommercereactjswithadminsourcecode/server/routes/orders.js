@@ -90,7 +90,7 @@ router.get(`/get/count`, async (req, res) =>{
 router.post('/create', async (req, res) => {
 
     try{
-        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date } = req.body;
+        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date, orderDiscount } = req.body;
 
         if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
@@ -111,6 +111,7 @@ router.post('/create', async (req, res) => {
             userid,
             products,
             date,
+            orderDiscount,
             status: 'pending' 
         });
 
