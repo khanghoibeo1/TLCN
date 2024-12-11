@@ -24,6 +24,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 │   ├── package.json       # Server dependencies
 │   └── ...
 └── README.md              # Project Documentation
+```
 
 ## Installation and Setup
 ### Prerequisites
@@ -79,6 +80,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 
     Press `Ctrl + C` in the terminal.
 
+---
 ## Technology Stack
 
 - Programming Language: JavaScript
@@ -91,6 +93,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 - IDE: Visual Studio Code
 - Version Control: Git
 
+---
 ## Contributors
 
 1. [@khanghoibeo1](https://github.com/khanghoibeo1) - Trần Trọng Khang - 21110834
