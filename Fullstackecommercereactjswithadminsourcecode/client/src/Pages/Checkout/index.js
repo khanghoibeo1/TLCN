@@ -30,6 +30,24 @@ const Checkout = () => {
   const [cartData, setCartData] = useState([]);
   const [totalAmount, setTotalAmount] = useState();
   const [orderId, setOrderId] = useState(null);
+  const [usedCode, setUsedCode] = useState(false);
+  const [promotionCode, setPromotionCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [currentPromotion, setCurrentPromotion] = useState({
+    _id: "",
+    code: "",
+    description: "",
+    usedCount: 0,
+    discountPercent: 0,
+    maxUsage: 0,
+    userIds: [],
+    status: "",
+    createdAt: "",
+    updatedAt: "",
+    __v: 0,
+    users: [],
+    id: "",
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -40,13 +58,87 @@ const Checkout = () => {
       setCartData(res);
 
       setTotalAmount(
-        res.length !== 0 &&
-          res
-            .map((item) => parseInt(item.price) * item.quantity)
-            .reduce((total, value) => total + value, 0)
+        res?.length !== 0 ? 
+          res?.map((item) => parseInt(item.price) * item.quantity)
+            .reduce((total, value) => total + value, 0) : 0
+            -
+            (discount > 0 ? ( 
+              (res?.length !== 0 ? 
+                res?.map((item) => parseInt(item.price) * item.quantity)
+                        .reduce((total, value) => total + value, 0) 
+                        : 0
+                      ) 
+                      * (discount / 100)
+                )
+              : 0
+            )
       );
     });
   }, []);
+
+  useEffect(() => {
+    console.log(totalAmount);
+  },[totalAmount])
+
+  //Chỉnh lại để khi  nào nhấn checkout thì mới thêm vào promotioncode, đồng thời chỉnh sửa chỗ kiểm tra đã có user chưa, 
+  const handlePromotionCode = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if(promotionCode !== ""){
+      fetchDataFromApi(`/api/search/promotionCode?q=${promotionCode}`).then((res) => {
+        if (res.data.length > 0 &&
+            res.data[0].code === promotionCode &&
+            res.data[0].status === "active" &&
+            res.data[0].usedCount < res.data[0].maxUsage &&
+            !res.data[0].users.some((existingUser) => existingUser.userId === user.userId)) {
+          setCurrentPromotion(res.data[0]);
+          
+          setDiscount(res.data[0].discountPercent); // Áp dụng discount
+          context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "Promotion code applied successfully!",
+          });
+          if (usedCode === false){
+            setTotalAmount(totalAmount - (totalAmount * (res.data[0].discountPercent) / 100));
+            setUsedCode(true);
+          }
+          console.log(totalAmount);
+        } else {
+          setDiscount(0);
+          console.log(discount);
+          setUsedCode(false);
+          setTotalAmount(
+            cartData?.length !== 0 ? 
+            cartData?.map((item) => parseInt(item.price) * item.quantity)
+            .reduce((total, value) => total + value, 0) : 0
+          );
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Invalid or already used promotion code.",
+          });
+        }
+      });
+    }
+    else{
+      setDiscount(0);
+      setUsedCode(false);
+      setTotalAmount(
+        cartData?.length !== 0 ? 
+        cartData?.map((item) => parseInt(item.price) * item.quantity)
+        .reduce((total, value) => total + value, 0) : 0
+      );
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Invalid or already used promotion code.",
+      });
+    }
+  };
+  useEffect(()=>{
+    console.log(discount);
+  },[discount])
+  
 
   const onChangeInput = (e) => {
     setFormFields(() => ({
@@ -67,6 +159,14 @@ const Checkout = () => {
 
   const checkout = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const updatedUsers = [...currentPromotion.users, { userId: user.userId, username: user.name }]; // Thêm user mới
+    const updatedUsedCount = currentPromotion.usedCount + 1;
+    // Cập nhật dữ liệu
+    const updatedPromotion = {
+      ...currentPromotion,
+      users: updatedUsers,
+      usedCount: updatedUsedCount,
+    };
       if (user.status !== "active") {
         context.setAlertBox({
           open: true,
@@ -212,6 +312,7 @@ const Checkout = () => {
       email: user.email,
       userid: user.userId,
       products: cartData,
+      orderDiscount: discount,
       date:addressInfo?.date,
       // totalSpent: user.totalSpent + parseInt(totalAmount),
     };
@@ -222,6 +323,7 @@ const Checkout = () => {
       
     try {
       const createdOrder = await postData('/api/orders/create', payLoad);
+      editData(`/api/promotionCode/${currentPromotion.id}`, updatedPromotion).then((res) => { });
       console.log('Created Order:', createdOrder);
       
       setOrderId(createdOrder._id);
@@ -448,6 +550,24 @@ const Checkout = () => {
                   </div>
                 </div>
               </div>
+              <div className="row d-flex mb-2">
+                <div className="col-md-9">
+                  <div className="form-group">
+                    <TextField
+                      label="Promotion Code (Optional)"
+                      variant="outlined"
+                      size="small"
+                      name="promotionCode"
+                      value={promotionCode}
+                      onChange={(e) => setPromotionCode(e.target.value)}
+                      fullWidth
+                    />
+                  </div>
+                </div>
+                <Button onClick={handlePromotionCode} variant="contained" color="primary">
+                  Apply Promotion
+                </Button>
+              </div>
             </div>
             
             <div className="row mt-4">
@@ -528,6 +648,42 @@ const Checkout = () => {
                           )?.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
+                          })}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Discount</td>
+                        <td>
+                          {discount}%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Total</td>
+                        <td>
+                          {(
+                            (cartData?.length !== 0
+                              ? cartData
+                                  ?.map(
+                                    (item) => parseInt(item.price) * item.quantity
+                                  )
+                                  .reduce((total, value) => total + value, 0)
+                              : 0) - 
+                            // Trừ đi phần discount
+                            (discount > 0
+                              ? (
+                                  (cartData?.length !== 0
+                                    ? cartData
+                                        ?.map(
+                                          (item) => parseInt(item.price) * item.quantity
+                                        )
+                                        .reduce((total, value) => total + value, 0)
+                                    : 0
+                                  ) * (discount / 100)
+                                )
+                              : 0)
+                          )?.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "INR",
                           })}
                         </td>
                       </tr>

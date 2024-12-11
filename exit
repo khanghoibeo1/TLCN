@@ -1,0 +1,86 @@
+[1mdiff --git a/Fullstackecommercereactjswithadminsourcecode/admin/package-lock.json b/Fullstackecommercereactjswithadminsourcecode/admin/package-lock.json[m
+[1mindex 95ba7b0..190e14c 100644[m
+[1m--- a/Fullstackecommercereactjswithadminsourcecode/admin/package-lock.json[m
+[1m+++ b/Fullstackecommercereactjswithadminsourcecode/admin/package-lock.json[m
+[36m@@ -4801,102 +4801,6 @@[m
+         "url": "https://github.com/sponsors/gregberge"[m
+       }[m
+     },[m
+[31m-    "node_modules/@testing-library/dom": {[m
+[31m-      "version": "10.4.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/@testing-library/dom/-/dom-10.4.0.tgz",[m
+[31m-      "integrity": "sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==",[m
+[31m-      "license": "MIT",[m
+[31m-      "peer": true,[m
+[31m-      "dependencies": {[m
+[31m-        "@babel/code-frame": "^7.10.4",[m
+[31m-        "@babel/runtime": "^7.12.5",[m
+[31m-        "@types/aria-query": "^5.0.1",[m
+[31m-        "aria-query": "5.3.0",[m
+[31m-        "chalk": "^4.1.0",[m
+[31m-        "dom-accessibility-api": "^0.5.9",[m
+[31m-        "lz-string": "^1.5.0",[m
+[31m-        "pretty-format": "^27.0.2"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=18"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@testing-library/dom/node_modules/ansi-styles": {[m
+[31m-      "version": "4.3.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz",[m
+[31m-      "integrity": "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==",[m
+[31m-      "license": "MIT",[m
+[31m-      "peer": true,[m
+[31m-      "dependencies": {[m
+[31m-        "color-convert": "^2.0.1"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=8"[m
+[31m-      },[m
+[31m-      "funding": {[m
+[31m-        "url": "https://github.com/chalk/ansi-styles?sponsor=1"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@testing-library/dom/node_modules/chalk": {[m
+[31m-      "version": "4.1.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz",[m
+[31m-      "integrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",[m
+[31m-      "license": "MIT",[m
+[31m-      "peer": true,[m
+[31m-      "dependencies": {[m
+[31m-        "ansi-styles": "^4.1.0",[m
+[31m-        "supports-color": "^7.1.0"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=10"[m
+[31m-      },[m
+[31m-      "funding": {[m
+[31m-        "url": "https://github.com/chalk/chalk?sponsor=1"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@testing-library/dom/node_modules/color-convert": {[m
+[31m-      "version": "2.0.1",[m
+[31m-      "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",[m
+[31m-      "integrity": "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==",[m
+[31m-      "license": "MIT",[m
+[31m-      "peer": true,[m
+[31m-      "dependencies": {[m
+[31m-        "color-name": "~1.1.4"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=7.0.0"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@testing-library/dom/node_modules/color-name": {[m
+[31m-      "version": "1.1.4",[m
+[31m-      "resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz",[m
+[31m-      "integrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",[m
+[31m-      "license": "MIT",[m
+[31m-      "peer": true[m
+[31m-    },[m
+[31m-    "node_modules/@testing-library/dom/node_modules/has-flag": {[m
+[31m-      "version": "4.0.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz",[m
+[31m-      "integrity": "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==",[m
+[31m-      "lic
