@@ -47,9 +47,9 @@ Shopify provides an online shopping platform for users in the agricultural produ
 2. Open the project in your favorite IDE (Visual Studio Code is recommended).
 
 3. Create `.env`:
-    - Create `.env` in the `server` directory with the following content:
+- Create `.env` in the `server` directory with the following content:
 
-   ```plaintext
+    ```plaintext
     # Server configuration
     PORT=8000
     
@@ -73,10 +73,10 @@ Shopify provides an online shopping platform for users in the agricultural produ
     # PayPal integration
     PAYPAL_CLIENT_ID= # Your PayPal client ID
     PAYPAL_SECRET_KEY= # Your PayPal secret key
-   ```
-    - Create `.env` file in the `client` directory with the following content:
+    ```
+- Create `.env` file in the `client` directory with the following content:
 
-  ```plaintext
+    ```plaintext
     # Backend API URL
     REACT_APP_API_URL= # Example: http://localhost:8000
     
@@ -89,13 +89,13 @@ Shopify provides an online shopping platform for users in the agricultural produ
     
     # PayPal integration
     REACT_APP_PAYPAL_CLIENT_ID=
-  ```
-    - Create `.env` file in the `admin` directory with the following content:
+    ```
+- Create `.env` file in the `admin` directory with the following content:
 
-  ```plaintext
+    ```plaintext
     # Backend API URL
     REACT_APP_API_URL= # Example: http://localhost:8000
-  ```
+    ```
 5. Install dependencies:
 
     ```sh
@@ -129,8 +129,8 @@ Shopify provides an online shopping platform for users in the agricultural produ
     ```
 
 7. Open your browser and navigate to:
-    - client: [http://localhost:3008](http://localhost:3008)
-    - admin: [http://localhost:3002](http://localhost:3002)
+- client: [http://localhost:3008](http://localhost:3008)
+- admin: [http://localhost:3002](http://localhost:3002)
 
 8. Stop the project:
 
