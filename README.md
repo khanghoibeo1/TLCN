@@ -46,7 +46,8 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 
 2. Open the project in your favorite IDE (Visual Studio Code is recommended).
 
-3. Create `.env` in the `server` file:
+3. Create `.env`:
+- Create `.env` in the `server` directory with the following content:
 
    ```plaintext
     # Server configuration
@@ -73,24 +74,52 @@ FullstackEcommerceReactJSWithAdminSourceCode/
     PAYPAL_CLIENT_ID= # Your PayPal client ID
     PAYPAL_SECRET_KEY= # Your PayPal secret key
    ```
+- Create `.env` file in the `client` directory with the following content:
 
-4. Install dependencies:
+  ```plaintext
+    # Backend API URL
+    REACT_APP_API_URL= # Example: http://localhost:8000
+    
+    # Firebase configuration
+    REACT_APP_FIREBASE_API_KEY=
+    REACT_APP_FIREBASE_AUTH_DOMAIN=
+    REACT_APP_FIREBASE_PROJECT_ID=
+    REACT_APP_FIREBASE_STORAGE_BUCKET=
+    REACT_APP_FIREBASE_APP_ID=
+    
+    # PayPal integration
+    REACT_APP_PAYPAL_CLIENT_ID=
+  ```
+- Create `.env` file in the `admin` directory with the following content:
+
+  ```plaintext
+    # Backend API URL
+    REACT_APP_API_URL= # Example: http://localhost:8000
+  ```
+5. Install dependencies:
 
     ```sh
+    cd admin
+    npm install
+    
+    cd ../client
+    npm install
+    
+    cd ../server
     npm install
     ```
 
-5. Run the project:
+6. Run the project:
 
     ```sh
     npm run dev
     ```
 
-6. Open your browser and navigate to:
+7. Open your browser and navigate to:
 
     [http://localhost:3000](http://localhost:3000)
 
-7. Stop the project:
+8. Stop the project:
 
     Press `Ctrl + C` in the terminal.
 
