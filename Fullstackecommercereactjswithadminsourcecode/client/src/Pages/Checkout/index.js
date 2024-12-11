@@ -683,7 +683,7 @@ const Checkout = () => {
                               : 0)
                           )?.toLocaleString("en-US", {
                             style: "currency",
-                            currency: "INR",
+                            currency: "USD",
                           })}
                         </td>
                       </tr>

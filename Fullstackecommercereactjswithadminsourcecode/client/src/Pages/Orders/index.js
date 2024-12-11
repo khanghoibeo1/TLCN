@@ -55,10 +55,11 @@ const Orders = () => {
         // gọi API PUT /api/orders/client-update/:id
         editData2(`/api/orders/client-update/${orderId}`, { status: newStatus }).then(res => {
             console.log(res)
-            if(res && res.id){
+            console.log('res id',res.order._id)
+            if(res  && res.order._id){
                 // Cập nhật lại danh sách orders sau khi cập nhật trạng thái
                 const user = JSON.parse(localStorage.getItem("user"));
-                fetchDataFromApi(`/api/orders//user?userid=${user?.userId}`).then((res) => {
+                fetchDataFromApi(`/api/orders/user?userid=${user?.userId}`).then((res) => {
                     console.log(res);
                     setOrders(res);
                 });

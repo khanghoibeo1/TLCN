@@ -50,7 +50,7 @@ router.get(`/`, async (req, res) => {
             .skip(limitInt ? (pageInt - 1) * limitInt : 0) // Bỏ qua các hóa đơn trước trang hiện tại
             .limit(limitInt || 0); // Lấy số lượng hóa đơn theo limit
         
-        console.log(("orde : ", ordersList))
+        // console.log(("orde : ", ordersList))
         const totalOrders = await Orders.countDocuments(searchQuery); // Tổng số hóa đơn
 
         return res.status(200).json({
@@ -445,7 +445,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
                 { $inc: { totalSpent: order.amount } },
                 { new: true }
             );
-            
+            console.log("order : ", order);
             return res.status(200).json({
                 success: true,
                 message: 'Order paid successfully!',
