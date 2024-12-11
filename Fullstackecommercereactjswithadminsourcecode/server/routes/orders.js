@@ -451,6 +451,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
                 order,
                 updatedUser
             });
+            // console.log('Order paid successfull', order);
             // return res.status(200).json(order);
         }
 
