@@ -31,9 +31,6 @@ Shopify provides an online shopping platform for users in the agricultural produ
     ```
 
 ## Installation and Setup
-1. Install Node.js (v18+ recommended).
-2. Install MongoDB.
-
 ### Steps
 
 1. Clone the project from the repository:
@@ -100,15 +97,15 @@ Shopify provides an online shopping platform for users in the agricultural produ
     ```sh
     # Install dependencies for the admin panel
     cd admin
-    npm install
+    npm install --legacy-peers-deps
     
     # Install dependencies for the client
     cd ../client
-    npm install
+    npm install --legacy-peers-deps
     
     # Install dependencies for the server
     cd ../server
-    npm install
+    npm install --legacy-peers-deps
     ```
 
 6. Run the project:
