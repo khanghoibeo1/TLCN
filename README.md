@@ -48,7 +48,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 
 3. Create `.env` in the `frontend` file:
 
-   ```env
+   ```plaintext
    PORT=5000
    MONGO_URI=your_mongodb_connection_string
    CLIENT_BASE_URL=your_client_url
