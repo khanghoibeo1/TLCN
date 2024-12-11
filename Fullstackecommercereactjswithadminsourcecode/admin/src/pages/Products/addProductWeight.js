@@ -109,7 +109,7 @@ const AddProductWeight = () => {
 
     const deleteItem = (id) => {
         const userInfo = JSON.parse(localStorage.getItem("user"));
-        if(userInfo?.email==="admin9643@gmail.com"){
+        if(userInfo?.email==="admin@admin.com"){
         deleteData(`/api/productWeight/${id}`).then((res) => {
             fetchDataFromApi("/api/productWeight").then((res) => {
                 setProductWeightData(res);

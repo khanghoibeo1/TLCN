@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import GoogleImg from "../../assets/images/googleImg.png";
 import CircularProgress from "@mui/material/CircularProgress";
 import { postData } from "../../utils/api";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -20,6 +21,9 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const context = useContext(MyContext);
   const history = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   useEffect(() => {
     context.setisHeaderFooterShow(false);
@@ -229,20 +233,25 @@ const SignIn = () => {
                 onChange={onchangeInput}
               />
             </div>
-            <div className="form-group">
+            <div className="form-group password-input-container">
               <TextField
                 id="standard-basic"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"} // Conditional type
                 required
                 variant="standard"
                 className="w-100"
                 name="password"
                 onChange={onchangeInput}
               />
+              <span className="password-toggle" onClick={togglePasswordVisibility}>
+                {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+              </span>
             </div>
 
-            <a className="border-effect cursor txt">Forgot Password?</a>
+            <a className="border-effect cursor txt">
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </a>
 
             <div className="d-flex align-items-center mt-3 mb-3 ">
               <Button type="submit" className="btn-blue col btn-lg btn-big">

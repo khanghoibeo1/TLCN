@@ -369,7 +369,7 @@ const ProductUpload = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       const imgIndex = previews.indexOf(imgUrl);
 
       deleteImages(`/api/category/deleteImage?img=${imgUrl}`).then((res) => {
@@ -653,7 +653,9 @@ const ProductUpload = () => {
                           <em value={null}>None</em>
                         </MenuItem>
                         {subCatData?.length !== 0 &&
-                          subCatData?.map((subCat, index) => {
+                          subCatData
+                          .filter((subCat) => subCat.parentId === categoryVal)
+                          .map((subCat, index) => {
                             return (
                               <MenuItem
                                 className="text-capitalize"

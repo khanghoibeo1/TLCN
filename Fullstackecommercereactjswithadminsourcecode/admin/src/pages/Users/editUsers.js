@@ -175,7 +175,7 @@ const EditUser = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       const imgIndex = previews.indexOf(imgUrl);
 
       deleteImages(`/api/category/deleteImage?img=${imgUrl}`).then((res) => {
@@ -249,17 +249,17 @@ const EditUser = () => {
 
         <div className="form-group">
           <h6>Name</h6>
-          <input type="text" name="name" value={formFields.name} onChange={handleChange} />
+          <input readOnly type="text" name="name" value={formFields.name} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <h6>Phone</h6>
-          <textarea rows={5} name="phone" value={formFields.phone} onChange={handleChange} />
+          <textarea readOnly rows={5} name="phone" value={formFields.phone} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <h6>Email</h6>
-          <input type="text" name="email" value={formFields.email} onChange={handleChange} />
+          <input readOnly type="text" name="email" value={formFields.email} onChange={handleChange} />
         </div>
         
         <div className="form-group">

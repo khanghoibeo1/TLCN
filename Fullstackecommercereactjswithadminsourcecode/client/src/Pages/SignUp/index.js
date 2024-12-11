@@ -13,6 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { firebaseApp } from "../../firebase";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const auth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
@@ -24,11 +25,19 @@ const SignUp = () => {
     email: "",
     phone: "",
     password: "",
+    confirmPassword: "",
     isAdmin: false,
   });
 
   const context = useContext(MyContext);
   const history = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
 
   useEffect(() => {
     context.setisHeaderFooterShow(false);
@@ -46,12 +55,14 @@ const SignUp = () => {
   const register = (e) => {
     console.log(formfields);
     e.preventDefault();
+    const phoneRegex = /^[0-9]{10}$/; // 10 chữ số
+    const nameRegex = /^[\p{L}\s]+$/u; // Chỉ chứa chữ cái và khoảng trắng
     try {
-      if (formfields.name === "") {
+      if (!formfields.name.match(nameRegex)) {
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "name can not be blank!",
+          msg: "Name should only contain letters!",
         });
         return false;
       }
@@ -60,29 +71,38 @@ const SignUp = () => {
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "email can not be blank!",
+          msg: "Email can not be blank!",
         });
         return false;
       }
 
-      if (formfields.phone === "") {
+      if (!formfields.phone.match(phoneRegex)) {
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "phone can not be blank!",
+          msg: "Phone number must be 10 digits and contain only numbers!",
         });
         return false;
       }
 
-      if (formfields.password === "") {
+      if (formfields.password.length < 6) {
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "password can not be blank!",
+          msg: "Password must be at least 6 characters long!",
         });
         return false;
       }
 
+      if (formfields.password !== formfields.confirmPassword) {
+        console.log("Passwords do not match:", formfields.password, formfields.confirmPassword);
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Password and Confirm Password do not match!",
+        });
+        return false;
+      }
       setIsLoading(true);
 
       postData("/api/user/signup", formfields)
@@ -96,7 +116,7 @@ const SignUp = () => {
 
             setTimeout(() => {
               setIsLoading(true);
-              history("/signIn");
+              history("/verify-email");
               //window.location.href="/signIn";
             }, 2000);
           } else {
@@ -267,18 +287,35 @@ const SignUp = () => {
               />
             </div>
             <div className="form-group">
-              <TextField
-                id="standard-basic"
-                label="Password"
-                name="password"
-                onChange={onchangeInput}
-                type="password"
-                variant="standard"
-                className="w-100"
-              />
+              <div className="password-input-container">
+                <TextField
+                  id="password"
+                  label="Password"
+                  name="password"
+                  onChange={onchangeInput}
+                  type={showPassword ? "text" : "password"} // Conditional type
+                  variant="standard"
+                  className="w-100"
+                />
+                <span className="password-toggle" onClick={togglePasswordVisibility}>
+                  {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                </span>
+              </div>
+              <div className="password-input-container">
+                <TextField
+                  id="confirm-password"
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  onChange={onchangeInput}
+                  type={showConfirmPassword ? "text" : "password"} // Conditional type
+                  variant="standard"
+                  className="w-100"
+                />
+                <span className="password-toggle" onClick={toggleConfirmPasswordVisibility}>
+                  {showConfirmPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                </span>
+              </div>
             </div>
-
-            <a className="border-effect cursor txt">Forgot Password?</a>
 
             <div className="d-flex align-items-center mt-3 mb-3 ">
               <div className="row w-100">
@@ -307,7 +344,7 @@ const SignUp = () => {
             </div>
 
             <p className="txt">
-              Not Registered?{" "}
+              I have an account!{" "}
               <Link to="/signIn" className="border-effect">
                 Sign In
               </Link>

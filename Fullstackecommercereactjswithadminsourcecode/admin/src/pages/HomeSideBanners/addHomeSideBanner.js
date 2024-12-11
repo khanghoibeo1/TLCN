@@ -182,7 +182,7 @@ const AddBanner = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       const imgIndex = previews.indexOf(imgUrl);
 
       deleteImages(`/api/homeSideBanners/deleteImage?img=${imgUrl}`).then(

@@ -1,5 +1,6 @@
 import HomeBanner from "../../Components/HomeBanner";
 import HomeSideBanner from "../../Components/HomeSideBanner";
+import MyChatBot from "../../Components/chatbot";
 import Button from "@mui/material/Button";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import React, { useContext, useEffect, useState } from "react";
@@ -128,7 +129,7 @@ const Home = () => {
 
   return (
     <>
-      <ChatBot/>
+      <MyChatBot/>
       {homeSlides?.length !== 0 ? (
         <HomeBanner data={homeSlides} />
       ) : (

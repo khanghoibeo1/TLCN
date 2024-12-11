@@ -174,6 +174,14 @@ const ProductDetails = () => {
     if (activeSize !== null) {
       const user = JSON.parse(localStorage.getItem("user"));
 
+      if (productQuantity > productData.countInStock) {
+        context.setAlertBox({
+            open: true,
+            error: true,
+            msg: `Only ${productData.countInStock} items are available in stock.`,
+        });
+        return;
+     }
       cartFields.productTitle = productData?.name;
       cartFields.image = productData?.images[0];
       cartFields.rating = productData?.rating;
@@ -184,6 +192,7 @@ const ProductDetails = () => {
       cartFields.countInStock = productData?.countInStock;
       cartFields.userId = user?.userId;
 
+      console.log('Product ID sent from frontend:', cartFields.productId);
       context.addToCart(cartFields);
     } else {
       setTabError(true);
@@ -295,9 +304,9 @@ const ProductDetails = () => {
                 </ul>
 
                 <div className="d-flex info mb-3">
-                  {productData?.discount > 0 && (<span className="oldPrice">Rs: {productData?.oldPrice}</span>)}
+                  {productData?.discount > 0 && (<span className="oldPrice">$: {productData?.oldPrice}</span>)}
                   <span className="netPrice text-danger ml-2">
-                    Rs: {productData?.price}
+                    $: {productData?.price}
                   </span>
                 </div>
 
@@ -453,16 +462,6 @@ const ProductDetails = () => {
                 </li>
                 <li className="list-inline-item">
                   <Button
-                    className={`${activeTabs === 1 && "active"}`}
-                    onClick={() => {
-                      setActiveTabs(1);
-                    }}
-                  >
-                    Additional info
-                  </Button>
-                </li>
-                <li className="list-inline-item">
-                  <Button
                     className={`${activeTabs === 2 && "active"}`}
                     onClick={() => {
                       setActiveTabs(2);
@@ -477,101 +476,6 @@ const ProductDetails = () => {
 
               {activeTabs === 0 && (
                 <div className="tabContent">{productData?.description}</div>
-              )}
-
-              {activeTabs === 1 && (
-                <div className="tabContent">
-                  <div className="table-responsive">
-                    <table className="table table-bordered">
-                      <tbody>
-                        <tr className="stand-up">
-                          <th>Stand Up</th>
-                          <td>
-                            <p>35″L x 24″W x 37-45″H(front to back wheel)</p>
-                          </td>
-                        </tr>
-                        <tr className="folded-wo-wheels">
-                          <th>Folded (w/o wheels)</th>
-                          <td>
-                            <p>32.5″L x 18.5″W x 16.5″H</p>
-                          </td>
-                        </tr>
-                        <tr className="folded-w-wheels">
-                          <th>Folded (w/ wheels)</th>
-                          <td>
-                            <p>32.5″L x 24″W x 18.5″H</p>
-                          </td>
-                        </tr>
-                        <tr className="door-pass-through">
-                          <th>Door Pass Through</th>
-                          <td>
-                            <p>24</p>
-                          </td>
-                        </tr>
-                        <tr className="frame">
-                          <th>Frame</th>
-                          <td>
-                            <p>Aluminum</p>
-                          </td>
-                        </tr>
-                        <tr className="weight-wo-wheels">
-                          <th>Weight (w/o wheels)</th>
-                          <td>
-                            <p>20 LBS</p>
-                          </td>
-                        </tr>
-                        <tr className="weight-capacity">
-                          <th>Weight Capacity</th>
-                          <td>
-                            <p>60 LBS</p>
-                          </td>
-                        </tr>
-                        <tr className="width">
-                          <th>Width</th>
-                          <td>
-                            <p>24″</p>
-                          </td>
-                        </tr>
-                        <tr className="handle-height-ground-to-handle">
-                          <th>Handle height (ground to handle)</th>
-                          <td>
-                            <p>37-45″</p>
-                          </td>
-                        </tr>
-                        <tr className="wheels">
-                          <th>Wheels</th>
-                          <td>
-                            <p>12″ air / wide track slick tread</p>
-                          </td>
-                        </tr>
-                        <tr className="seat-back-height">
-                          <th>Seat back height</th>
-                          <td>
-                            <p>21.5″</p>
-                          </td>
-                        </tr>
-                        <tr className="head-room-inside-canopy">
-                          <th>Head room (inside canopy)</th>
-                          <td>
-                            <p>25″</p>
-                          </td>
-                        </tr>
-                        <tr className="pa_color">
-                          <th>Color</th>
-                          <td>
-                            <p>Black, Blue, Red, White</p>
-                          </td>
-                        </tr>
-                        <tr className="pa_size">
-                          <th>Size</th>
-                          <td>
-                            <p>M, S</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               )}
 
               {activeTabs === 2 && (

@@ -16,6 +16,10 @@ import { fetchDataFromApi } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
 import { FaFilter } from "react-icons/fa";
 
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+
 import { MyContext } from "../../App";
 
 const Listing = () => {
@@ -44,16 +48,17 @@ const Listing = () => {
     if (url.includes("subCat")) {
       apiEndPoint = `/api/products/subCatId?subCatId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
     if (url.includes("category")) {
       apiEndPoint = `/api/products/catId?catId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
 
     setisLoading(true);
     fetchDataFromApi(`${apiEndPoint}`).then((res) => {
+      console.log("Fetched Data:", res);
       setProductData(res);
       setisLoading(false);
     });
@@ -74,12 +79,12 @@ const Listing = () => {
     if (url.includes("subCat")) {
       apiEndPoint = `/api/products/subCatId?subCatId=${id}&location=${localStorage.getItem(
         "location"
-      )}&page=${value}&perPage=8`;
+      )}&page=${value}&perPage=12`;
     }
     if (url.includes("category")) {
       apiEndPoint = `/api/products/catId?catId=${id}&location=${localStorage.getItem(
         "location"
-      )}&page=${value}&perPage=8`;
+      )}&page=${value}&perPage=12`;
     }
 
     setisLoading(true);
@@ -97,20 +102,7 @@ const Listing = () => {
       top: 0,
       behavior: "smooth",
     });
-    //setFilterId(subCatId);
-    //setisLoading(true);
-
-    // fetchDataFromApi(
-    //   `/api/products/subCatId?subCatId=${subCatId}&location=${localStorage.getItem(
-    //     "location"
-    //   )}`
-    // ).then((res) => {
-    //   setProductData(res);
-    //   setisLoading(false);
-    // });
-
-
-      history(`/products/subCat/${subCatId}`)
+    history(`/products/subCat/${subCatId}`)
 
   };
 
@@ -124,14 +116,14 @@ const Listing = () => {
         price[0]
       }&maxPrice=${price[1]}&subCatId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
     if (window_url.includes("category")) {
       api_EndPoint = `/api/products/fiterByPrice?minPrice=${
         price[0]
       }&maxPrice=${price[1]}&catId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
 
     setisLoading(true);
@@ -150,12 +142,12 @@ const Listing = () => {
     if (url.includes("subCat")) {
       apiEndPoint = `/api/products/rating?rating=${rating}&subCatId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
     if (url.includes("category")) {
       apiEndPoint = `/api/products/rating?rating=${rating}&catId=${id}&location=${localStorage.getItem(
         "location"
-      )}`;
+      )}&page=1&perPage=12`;
     }
 
     fetchDataFromApi(apiEndPoint).then((res) => {
@@ -167,23 +159,6 @@ const Listing = () => {
       });
     });
   };
-
-  const handleChange = (event, value) => {
-    setisLoading(true);
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    fetchDataFromApi(
-      `/api/products?subCatId=${id}&page=${value}&perPage=6&location=${localStorage.getItem(
-        "location"
-      )}`
-    ).then((res) => {
-      setProductData(res);
-      setisLoading(false);
-    });
-  };
-
 
   return (
     <>
@@ -242,7 +217,25 @@ const Listing = () => {
                   </>
                 )}
               </div>
-              
+              {!isLoading && productData?.totalPages > 1 && (
+                <Box
+                  className="paginationContainer"
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '20px',
+                  }}
+                >
+                  <Pagination
+                    count={productData.totalPages}
+                    page={productData.page}
+                    onChange={handleChangePage}
+                    color="secondary"
+                    shape="rounded" 
+                    variant="outlined"
+                  />
+                </Box>
+              )}
               
             </div>
           </div>

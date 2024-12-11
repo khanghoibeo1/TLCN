@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../../assets/images/logo.png";
+import Logo from "../../assets/images/logo.jpg";
 import Button from "@mui/material/Button";
 import CountryDropdown from "../CountryDropdown";
 import { FiUser } from "react-icons/fi";
@@ -122,8 +122,7 @@ const Header = () => {
           <div className="top-strip bg-blue">
             <div className="container">
               <p className="mb-0 mt-0 text-center">
-                Due to the <b>COVID 19</b> epidemic, orders may be processed
-                with a slight delay
+                Welcome to ecommerce website <b>Shopify</b>
               </p>
             </div>
           </div>
@@ -175,11 +174,19 @@ const Header = () => {
 
                   <div className="part3 d-flex align-items-center ml-auto">
                     {context.isLogin !== true && context.windowWidth > 992 && (
-                      <Link to="/signIn">
-                        <Button className="btn-blue btn-round mr-3">
-                          Sign In
-                        </Button>
-                      </Link>
+                      <>
+                        <Link to="/signIn">
+                          <Button className="btn-blue btn-round mr-3">
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link to="/signUp">
+                          <Button className="btn-green btn-round ">
+                            Sign Up
+                          </Button>
+                        </Link>
+                      </>
+
                     )}
 
                     {context.isLogin === true && (
@@ -272,7 +279,7 @@ const Header = () => {
                             : 0
                           )?.toLocaleString("en-US", {
                             style: "currency",
-                            currency: "INR",
+                            currency: "USD",
                           })}
                         </span>
                       )}

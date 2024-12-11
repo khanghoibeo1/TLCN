@@ -12,6 +12,7 @@ import {
   deleteData,
   deleteImages,
   editData,
+  editData2,
   fetchDataFromApi,
   postData,
   uploadImage,
@@ -105,13 +106,13 @@ const MyAccount = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
-      setUserData(res);
-      setPreviews(res.images);
+      setUserData(res.data);
+      setPreviews(res.data.images);
 
       setFormFields({
-        name: res.name,
-        email: res.email,
-        phone: res.phone,
+        name: res.data.name,
+        email: res.data.email,
+        phone: res.data.phone,
       });
     });
 
@@ -205,15 +206,17 @@ const MyAccount = () => {
           const user = JSON.parse(localStorage.getItem("user"));
 
           fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
+
             const data = {
-              name: res?.name,
-              email: res?.email,
-              phone: res?.phone,
+              name: res.data?.name,
+              email: res.data?.email,
+              phone: res.data?.phone,
               images: uniqueArray,
-              isAdmin: res?.isAdmin
+              isAdmin: res.data?.isAdmin
             };
 
-            editData(`/api/user/${user?.userId}`, data).then((res) => {
+
+            editData2(`/api/user/${user?.userId}`, data).then((res) => {
               setTimeout(() => {
                 setUploading(false);
                 img_arr = [];
@@ -242,6 +245,7 @@ const MyAccount = () => {
     formdata.append("phone", formFields.phone);
 
     formdata.append("images", appendedArray);
+    console.log(formdata);
 
     formFields.images = appendedArray;
 
@@ -253,18 +257,30 @@ const MyAccount = () => {
     ) {
       setIsLoading(true);
       const user = JSON.parse(localStorage.getItem("user"));
-
-      editData(`/api/user/${user?.userId}`, formFields).then((res) => {
-        // console.log(res);
+      const data = {
+        name: formFields.name,
+        email: formFields.email,
+        phone: formFields.phone,
+        images: formFields.images,
+        isAdmin: false,
+      };
+      // console.log(data);
+      editData2(`/api/user/${user?.userId}`, data).then((res) => {
+        console.log(res?.status);
         setIsLoading(false);
 
         deleteData("/api/imageUpload/deleteAllImages");
-
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "user updated",
-        });
+        if(res?.status === "SUCCESS"){
+          context.setAlertBox({
+            open: true,
+            error: false,
+            msg: "User updated",
+        })}else {
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: res?.msg,
+        })}
       });
     } else {
       context.setAlertBox({
@@ -277,6 +293,7 @@ const MyAccount = () => {
   };
 
   const changePassword = (e) => {
+    setValue(1)
     e.preventDefault();
     formdata.append("password", fields.password);
 
@@ -291,25 +308,34 @@ const MyAccount = () => {
           error: true,
           msg: "Password and confirm password not match",
         });
-      } else {
+      }else {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const data = {
-          name: user?.name,
           email: user?.email,
           password: fields.oldPassword,
           newPass: fields.password,
-          phone: formFields.phone,
-          images: formFields.images,
         };
-
-        editData(`/api/user/changePassword/${user.userId}`, data).then(
+        console.log(data);
+        editData(`/api/user/changePassword/${user?.userId}`, data).then(
           (res) => {
-          
-          }
-        );
-      }
-    } else {
+            console.log(res?.error);
+            console.log(res?.status);
+            if(res?.status === "SUCCESS"){
+                context.setAlertBox({
+                  open: true,
+                  error: false,
+                  msg: res?.msg || "Password is changed"
+              })
+            }else {
+              context.setAlertBox({
+                open: true,
+                error: true,
+                msg: res?.msg || "Change password failed"
+              })
+            } 
+      })}}
+      else {
       context.setAlertBox({
         open: true,
         error: true,
@@ -433,6 +459,7 @@ const MyAccount = () => {
                           label="Old Password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="oldPassword"
                           onChange={changeInput2}
                         />
@@ -445,6 +472,7 @@ const MyAccount = () => {
                           label="New password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="password"
                           onChange={changeInput2}
                         />
@@ -457,6 +485,7 @@ const MyAccount = () => {
                           label="Confirm Password"
                           variant="outlined"
                           className="w-100"
+                          type="password"
                           name="confirmPassword"
                           onChange={changeInput2}
                         />

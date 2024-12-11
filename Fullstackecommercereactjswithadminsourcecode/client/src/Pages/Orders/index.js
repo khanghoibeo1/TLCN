@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { fetchDataFromApi } from '../../utils/api';
+import { editData, editData2, fetchDataFromApi } from '../../utils/api';
 import Pagination from '@mui/material/Pagination';
 import Dialog from '@mui/material/Dialog';
 import { MdClose } from "react-icons/md";
@@ -32,7 +32,7 @@ const Orders = () => {
         }
 
         const user = JSON.parse(localStorage.getItem("user"));
-        fetchDataFromApi(`/api/orders?userid=${user?.userId}`).then((res) => {
+        fetchDataFromApi(`/api/orders/user?userid=${user?.userId}`).then((res) => {
             setOrders(res);
         })
 
@@ -50,7 +50,24 @@ const Orders = () => {
             setproducts(res.products);
         })
     }
-
+ // Hàm cập nhật trạng thái đơn hàng từ phía client
+    const updateOrderStatus = (orderId, newStatus) => {
+        // gọi API PUT /api/orders/client-update/:id
+        editData2(`/api/orders/client-update/${orderId}`, { status: newStatus }).then(res => {
+            console.log(res)
+            console.log('res id',res.order._id)
+            if(res  && res.order._id){
+                // Cập nhật lại danh sách orders sau khi cập nhật trạng thái
+                const user = JSON.parse(localStorage.getItem("user"));
+                fetchDataFromApi(`/api/orders/user?userid=${user?.userId}`).then((res) => {
+                    console.log(res);
+                    setOrders(res);
+                });
+            }
+        }).catch(err => {
+            console.error("Error updating order status:", err);
+        });
+    }
 
     return (
         <>
@@ -63,17 +80,16 @@ const Orders = () => {
                             <thead className='thead-light'>
                                 <tr>
                                     <th>Order Id</th>
-                                    <th>Paymant Id</th>
-                                    <th>Products</th>
                                     <th>Name</th>
                                     <th>Phone Number</th>
+                                    <th>Products</th>
+                                    <th>Payment Method</th>
                                     <th>Address</th>
                                     <th>Pincode</th>
                                     <th>Total Amount</th>
-                                    <th>Email</th>
-                                    <th>User Id</th>
                                     <th>Order Status</th>
                                     <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
 
@@ -83,24 +99,37 @@ const Orders = () => {
                                         return (
                                             <>
                                                 <tr key={index}>
-                                                 <td><span className='text-blue fonmt-weight-bold'>{order?.id}</span></td>
-                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.paymentId}</span></td>
-                                                    <td><span className='text-blue fonmt-weight-bold cursor' onClick={() => showProducts(order?._id)}>Click here to view</span>
-                                                    </td>
+                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.id}</span></td>
                                                     <td>{order?.name}</td>
                                                     <td>{order?.phoneNumber}</td>
+                                                    <td><span className='text-blue fonmt-weight-bold cursor' onClick={() => showProducts(order?._id)}>Click here to view</span></td>
+                                                    <td><span className='text-blue fonmt-weight-bold'>{order?.payment}</span></td>
                                                     <td>{order?.address}</td>
                                                     <td>{order?.pincode}</td>
                                                     <td>{order?.amount}</td>
-                                                    <td>{order?.email}</td>
-                                                    <td>{order?.userid}</td>
                                                     <td>
                                                         {order?.status === "pending" ?
-                                                            <span className='badge badge-danger'>{order?.status}</span> :
+                                                            <span className='badge badge-danger'>{order?.status}</span> 
+                                                        : order?.status === "verify" ? 
+                                                            <span className='badge badge-info'>{order?.status}</span> 
+                                                        : order?.status === "cancel" ?
+                                                            <span className='badge badge-secondary'>{order?.status}</span>
+                                                        : order?.status === "paid" ?
                                                             <span className='badge badge-success'>{order?.status}</span>
+                                                        : <span>{order?.status}</span>
                                                         }
                                                     </td>
                                                     <td>{order?.date?.split("T")[0]}</td>
+                                                    <td>
+                                                        {/* Logic hiển thị nút hành động */}
+                                                        {order.status === "pending" && order.payment === "Cash on Delivery" && (
+                                                            <button onClick={() => updateOrderStatus(order.id, 'cancel')} className="btn btn-danger btn-sm">Cancel</button>
+                                                        )}
+                                                        {order.status === "verify" && (
+                                                            <button onClick={() => updateOrderStatus(order.id, 'paid')} className="btn btn-success btn-sm">Paid</button>
+                                                        )}
+                                                        {/* Nếu đã cancel hoặc paid thì không có nút nào */}
+                                                    </td>
                                                 </tr>
 
                                             </>

@@ -148,9 +148,10 @@ const EditUpload = () => {
           });
         }
       });
+      console.log(subCatArr);
 
     setSubCatData(subCatArr);
-  }, [context.catData]);
+  },[]);
 
   //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
   useEffect(() => {
@@ -175,6 +176,7 @@ const EditUpload = () => {
     context.setselectedCountry("");
 
     setCatData(context.catData);
+
 
     fetchDataFromApi("/api/imageUpload").then((res) => {
       res?.map((item) => {
@@ -402,7 +404,7 @@ const EditUpload = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin9643@gmail.com") {
+    if (userInfo?.email === "admin@admin.com") {
       const imgIndex = previews.indexOf(imgUrl);
 
       deleteImages(`/api/category/deleteImage?img=${imgUrl}`).then((res) => {
@@ -689,7 +691,9 @@ const EditUpload = () => {
                           <em value={null}>None</em>
                         </MenuItem>
                         {subCatData?.length !== 0 &&
-                          subCatData?.map((subCat, index) => {
+                          subCatData
+                          .filter((subCat) => subCat.parentId === categoryVal)
+                          .map((subCat, index) => {
                             return (
                               <MenuItem
                                 className="text-capitalize"

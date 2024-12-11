@@ -46,7 +46,9 @@ const Banners = (props) => {
             }}
           >
             {props?.data?.length !== 0 &&
-              props?.data?.map((item, index) => {
+              props?.data
+              .filter(item => item.display)
+              .map((item, index) => {
                 return (
                   <SwiperSlide key={index}>
                     <div className={`col_`}>
@@ -92,7 +94,9 @@ const Banners = (props) => {
             style={{ gridTemplateColumns: `repeat(${props?.col},1fr)` }}
           >
             {props?.data?.length !== 0 &&
-              props?.data?.map((item, index) => {
+              props?.data
+              .filter(item => item.display)
+              .map((item, index) => {
                 return (
                    <div className={`col_`}>
                       {item?.subCatId || item?.catId ? (

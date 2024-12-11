@@ -4,6 +4,7 @@ import { FaAngleRight } from "react-icons/fa6";
 import { FaAddressCard } from "react-icons/fa6";
 import { FaProductHunt } from "react-icons/fa";
 import { FaBlog } from "react-icons/fa";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { FaCartArrowDown } from "react-icons/fa6";
 import { MdMessage } from "react-icons/md";
 import { FaBell } from "react-icons/fa6";
@@ -328,7 +329,43 @@ const Sidebar = () => {
             </div>
           </li>
 
-          
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 7 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(7)}
+            >
+              <span className="icon">
+                <FaMoneyBillTrendUp />
+              </span>
+              Promotion Code
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 7 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/promotionCode"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Promotion Code List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>
         </ul>
 
         <div className="logoutWrapper">
