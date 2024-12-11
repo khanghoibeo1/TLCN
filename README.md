@@ -24,7 +24,7 @@ Shopify provides an online shopping platform for users in the agricultural produ
     ├── server/
     │   ├── models/            # Database Models
     │   ├── routes/            # API Endpoints
-    │   ├── app.js             # Server entry point
+    │   ├── index.js             # Server entry point
     │   ├── package.json       # Server dependencies
     │   └── ...
     └── README.md              # Project Documentation
