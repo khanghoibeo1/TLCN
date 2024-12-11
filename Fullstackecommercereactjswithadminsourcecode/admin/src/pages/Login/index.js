@@ -14,12 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { postData } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { firebaseApp } from "../../firebase";
 
-const auth = getAuth(firebaseApp);
-const googleProvider = new GoogleAuthProvider();
+
 
 const Login = () => {
   const [inputIndex, setInputIndex] = useState(null);
@@ -130,85 +126,6 @@ const Login = () => {
         setIsLoading(false);
       }
     });
-  };
-
-  const signInWithGoogle = () => {
-    signInWithPopup(auth, googleProvider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-
-        const fields = {
-          name: user.providerData[0].displayName,
-          email: user.providerData[0].email,
-          password: null,
-          images: user.providerData[0].photoURL,
-          phone: user.providerData[0].phoneNumber,
-          isAdmin: true,
-        };
-
-        postData("/api/user/authWithGoogle", fields).then((res) => {
-          try {
-            if (res.error !== true) {
-              localStorage.setItem("token", res.token);
-
-              const user = {
-                name: res.user?.name,
-                email: res.user?.email,
-                userId: res.user?.id,
-              };
-
-              localStorage.setItem("user", JSON.stringify(user));
-
-              context.setAlertBox({
-                open: true,
-                error: false,
-                msg: res.msg,
-              });
-
-              setTimeout(() => {
-                context.setIsLogin(true);
-                history("/dashboard");
-              }, 2000);
-            } else {
-              context.setAlertBox({
-                open: true,
-                error: true,
-                msg: res.msg,
-              });
-              setIsLoading(false);
-            }
-          } catch (error) {
-            console.log(error);
-            setIsLoading(false);
-          }
-        });
-
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "User authentication Successfully!",
-        });
-
-        // window.location.href = "/";
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: errorMessage,
-        });
-        // ...
-      });
   };
 
   return (
