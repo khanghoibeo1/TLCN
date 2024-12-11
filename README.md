@@ -99,12 +99,15 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 5. Install dependencies:
 
     ```sh
+    # Install dependencies for the admin panel
     cd admin
     npm install
     
+    # Install dependencies for the client
     cd ../client
     npm install
     
+    # Install dependencies for the server
     cd ../server
     npm install
     ```
@@ -112,12 +115,23 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 6. Run the project:
 
     ```sh
-    npm run dev
+    # Start the server
+    cd server
+    npm start
+    
+    # Start the client
+    cd ../client
+    npm start
+    
+    # Start the admin panel
+    cd ../admin
+    npm start
     ```
 
 7. Open your browser and navigate to:
 
-    [http://localhost:3000](http://localhost:3000)
+- client: [http://localhost:3008](http://localhost:3008)
+- admin: [http://localhost:3002](http://localhost:3002)
 
 8. Stop the project:
 
