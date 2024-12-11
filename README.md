@@ -31,6 +31,9 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 
 1. Install Node.js (v18+ recommended).
 2. Install MongoDB.
+- Cloudinary Account (for image hosting)
+- Mailtrap Account (for email testing)
+- PayPal Developer Account (for payment integration)
 
 ### Steps
 
@@ -43,15 +46,15 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 
 2. Open the project in your favorite IDE (Visual Studio Code is recommended).
 
-3. Create the `.env` file:
+3. Create `.env` in the `frontend` file:
 
-   ```plaintext
-   internhub-frontend/
-     |-- ...
-     |-- public/
-     |-- src/
-     |-- .env 👈
-     |-- ...
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   CLIENT_BASE_URL=your_client_url
+   JWT_SECRET=your_secret_key
+   cloudinary_Config_Cloud_Name=you_c
+    STRIPE_SECRET_KEY=your_stripe_secret_key
    ```
 
     Add the following environment variables to the `.env.local` file:
