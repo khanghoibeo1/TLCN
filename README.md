@@ -8,6 +8,7 @@ Shopify provides an online shopping platform for users in the agricultural produ
 
 ## Project Structure
 FullstackEcommerceReactJSWithAdminSourceCode/
+```bash
 ├── admin/
 │   ├── src/               # React Admin Panel Source
 │   ├── package.json       # Admin dependencies
