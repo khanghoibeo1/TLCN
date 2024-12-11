@@ -7,24 +7,24 @@ Shopify provides an online shopping platform for users in the agricultural produ
 - [Node.js](https://nodejs.org/en/download/package-manager) v18.17.0 (LTS) or later
 
 ## Project Structure
-FullstackEcommerceReactJSWithAdminSourceCode/
-```bash
-├── admin/
-│   ├── src/               # React Admin Panel Source
-│   ├── package.json       # Admin dependencies
-│   └── ...
-├── client/
-│   ├── src/               # React Frontend Source
-│   ├── package.json       # Frontend dependencies
-│   └── ...
-├── server/
-│   ├── models/            # Database Models
-│   ├── routes/            # API Endpoints
-│   ├── app.js             # Server entry point
-│   ├── package.json       # Server dependencies
-│   └── ...
-└── README.md              # Project Documentation
-```
+    FullstackEcommerceReactJSWithAdminSourceCode/
+    ```bash
+    ├── admin/
+    │   ├── src/               # React Admin Panel Source
+    │   ├── package.json       # Admin dependencies
+    │   └── ...
+    ├── client/
+    │   ├── src/               # React Frontend Source
+    │   ├── package.json       # Frontend dependencies
+    │   └── ...
+    ├── server/
+    │   ├── models/            # Database Models
+    │   ├── routes/            # API Endpoints
+    │   ├── app.js             # Server entry point
+    │   ├── package.json       # Server dependencies
+    │   └── ...
+    └── README.md              # Project Documentation
+    ```
 
 ## Installation and Setup
 ### Prerequisites
@@ -47,7 +47,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
 2. Open the project in your favorite IDE (Visual Studio Code is recommended).
 
 3. Create `.env`:
-- Create `.env` in the `server` directory with the following content:
+    - Create `.env` in the `server` directory with the following content:
 
    ```plaintext
     # Server configuration
@@ -74,7 +74,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
     PAYPAL_CLIENT_ID= # Your PayPal client ID
     PAYPAL_SECRET_KEY= # Your PayPal secret key
    ```
-- Create `.env` file in the `client` directory with the following content:
+    - Create `.env` file in the `client` directory with the following content:
 
   ```plaintext
     # Backend API URL
@@ -90,7 +90,7 @@ FullstackEcommerceReactJSWithAdminSourceCode/
     # PayPal integration
     REACT_APP_PAYPAL_CLIENT_ID=
   ```
-- Create `.env` file in the `admin` directory with the following content:
+    - Create `.env` file in the `admin` directory with the following content:
 
   ```plaintext
     # Backend API URL
@@ -129,9 +129,8 @@ FullstackEcommerceReactJSWithAdminSourceCode/
     ```
 
 7. Open your browser and navigate to:
-
-- client: [http://localhost:3008](http://localhost:3008)
-- admin: [http://localhost:3002](http://localhost:3002)
+    - client: [http://localhost:3008](http://localhost:3008)
+    - admin: [http://localhost:3002](http://localhost:3002)
 
 8. Stop the project:
 
