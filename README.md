@@ -1,10 +1,14 @@
-# SHOPYFI ECOMMERCE
+# SHOPIFY ECOMMERCE
 
 Shopify provides an online shopping platform for users in the agricultural products sector. The project is built on MERN Stack technology. It includes a ReactJS front-end for the user interface, an ExpressJS and Node.js back-end, and MongoDB for the database. The admin panel allows administrators to manage banner, products, orders, and users efficiently.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/package-manager) v18.17.0 (LTS) or later
+- [MongoDB](https://www.mongodb.com/) (local or cloud instance)
+- Cloudinary Account (for image hosting)
+- Mailtrap Account (for email testing)
+- PayPal Developer Account (for payment integration)
 
 ## Project Structure
     FullstackEcommerceReactJSWithAdminSourceCode/
@@ -27,13 +31,8 @@ Shopify provides an online shopping platform for users in the agricultural produ
     ```
 
 ## Installation and Setup
-### Prerequisites
-
 1. Install Node.js (v18+ recommended).
 2. Install MongoDB.
-- Cloudinary Account (for image hosting)
-- Mailtrap Account (for email testing)
-- PayPal Developer Account (for payment integration)
 
 ### Steps
 
