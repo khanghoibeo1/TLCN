@@ -13,10 +13,10 @@ client/node_modules/
 server/node_modules/
 
 # Environment variables
-admin/.env
+# admin/.env
 admin/.env.local
 admin/.env.*.local
-client/.env
+# client/.env
 client/.env.local
 client/.env.*.local
 server/.env
