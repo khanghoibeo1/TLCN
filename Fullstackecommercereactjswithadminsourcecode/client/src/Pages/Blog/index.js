@@ -158,14 +158,18 @@ const Blog = () => {
             <div className="post-info">
               <h2>{selectedPost.title}</h2>
               <p><strong>By:</strong> {selectedPost.author}</p>
-              <div className="post-content">{selectedPost.content}</div>
-            </div>
-            <div className="post-images">
-              {selectedPost.images.map((image, index) => (
-                <img key={index} src={image} alt="Post illustration" />
-              ))}
             </div>
           </div>
+
+          {/* Hình ảnh hiển thị trước phần nội dung */}
+          <div className="post-images">
+            {selectedPost.images.map((image, index) => (
+              <img key={index} src={image} alt={`Post illustration ${index + 1}`} />
+            ))}
+          </div>
+
+          {/* Nội dung bài viết */}
+          <div className="post-content">{selectedPost.content}</div>
 
           <div className="comments-section">
             <h3>Customer questions & answers</h3>

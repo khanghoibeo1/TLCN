@@ -25,6 +25,22 @@ const EditPromotionCode = () => {
     status: "active", // Default is active
   });
 
+  // Fetch blog data on component mount
+  useEffect(() => {
+    context.setProgress(20);
+    fetchDataFromApi(`/api/promotionCode/${id}`)
+      .then((res) => {
+        setFormFields({
+          code: res?.data?.code,
+          description: res?.data?.description,
+          discountPercent: res?.data?.discountPercent,
+          maxUsage: res?.data?.maxUsage,
+          status: res?.data?.status,
+        });
+      })
+      
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormFields({ ...formFields, [name]: value });

@@ -1,5 +1,5 @@
 const express = require('express');
-const { PromotionCode } = require('../models/promotionCode');
+const {PromotionCode} = require('../models/promotionCode');
 const router = express.Router();
 
 // Create a new promotion code

@@ -66,36 +66,47 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column; /* Xếp các phần theo cột */
 }
 
+/* Post header: chứa tiêu đề và tác giả */
 .post-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  margin-bottom: 20px; /* Khoảng cách với phần hình ảnh */
 }
 
 .post-info h2 {
   color: #2c3e50;
   font-weight: bold;
-  padding: 10px;
 }
 
 .post-info p {
   color: #607d8b;
 }
 
-.post-content {
-  margin-top: 15px;
-  color: #333;
-  line-height: 1.6;
+/* Hình ảnh hiển thị trước nội dung */
+.post-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center; /* Căn giữa hình ảnh */
+  margin-bottom: 20px; /* Khoảng cách với nội dung */
 }
 
 .post-images img {
-  width: 100px;
+  max-width: 300px;
+  width: 100%;
   height: auto;
   border-radius: 5px;
-  margin: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Nội dung bài viết */
+.post-content {
+  color: #333;
+  line-height: 1.6;
+  margin-top: 15px;
+  text-align: justify;
 }
 
 /* Comments section styling */
