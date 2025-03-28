@@ -22,6 +22,7 @@ import Orders from "./Pages/Orders";
 import MyAccount from "./Pages/MyAccount";
 import SearchPage from "./Pages/Search";
 import Blog from "./Pages/Blog";
+import DetailBlog from "./Pages/DetailBlog";
 
 import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
@@ -48,6 +49,7 @@ function App() {
   const [enableFilterTab, setEnableFilterTab] = useState(false);
   const [isOpenFilters, setIsOpenFilters] = useState(false);
   const [isBottomShow, setIsBottomShow] = useState(true);
+  const [postTypeData, setPostTypeData] = useState([]);
 
   const [alertBox, setAlertBox] = useState({
     msg: "",
@@ -93,6 +95,10 @@ function App() {
 
       setsubCategoryData(subCatArr);
     });
+
+    fetchDataFromApi("/api/postTypes").then((res) => {
+      setPostTypeData(res);
+    })
 
   
 
@@ -227,6 +233,7 @@ function App() {
     cartData,
     setCartData,
     getCartData,
+    postTypeData,
     searchData,
     setSearchData,
     windowWidth,
@@ -291,6 +298,7 @@ function App() {
           <Route exact={true} path="/my-account" element={<MyAccount />} />
           <Route exact={true} path="/search" element={<SearchPage />} />
           <Route exact={true} path="/blog" element={<Blog />} />
+          <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 

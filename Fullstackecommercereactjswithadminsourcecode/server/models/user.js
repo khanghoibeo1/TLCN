@@ -1,35 +1,35 @@
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+    name: {
+        type: String,
+        required: true
     },
-    phone:{
-        type:String,
+    phone: {
+        type: String,
     },
-    email:{
-        type:String,
-        required:true,
+    email: {
+        type: String,
+        required: true,
     },
-    password:{
-        type:String,
+    password: {
+        type: String,
     },
-    status:{
-        type:String,
-        default:"active",
+    status: {
+        type: String,
+        default: "active",
     },
-    images:[
+    images: [
         {
-            type:String,
-            required:true
+            type: String,
+            required: true
         }
     ],
-    isAdmin:{
+    isAdmin: {
         type: Boolean,
         default: false,
     },
-    isVerified:{
+    isVerified: {
         type: Boolean,
         default: false,
     },
@@ -37,7 +37,7 @@ const userSchema = mongoose.Schema({
     resetPasswordExpiresAt: Date,
     verificationToken: String,
     verificationTokenExpiresAt: Date,
-    
+
     date: {
         type: Date,
         default: Date.now
@@ -47,7 +47,24 @@ const userSchema = mongoose.Schema({
         default: 0,
     },
 
-})
+    // 🔹 Thêm role để phân quyền
+    role: {
+        type: String,
+        enum: ["client", "mainAdmin", "storeAdmin", "staff"],
+        default: "client",
+    },
+
+    // 🔹 Thêm thông tin kho quản lý (chỉ dùng khi là storeAdmin hoặc staff)
+    locationManageName: {
+        type: String,
+        default: null, // Không bắt buộc
+    },
+    locationManageId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StoreLocation", // Liên kết với StoreLocation
+        default: null,
+    },
+});
 
 userSchema.virtual('id').get(function () {
     return this._id.toHexString();

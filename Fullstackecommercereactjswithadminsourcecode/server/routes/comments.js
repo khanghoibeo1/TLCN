@@ -19,41 +19,81 @@ router.get('/post/', async (req, res) => {
 });
 
 // Add a new comment
+// router.post('/add', async (req, res) => {
+//     const { content, author, postId } = req.body;
+  
+//     // Input validation (optional but highly recommended)
+//     if (!content || !author || !postId) {
+//       return res.status(400).json({ success: false, error: 'Missing required fields' });
+//     }
+  
+//     try {
+//       // Validate author object structure (if applicable)
+//       if (typeof author !== 'object' || !author.name || !author.userId) {
+//         return res.status(400).json({ success: false, error: 'Invalid author object format' });
+//       }
+  
+//       // Create a new comment instance
+//       const comment = new Comment({
+//         content,
+//         author: {
+//           name: author.name,
+//           userId: author.userId // Assuming userId is an ObjectID
+//         },
+//         postId
+//       });
+  
+//       // Save the comment to the database
+//       const savedComment = await comment.save();
+  
+//       // Return the saved comment with a success response
+//       return res.status(201).json(savedComment);
+//     } catch (error) {
+//       // Handle errors gracefully
+//       console.error(error.message); // Log the error for debugging
+//       return res.status(500).json({ success: false, error: 'Internal server error' }); // Generic error message for the user
+//     }
+//   });
+
+// Add a new comment
 router.post('/add', async (req, res) => {
-    const { content, author, postId } = req.body;
-  
-    // Input validation (optional but highly recommended)
-    if (!content || !author || !postId) {
+  const { content, author, postId, parentId, parentName } = req.body;
+
+  if (!content || !author || !postId) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
-    }
-  
-    try {
-      // Validate author object structure (if applicable)
+  }
+
+  try {
       if (typeof author !== 'object' || !author.name || !author.userId) {
-        return res.status(400).json({ success: false, error: 'Invalid author object format' });
+          return res.status(400).json({ success: false, error: 'Invalid author object format' });
       }
-  
-      // Create a new comment instance
+
+      // Nếu có parentId, kiểm tra xem nó có tồn tại không
+      if (parentId) {
+          const parentComment = await Comment.findById(parentId);
+          if (!parentComment) {
+              return res.status(400).json({ success: false, error: 'Parent comment not found' });
+          }
+      }
+
       const comment = new Comment({
-        content,
-        author: {
-          name: author.name,
-          userId: author.userId // Assuming userId is an ObjectID
-        },
-        postId
+          content,
+          author: {
+              name: author.name,
+              userId: author.userId
+          },
+          postId,
+          parentId: parentId || null,
+          parentName: parentName || null
       });
-  
-      // Save the comment to the database
+
       const savedComment = await comment.save();
-  
-      // Return the saved comment with a success response
       return res.status(201).json(savedComment);
-    } catch (error) {
-      // Handle errors gracefully
-      console.error(error.message); // Log the error for debugging
-      return res.status(500).json({ success: false, error: 'Internal server error' }); // Generic error message for the user
-    }
-  });
+  } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
 
 // Delete a comment by ID
 router.delete('/:id', async (req, res) => {

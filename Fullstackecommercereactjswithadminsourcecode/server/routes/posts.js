@@ -29,6 +29,52 @@ cloudinary.config({
   });
   
   const upload = multer({ storage: storage });
+
+  
+router.post(`/richtext/upload`, upload.any(), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: "No files uploaded" });
+    }
+
+    let imagesArr = [];
+
+    // Upload tất cả ảnh lên Cloudinary cùng lúc
+    const uploadPromises = req.files.map(async (file) => {
+      try {
+        const result = await cloudinary.uploader.upload(file.path, {
+          use_filename: true,
+          unique_filename: false,
+          overwrite: false,
+        });
+
+        // Xóa file sau khi upload xong
+        fs.unlinkSync(file.path);
+
+        return result.secure_url;
+      } catch (error) {
+        console.error("Cloudinary Upload Error:", error);
+        throw error;
+      }
+    });
+
+    imagesArr = await Promise.all(uploadPromises);
+
+    // Lưu vào database
+    //const imagesUploaded = new ImageUpload({ images: imagesArr });
+    //await imagesUploaded.save();
+    return res.status(200).json({
+      success: 1,
+      file: {
+        url: imagesArr[0] // Đường dẫn ảnh đầu tiên
+      }
+    });
+
+  } catch (error) {
+    console.error("Upload Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
   
   router.post(`/upload`, upload.array("images"), async (req, res) => {
     imagesArr = [];
@@ -173,7 +219,7 @@ router.get('/get/count', async (req, res) => {
 // Add a new post
 router.post('/create', async (req, res) => {
     try {
-        const { title, content, author, images, tags, category, status, catId } = req.body;
+        const { title, ytbLink, content, author, images, tags, category, status, catId } = req.body;
         const images_Array = [];
         const uploadedImages = await ImageUpload.find();
         const images_Arr = uploadedImages?.map((item) => {
@@ -189,6 +235,7 @@ router.post('/create', async (req, res) => {
 
         let post = new Post({
             title,
+            ytbLink,
             content,
             author,
             images: images_Array,
@@ -264,6 +311,7 @@ router.delete("/deleteImage", async (req, res) => {
       req.params.id,
       {
         title: req.body.title,
+        ytbLink: req.body.ytbLink,
         content: req.body.content,
         author: req.body.author,
         images: req.body.images,

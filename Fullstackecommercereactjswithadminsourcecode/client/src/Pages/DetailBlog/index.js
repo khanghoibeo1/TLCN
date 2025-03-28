@@ -1,21 +1,12 @@
 import React, {useContext, useEffect, useState } from 'react';
 import './index.css';
 import { Button, CircularProgress, Modal  } from "@mui/material";
-import {
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  CardMedia,
-  Grid,
-  Box,
-} from '@mui/material';
-import BlogCard from "../../Components/blog/BlogCard";
 import { fetchDataFromApi, postData } from "../../utils/api";
+import { useNavigate, useParams } from "react-router-dom";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble"; // Icon comment
 import { MyContext } from "../../App";
-import Pagination from "@mui/material/Pagination";
-import { useNavigate } from 'react-router-dom';
+import usePagination from '@mui/material/usePagination/usePagination';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -28,9 +19,6 @@ const Blog = () => {
   const [replyingToName, setReplyingToName] = useState(null); // Lưu ID của comment được reply
   const [expandedCount, setExpandedCount] = useState(3);
   const [expandedIndexes, setExpandedIndexes] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 12; // Số bài viết trên mỗi trang
   const [reviews, setReviews] = useState({
       postId: "", 
       author: {
@@ -40,82 +28,10 @@ const Blog = () => {
       content: "",
   });
   const context = useContext(MyContext);
-  const navigate = useNavigate();
+  const {id} = useParams();
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    setExpandedCount(3);
-    setExpandedIndexes([]);
-  },[postId])
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const reponse = await fetchDataFromApi('/api/posts');
-        setPosts(reponse.data);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPosts();
-  }, []);
-
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
   
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please Login first",
-      });
-      return;
-    }
-  
-    const newComment = {
-      postId,
-      parentId: replyingTo,  // Nếu không có replyingTo thì là comment gốc
-      parentName: replyingToName,
-      author: {
-        name: user.name,
-        userId: user.userId
-      },
-      content: reviews.content,
-    };
-  
-    if (newComment.content !== "") {
-      setIsLoading(true);
-      postData("/api/comments/add", newComment).then((res) => {
-        setIsLoading(false);
-        if (!res?.error) {
-          setReviews({ ...reviews, content: "" });  // Reset content sau khi gửi
-          setReplyingTo(null); // Reset trạng thái reply
-          setReplyingToName(null);//Reset name
-  
-          // Fetch lại comment sau khi gửi thành công
-          fetchDataFromApi(`/api/comments/post?postId=${postId}`).then((res) => {
-            setComments(createCommentTree(res.data));
-          });
-        }
-      });
-    }
-  };
-  const handleChooseTypeClick = (catName) => {
-    setSelectedCategory(catName);
-  };
-
-  const filteredPosts = posts.filter(post => 
-    (selectedCategory === "All" || !selectedCategory || post.category === selectedCategory) &&
-    (post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     post.content.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  if (loading) {
-    return <div>Loading posts...</div>;
-  }
-
   //Tạo comment tree để phân cấp
   const createCommentTree = (comments) => {
     const commentMap = new Map();
@@ -162,6 +78,70 @@ const Blog = () => {
     console.log(flattenComments(rootComments))
     return flattenComments(rootComments);
   };
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const postDetails = await fetchDataFromApi(`/api/posts/${id}`);
+        setSelectedPost(postDetails.data);
+        const postComments = await fetchDataFromApi(`/api/comments/post?postId=${id}`);
+        setComments(createCommentTree(postComments?.data));
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+  
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please Login first",
+      });
+      return;
+    }
+  
+    const newComment = {
+      postId,
+      parentId: replyingTo,  // Nếu không có replyingTo thì là comment gốc
+      parentName: replyingToName,
+      author: {
+        name: user.name,
+        userId: user.userId
+      },
+      content: reviews.content,
+    };
+  
+    if (newComment.content !== "") {
+      setIsLoading(true);
+      postData("/api/comments/add", newComment).then((res) => {
+        setIsLoading(false);
+        if (!res?.error) {
+          setReviews({ ...reviews, content: "" });  // Reset content sau khi gửi
+          setReplyingTo(null); // Reset trạng thái reply
+          setReplyingToName(null);//Reset name
+  
+          // Fetch lại comment sau khi gửi thành công
+          fetchDataFromApi(`/api/comments/post?postId=${postId}`).then((res) => {
+            setComments(createCommentTree(res.data));
+          });
+        }
+      });
+    }
+  };
+  
+  if (loading) {
+    return <div>Loading posts...</div>;
+  }
+
 
 
   const handleReplyClick = (commentId, commentAuthor) => {
@@ -297,7 +277,7 @@ const Blog = () => {
         style={{
           position: "fixed",
           bottom: "20px",
-          right: "20px",
+          right: "15%",
           backgroundColor: "#007bff",
           color: "#fff",
           borderRadius: "50%",
@@ -311,97 +291,82 @@ const Blog = () => {
       </Button>
     );
   };
-
-  // Tính toán bài viết hiển thị theo trang
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
-
-  // Xử lý sự kiện thay đổi trang
-  const handlePageChange = (event, page) => {
-      setCurrentPage(page);
-  };
   
   
 
   return (
-    <div className="blogs-container">
-      <div className="posts-list">
-
-        {/* Search Bar */}
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Search blogs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        
-        <h2 className="text-center ">Blog Types</h2>
-
-        {
-          context.postTypeData?.length !== 0 && (
-            context.postTypeData?.map((typ, index) => (
-              <div 
-              className='text-center h3 mb-3 ' 
-              style={{ cursor: "pointer", transition: "color 0.3s" }}
-              onMouseEnter={(e) => e.target.style.color = "purple"}
-              onMouseLeave={(e) => e.target.style.color = "gray"}
-              onClick={() => handleChooseTypeClick(typ.name)}
-              >{typ.name}</div>
-            )))
-        }
-
-        {/* {filteredPosts.length > 0 ? (
-          filteredPosts
-          .filter((post) => post.status === 'published')
-          .map((post) => (
-            <div key={post._id} className="post-card" onClick={() => handlePostClick(post.id)}>
-              <h3>{post.title}</h3>
-              <p>By {post.author}</p>
-              <div className="tags">
-                {post.tags.map((tag, index) => (
-                  <span key={index} className="tag">
-                    {tag}
-                  </span>
-                ))}
-              </div>
+    <div className='detail-blog'>
+      {selectedPost && (
+        <div className="post-details">
+          <div className="post-header">
+            <div className="post-info">
+              <h2>{selectedPost.title}</h2>
+              <p><strong>By:</strong> {selectedPost.author}</p>
             </div>
-          ))
-        ) : (
-          <p>No posts available.</p>
-        )} */}
-      </div>
-      <div className='right-section'>
-        <div className='post-details'>
-          {/* <h3>Fresh Story</h3> */}
-          {paginatedPosts.length > 0 ? (
-              paginatedPosts
-              .filter((post) => post.status === 'published')
-              .map((post) => (
-                  <BlogCard
-                    title={post.title}
-                    author={post.author.name}
-                    createdAt={post.createdAt}
-                    image={post.images[0]}
-                    onClick={() => navigate(`/detailblog/${post.id}`)}
-                    />
-              ))
-            ) : (
-              <p>No posts available.</p>
-            )}  
+          </div>
+
+          {/* Hình ảnh hiển thị trước phần nội dung */}
+          {/* <div className="post-images">
+            {selectedPost.images.map((image, index) => (
+              <img key={index} src={image} alt={`Post illustration ${index + 1}`} />
+            ))}
+          </div> */}
+
+          {/* Youtube */}
+          {selectedPost.ytbLink && 
+          <iframe 
+              width="560" 
+              height="315" 
+              src={`https://www.youtube.com/embed/${selectedPost.ytbLink}`} 
+              title="YouTube video player" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+          ></iframe>}
+
+          {/* Nội dung bài viết */}
+          {/* <div className="post-content">{selectedPost.content}</div> */}
+          <div className="post-content" dangerouslySetInnerHTML={{ __html: selectedPost.content || "No Content Available" }} />
+          <h3 
+            className='text-center ' 
+            style={{ cursor: "pointer", transition: "color 0.3s" }} 
+            onMouseEnter={(e) => e.target.style.color = "purple"}
+            onMouseLeave={(e) => e.target.style.color = "black"}
+            onClick={() => navigate('/blog')}><ArrowBackIcon/> Back To Blog</h3>
+          <div className="comments-section">
+            <h3>Customer questions & answers</h3>
+            {comments.length > 0 ? renderComments(comments) : <p>No comments available.</p>}
+            
+            
+            {!replyingTo ?
+              <form id="comment-form" onSubmit={handleCommentSubmit}>
+                <h4>Write a new comment</h4>
+                <textarea
+                  className="form-control shadow"
+                  placeholder="Write a Comment"
+                  name="content"
+                  value={reviews.content}
+                  onChange={(e) => setReviews({ ...reviews, content: e.target.value })}
+                ></textarea>
+                <FloatingCommentButton />
+                
+                {/* Nút hủy reply nếu đang trong chế độ reply */}
+                {replyingTo && (
+                  <Button  type="button" color="error" onClick={handleNewComment}>Cancel Reply</Button>
+                )}
+
+                <Button type="submit" className="btn-blue btn-lg btn-big btn-round mt-2 ml-2" disabled={isLoading}>
+                  {isLoading ? <CircularProgress color="inherit" className="loader" /> : "Submit Comment"}
+                </Button>
+              </form>
+              :
+              ""
+            }
+
+          </div>
         </div>
-        {/* Pagination */}
-        <Pagination
-            count={Math.ceil(filteredPosts.length / postsPerPage)}
-            page={currentPage}
-            onChange={handlePageChange}
-            variant="outlined"
-            shape="rounded"
-            className="pagination"
-        />
-      </div>
+      )}
+
       
     </div>
   );

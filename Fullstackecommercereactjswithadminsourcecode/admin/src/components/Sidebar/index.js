@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { BiSolidCategory } from "react-icons/bi";
 import { TbSlideshow } from "react-icons/tb";
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 
 const Sidebar = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -287,6 +288,19 @@ const Sidebar = () => {
                   </NavLink>
                 </li>
               </ul>
+
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/userAdmins"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    User Admin List
+                  </NavLink>
+                </li>
+              </ul>
               
             </div>
           </li>
@@ -322,6 +336,16 @@ const Sidebar = () => {
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Blogs List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/postTypes"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Blog Types
                   </NavLink>
                 </li>
               </ul>
@@ -360,6 +384,45 @@ const Sidebar = () => {
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Promotion Code List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>
+
+          {/* store location */}
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 8 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(8)}
+            >
+              <span className="icon">
+                <AddLocationAltIcon />
+              </span>
+              Store Location
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 8 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/storeLocations"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Store Location List
                   </NavLink>
                 </li>
               </ul>

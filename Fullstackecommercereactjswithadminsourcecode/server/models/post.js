@@ -7,6 +7,9 @@ const postSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    ytbLink: {
+      type: String,
+    },
     content: {
       type: String,
       required: true,
@@ -41,7 +44,7 @@ const postSchema = mongoose.Schema(
       type: String,
       enum: ['draft', 'published'],
       default: 'draft'
-    }
+    },
   },
   { timestamps: true }
 );

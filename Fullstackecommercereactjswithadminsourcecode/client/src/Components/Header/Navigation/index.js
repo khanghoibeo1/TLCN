@@ -10,6 +10,9 @@ import Logo from "../../../assets/images/logo.jpg";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 import { FaBlog } from "react-icons/fa";
 
+import HomeImage from "../../../assets/images/homeimage.png";
+import BlogImage from "../../../assets/images/blogimage.png";
+
 const Navigation = (props) => {
   const [isopenSidebarVal, setisopenSidebarVal] = useState(false);
   const [isOpenNav, setIsOpenNav] = useState(false);
@@ -131,6 +134,7 @@ const Navigation = (props) => {
                       <Button>
                         <span className="mr-2">
                         </span>
+                        <img src={HomeImage} alt="Example" width="20"className="mr-2" />
                         Home
                       </Button>
                     </Link>
@@ -198,6 +202,7 @@ const Navigation = (props) => {
                     <Button>
                       <span className="mr-2">
                       </span>
+                      <img src={BlogImage} alt="Example" width="20"className="mr-2" />
                       Blogs
                     </Button>
                   </Link>

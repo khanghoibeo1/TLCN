@@ -215,6 +215,65 @@ router.get("/user", async (req, res) => {
   }
 });
 
+// Tìm kiếm người dùng quản lý
+router.get("/user/userAdmins", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    // Lấy tham số page và perPage từ query params
+    const page = parseInt(req.query.page) || 1; // Default to 1 if not provided
+    const perPage = parseInt(req.query.perPage) || 10; // Default to 10 if not provided
+    let totalUsers = 0;
+    let totalPages = 0;
+
+    // Kiểm tra xem query có tồn tại hay không
+    if (!query) {
+      return res.status(400).json({ msg: "Query is required" });
+    }
+
+    // Tìm kiếm bài viết với các tiêu chí
+    const searchConditions = {
+      isAdmin: true, 
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    // Nếu có tham số page và perPage, thực hiện phân trang
+    if (page && perPage) {
+      // Tìm các bài viết với phân trang
+      const items = await User.find(searchConditions)
+        .skip((page - 1) * perPage)  // Bỏ qua các bài viết đã qua
+        .limit(perPage)  // Giới hạn số lượng bài viết trả về
+        .populate("name");
+
+      // Tính tổng số bài viết
+      totalUsers = await User.countDocuments(searchConditions);
+
+      // Tính tổng số trang
+      totalPages = Math.ceil(totalUsers / perPage);
+      console.log(items);
+
+      return res.status(200).json({
+        data: items,
+        totalPages: totalPages,
+        page: page,
+        totalUsers: totalUsers,
+      });
+    } else {
+      // Nếu không có phân trang, trả về tất cả bài viết khớp với query
+      const items = await User.find(searchConditions).populate("name");
+
+      return res.json({data: items});
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 router.get("/order", async (req, res) => {
   try {
     const query = req.query.q;
