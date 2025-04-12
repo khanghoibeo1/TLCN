@@ -136,7 +136,7 @@ const Home = () => {
       {homeSlides?.length !== 0 ? (
         <HomeBanner data={homeSlides} />
       ) : (
-        <div className="container mt-3">
+        <div className="container mt-5">
           <div className="homeBannerSection">
             <img src={homeBannerPlaceholder} className="w-100" />
           </div>
@@ -147,7 +147,7 @@ const Home = () => {
         <HomeCat catData={context.categoryData} />
       )}
 
-      <section className="homeProducts pb-0 " data-aos="zoom-out">
+      <section className="homeProducts pb-0 " data-aos="flip-right">
         <div className="container">
           <div className="row homeProductsRow">
             <div className="col-md-3">
@@ -266,7 +266,7 @@ const Home = () => {
                 )}
               </div>
 
-              <div className="d-flex align-items-center mt-2" data-aos="fade-up">
+              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info w-75">
                   <h3 className="mb-0 hd">NEW PRODUCTS</h3>
                   <p className="text-light text-sml mb-0">
@@ -295,12 +295,12 @@ const Home = () => {
               </div>
 
               {bannerList?.length !== 0 && (
-                <div  data-aos="fade-up">
+                <div  data-aos="zoom-in">
                   <Banners data={bannerList} col={3} />
                 </div>
               )}
 
-              <div className="d-flex align-items-center mt-2" data-aos="fade-up">
+              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info">
                   <h3 className="mb-0 hd">featured products</h3>
                   <p className="text-light text-sml mb-0">
@@ -371,7 +371,7 @@ const Home = () => {
           </div>
 
           {bannerList?.length !== 0 && (
-            <div  data-aos="fade-up">
+            <div  data-aos="zoom-in">
             <Banners data={homeBottomBanners} col={3} />
               
             </div>
