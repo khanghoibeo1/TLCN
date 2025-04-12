@@ -53,7 +53,10 @@ const EditStoreLocation = () => {
   const [formFields, setFormFields] = useState({
     iso2: "",
     location: "",
-    detailAddress: ""
+    detailAddress: "",
+    lat: "",
+    lng: "",
+    note: "",
   });
 
   const history = useNavigate();
@@ -69,6 +72,9 @@ const EditStoreLocation = () => {
           iso2: res?.data.iso2,
           location: res?.data.location,
           detailAddress: res?.data.detailAddress,
+          lat: res?.data.lat,
+          lng: res?.data.lng,
+          note: res?.data.note,
         });
         context.setProgress(100);
       });
@@ -160,6 +166,33 @@ const EditStoreLocation = () => {
                     type="text"
                     name="detailAddress"
                     value={formFields.detailAddress}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Lat</h6>
+                  <input
+                    type="number"
+                    name="lat"
+                    value={formFields.lat}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Lng</h6>
+                  <input
+                    type="number"
+                    name="lng"
+                    value={formFields.lng}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Note</h6>
+                  <input
+                    type="text"
+                    name="note"
+                    value={formFields.note}
                     onChange={changeInput}
                   />
                 </div>

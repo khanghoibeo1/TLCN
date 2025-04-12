@@ -25,9 +25,17 @@ const postSchema = mongoose.Schema(
     ],
     tags: [
       {
-        type: String,
+        id: {
+          type: String, // hoặc mongoose.Schema.Types.ObjectId nếu liên kết tới Product collection
+          default: null,
+        },
+        name: {
+          type: String,
+          default: null,
+        }
       }
     ],
+    
     category: {
       type: String,
       required: true
@@ -44,6 +52,10 @@ const postSchema = mongoose.Schema(
       type: String,
       enum: ['draft', 'published'],
       default: 'draft'
+    },
+    note: {
+        type: String,
+        default: null, 
     },
   },
   { timestamps: true }

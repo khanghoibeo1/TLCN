@@ -26,6 +26,7 @@ import { IoCloseSharp } from "react-icons/io5";
 
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import { Autocomplete, TextField } from "@mui/material";
 
 
 //breadcrumb code
@@ -52,7 +53,8 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const EditBlog = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-    const editor = useRef(null);
+  const [productData, setProductData] = useState([]);
+  const editor = useRef(null);
   const [formFields, setFormFields] = useState({
     title: "",
     ytbLink: "",
@@ -64,6 +66,7 @@ const EditBlog = () => {
     images: [],
     status: "draft",
     commentsCount: 0,
+    note: "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
 
@@ -86,6 +89,10 @@ const EditBlog = () => {
         });
       });
     });
+    //Lấy hết sản phẩm
+    fetchDataFromApi("/api/products/getAll").then((res) => {
+      setProductData(res || []);
+    });
 
     fetchDataFromApi(`/api/posts/${id}`)
       .then((res) => {
@@ -100,6 +107,7 @@ const EditBlog = () => {
           catId: res?.data?.catId,
           images: res?.data?.images,
           status: res?.data?.status,
+          note: res?.data?.note,
         });
       })
       
@@ -326,6 +334,11 @@ const EditBlog = () => {
         </div>
 
         <div className="form-group">
+          <h6>Note</h6>
+          <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+        </div>
+
+        <div className="form-group">
           <h6>Type</h6>
           {formFields.category !== "" && (
           <Select
@@ -361,16 +374,24 @@ const EditBlog = () => {
             <MenuItem value="published">Published</MenuItem>
           </Select>
         </div>
-
+        
         <div className="form-group">
-          <h6>Relation Products &#40;Use "," to distint&#41;</h6>
-          <input
-            type="text"
-            name="tags"
-            value={formFields.tags.join(", ")}
-            onChange={(e) =>
-              setFormFields({ ...formFields, tags: e.target.value.split(",").map((tag) => tag.trim()) })
-            }
+          <h6>Related Products</h6>
+          <Autocomplete
+            multiple
+            id="tags-autocomplete"
+            options={productData}
+            getOptionLabel={(option) => option.name}
+            value={formFields.tags}
+            onChange={(event, newValue) => {
+              setFormFields((prev) => ({
+                ...prev,
+                tags: newValue,
+              }));
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Select Products" placeholder="Products" />
+            )}
           />
         </div>
       </div>

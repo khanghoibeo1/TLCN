@@ -82,6 +82,7 @@ const createCategories = (categories, parentId=null) => {
       color:cat.color,
       slug: cat.slug,
       parentId: cat.parentId,
+      note: cat.note,
       children: createCategories(categories, cat._id)
     });
   }
@@ -166,6 +167,7 @@ const createCat = (categories, parentId=null,cat) => {
     color:cat.color,
     slug: cat.slug,
     parentId: cat.parentId,
+    note: cat.note,
     children: category
   });
 
@@ -211,6 +213,7 @@ router.post("/create", async (req, res) => {
       name: req.body.name,
       images: imagesArr,
       color: req.body.color,
+      note: req.body.note,
       slug: req.body.name,
     };
   } else {
@@ -303,6 +306,7 @@ router.put("/:id", async (req, res) => {
       name: req.body.name,
       images: req.body.images,
       color: req.body.color,
+      note: req.body.note,
     },
     { new: true }
   );

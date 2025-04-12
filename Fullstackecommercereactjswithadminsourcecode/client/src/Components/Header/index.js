@@ -41,6 +41,8 @@ const Header = () => {
 
   const history = useNavigate();
 
+  console.log(context.countryList)
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };

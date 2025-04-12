@@ -40,6 +40,11 @@ import StoreLocations from "./pages/StoreLocation";
 import EditStoreLocations from "./pages/StoreLocation/editStoreLocation";
 import AddStoreLocations from "./pages/StoreLocation/addStoreLocation";
 
+import BatchCodes from "./pages/BatchCodes";
+import EditBatchCode from "./pages/BatchCodes/editBatchCode";
+import AddBatchCode from "./pages/BatchCodes/addBatchCode";
+import RequestBatchCode from "./pages/BatchCodes/requestBatchCode";
+
 import Users from "./pages/Users";
 import EditUser from "./pages/Users/editUsers";
 
@@ -87,6 +92,9 @@ function App() {
     name: "",
     email: "",
     userId: "",
+    role: "",
+    locationName: "",
+    locationId: "",
   });
 
   const [isOpenNav, setIsOpenNav] = useState(false);
@@ -305,6 +313,11 @@ function App() {
               <Route path="/userAdmins" exact={true} element={<UserAdmins />} />
               <Route path="/userAdmin/edit/:id" exact={true} element={<EditUserAdmins />} />
               <Route path="/userAdmin/add" exact={true} element={<AddUserAdmins />} />
+              
+              <Route path="/batchCodes" exact={true} element={<BatchCodes />} />
+              <Route path="/batchCode/edit/:id" exact={true} element={<EditBatchCode />} />
+              <Route path="/batchCode/add" exact={true} element={<AddBatchCode />} />
+              <Route path="/batchCodes/request" exact={true} element={<RequestBatchCode />} />
 
               <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
               <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />

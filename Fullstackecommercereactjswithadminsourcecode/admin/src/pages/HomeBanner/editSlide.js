@@ -53,6 +53,7 @@ const EditHomeSlide = () => {
   const [formFields, setFormFields] = useState({
     images: [],
     link: "",
+    note: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -82,6 +83,7 @@ const EditHomeSlide = () => {
       setFormFields((prevFields) => ({
         ...prevFields, // giữ nguyên các trường hiện tại trong state
         link: res.link, // cập nhật trường link
+        note: res.note,
       }));
       setPreviews(res.images);
       context.setProgress(100);
@@ -268,6 +270,12 @@ const EditHomeSlide = () => {
                     <h6>Link</h6>
                     <input type="text" name="link" value={formFields.link} onChange={handleChange} />
                   </div>
+                  
+                  <div className="form-group">
+                    <h6>Note</h6>
+                    <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+                  </div>
+
                   <div className="imgUploadBox d-flex align-items-center">
                     {previews?.length !== 0 &&
                       previews?.map((img, index) => {

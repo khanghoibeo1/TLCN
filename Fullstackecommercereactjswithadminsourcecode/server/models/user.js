@@ -64,6 +64,10 @@ const userSchema = mongoose.Schema({
         ref: "StoreLocation", // Liên kết với StoreLocation
         default: null,
     },
+    note: {
+        type: String,
+        default: null, 
+    },
 });
 
 userSchema.virtual('id').get(function () {

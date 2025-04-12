@@ -51,7 +51,8 @@ const EditPostTypes = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formFields, setFormFields] = useState({
-    images: [],
+    name: [],
+    note: "",
   });
 
 
@@ -71,6 +72,7 @@ const EditPostTypes = () => {
       setPostType(res);
       setFormFields({
         name: res?.name,
+        note: res?.note,
       });
       context.setProgress(100);
     });
@@ -145,6 +147,16 @@ const EditPostTypes = () => {
                     type="text"
                     name="name"
                     value={formFields.name}
+                    onChange={changeInput}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <h6>Note</h6>
+                  <input
+                    type="text"
+                    name="note"
+                    value={formFields.note}
                     onChange={changeInput}
                   />
                 </div>

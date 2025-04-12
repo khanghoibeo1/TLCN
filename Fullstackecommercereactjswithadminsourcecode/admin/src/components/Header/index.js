@@ -32,6 +32,8 @@ const Header = () => {
   const openNotifications = Boolean(isOpennotificationDrop);
 
   const context = useContext(MyContext);
+  const user = context.user;
+  console.log(user)
 
   const history = useNavigate();
 
@@ -83,7 +85,8 @@ const Header = () => {
             <div className="col-sm-2 part1 pr-0">
               <Link to={"/"} className="d-flex align-items-center logo">
                 <img src={logo} />
-                <span className="ml-2">ECOMMERCE</span>
+                <span className="ml-2">FRUITOPIA</span>
+                {user.locationName && <div style={{fontWeight: "bold", marginLeft: "5px"}} >&#40;{user.locationName}&#41;</div>}
               </Link>
             </div>
 
@@ -104,6 +107,7 @@ const Header = () => {
                 
               </div>
             )}
+            
 
             <div className="col-sm-7 d-flex align-items-center justify-content-end part3">
               <Button className="rounded-circle mr-3" onClick={changeTheme}>

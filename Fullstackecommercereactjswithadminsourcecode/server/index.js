@@ -36,6 +36,7 @@ const postRoutes = require('./routes/posts.js');
 const postTypeRoutes = require('./routes/postTypes.js');
 const commentRoutes = require('./routes/comments.js');
 const storeLocationRoutes = require('./routes/storeLocations.js');
+const batchCodeRoutes = require('./routes/batchCodes.js');
 
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
@@ -59,6 +60,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/postTypes", postTypeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/storeLocations", storeLocationRoutes);
+app.use("/api/batchCodes", batchCodeRoutes);
+
 
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {

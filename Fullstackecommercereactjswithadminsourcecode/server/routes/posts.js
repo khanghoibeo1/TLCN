@@ -219,7 +219,7 @@ router.get('/get/count', async (req, res) => {
 // Add a new post
 router.post('/create', async (req, res) => {
     try {
-        const { title, ytbLink, content, author, images, tags, category, status, catId } = req.body;
+        const { title, ytbLink, content, author, images, tags, category, status, catId, note } = req.body;
         const images_Array = [];
         const uploadedImages = await ImageUpload.find();
         const images_Arr = uploadedImages?.map((item) => {
@@ -243,6 +243,7 @@ router.post('/create', async (req, res) => {
             category,
             catId,
             status,
+            note,
             commentsCount: 0
         });
 
@@ -319,7 +320,8 @@ router.delete("/deleteImage", async (req, res) => {
         category: req.body.category,
         catId: req.body.catId,
         status: req.body.status,
-        commentsCount: req.body.commentsCount
+        commentsCount: req.body.commentsCount,
+        note: req.body.note
       },
       { new: true }
     );

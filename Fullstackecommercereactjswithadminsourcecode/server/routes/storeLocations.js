@@ -1,5 +1,6 @@
 const express = require("express");
 const { StoreLocation } = require("../models/storeLocation");
+const {Product} = require('../models/products');
 const router = express.Router();
 
 // Lấy tất cả store locations với format mong muốn
@@ -11,7 +12,10 @@ router.get(`/`, async (req, res) => {
             id: loc._id.toHexString(), // Thêm id vào dữ liệu
             iso2: loc.iso2,
             location: loc.location,
-            detailAddress: loc.detailAddress
+            detailAddress: loc.detailAddress,
+            lat: loc.lat,
+            lng: loc.lng,
+            note: loc.note
         }));
 
         res.status(200).json({
@@ -43,7 +47,10 @@ router.get(`/:id`, async (req, res) => {
                 id: loc._id.toHexString(), // Thêm id vào dữ liệu
                 iso2: loc.iso2,
                 location: loc.location,
-                detailAddress: loc.detailAddress
+                detailAddress: loc.detailAddress,
+                lat: loc.lat,
+                lng: loc.lng,
+                note: loc.note
             }
         });
     } catch (error) {
@@ -51,16 +58,42 @@ router.get(`/:id`, async (req, res) => {
     }
 });
 
+// 👇 Hàm cập nhật tất cả sản phẩm khi tạo location
+const addNewLocationToAllProducts = async (newLocationId) => {
+    const products = await Product.find();
+  
+    for (const product of products) {
+      const exists = product.amountAvailable.some(
+        (entry) => entry.locationId.toString() === newLocationId.toString()
+      );
+  
+      if (!exists) {
+        product.amountAvailable.push({
+          locationId: newLocationId,
+          quantity: 0,
+        });
+        await product.save();
+      }
+    }
+  };
+
 // Tạo một store location mới
 router.post(`/create`, async (req, res) => {
     try {
         let location = new StoreLocation({
             iso2: req.body.iso2,
             location: req.body.location,
-            detailAddress: req.body.detailAddress
+            detailAddress: req.body.detailAddress,
+            lat: req.body.lat,
+            lng: req.body.lng,
+            note: req.body.note,
         });
+        
 
         location = await location.save();
+        console.log(location.id)
+        // gọi hàm cập nhật
+        await addNewLocationToAllProducts(location.id);
         res.status(201).json({
             error: false,
             msg: "Store location created",
@@ -68,7 +101,10 @@ router.post(`/create`, async (req, res) => {
                 id: location._id.toHexString(), // Thêm id vào dữ liệu
                 iso2: location.iso2,
                 location: location.location,
-                detailAddress: location.detailAddress
+                detailAddress: location.detailAddress,
+                lat: location.lat,
+                lng: location.lng,
+                note: location.note,
             }
         });
     } catch (error) {
@@ -84,7 +120,10 @@ router.put(`/:id`, async (req, res) => {
             {
                 iso2: req.body.iso2,
                 location: req.body.location,
-                detailAddress: req.body.detailAddress
+                detailAddress: req.body.detailAddress,
+                lat: req.body.lat,
+                lng: req.body.lng,
+                note: req.body.note,
             },
             { new: true }
         );
@@ -100,7 +139,10 @@ router.put(`/:id`, async (req, res) => {
                 id: location._id.toHexString(), // Thêm id vào dữ liệu
                 iso2: location.iso2,
                 location: location.location,
-                detailAddress: location.detailAddress
+                detailAddress: location.detailAddress,
+                lat: location.lat,
+                lng: location.lng,
+                note: location.note,
             }
         });
     } catch (error) {

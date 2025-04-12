@@ -19,6 +19,8 @@ const Blog = () => {
   const [replyingToName, setReplyingToName] = useState(null); // Lưu ID của comment được reply
   const [expandedCount, setExpandedCount] = useState(3);
   const [expandedIndexes, setExpandedIndexes] = useState([]);
+  const [tagProducts, setTagProducts] = useState([]);
+
   const [reviews, setReviews] = useState({
       postId: "", 
       author: {
@@ -94,6 +96,26 @@ const Blog = () => {
     };
     fetchPosts();
   }, []);
+
+  // lấy các products related
+  useEffect(() => {
+    const fetchTaggedProducts = async () => {
+      if (selectedPost?.tags?.length > 0) {
+        try {
+          const responses = await Promise.all(
+            selectedPost.tags.map(tag => 
+              tag.id ? fetchDataFromApi(`/api/products/${tag.id}`) : Promise.resolve(null)
+            )
+          );
+          setTagProducts(responses.map(res => res).filter(Boolean));
+        } catch (err) {
+          console.error("Error fetching tag products", err);
+        }
+      }
+    };
+  
+    fetchTaggedProducts();
+  }, [selectedPost]);
 
 
   const handleCommentSubmit = (e) => {
@@ -327,6 +349,29 @@ const Blog = () => {
           {/* Nội dung bài viết */}
           {/* <div className="post-content">{selectedPost.content}</div> */}
           <div className="post-content" dangerouslySetInnerHTML={{ __html: selectedPost.content || "No Content Available" }} />
+          {tagProducts.length > 0 && (
+            <div className="tag-products-container mt-4">
+              <h5 className="mb-3">Related Products:</h5>
+              <div className="d-flex flex-wrap gap-3">
+                {tagProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="tag-product-card border shadow-sm p-2 ml-2 rounded"
+                    style={{ cursor: 'pointer', width: '200px', textAlign: 'center', }}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                  >
+                    <img
+                      src={product.images?.[0] || '/default-image.jpg'}
+                      alt={product.name}
+                      style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
+                    />
+                    <p className="mt-2 mb-0" style={{ fontSize: '14px', fontWeight: '500' }}>{product.name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <h3 
             className='text-center ' 
             style={{ cursor: "pointer", transition: "color 0.3s" }} 

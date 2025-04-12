@@ -14,6 +14,8 @@ import { MyContext } from "../../App";
 import { postData, uploadImage, fetchDataFromApi, deleteImages, deleteData } from "../../utils/api";
 import JoditEditor from "jodit-react";
 import { useRef } from "react";
+import { Autocomplete, TextField } from "@mui/material";
+
 
 const AddBlog = () => {
   
@@ -34,6 +36,7 @@ const AddBlog = () => {
     tags: [],
     catId: null,
     commentsCount: 0,
+    note: "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -41,6 +44,7 @@ const AddBlog = () => {
   const [previews, setPreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [productData, setProductData] = useState([]);
 
   useEffect(() => {
     fetchDataFromApi("/api/imageUpload").then((res) => {
@@ -51,6 +55,10 @@ const AddBlog = () => {
           });
         });
       });
+    });
+    //Lấy hết sản phẩm
+    fetchDataFromApi("/api/products/getAll").then((res) => {
+      setProductData(res || []);
     });
   }, []);
 
@@ -221,6 +229,26 @@ const AddBlog = () => {
     }
   };
 
+  
+  // Chọn product
+  const handleSelectProduct = (product) => {
+    if (!product) return;
+  
+    // Kiểm tra xem đã có trong danh sách chưa
+    const isExist = formFields.tags.some(p => p.id === product.id);
+    if (!isExist) {
+      setFormFields(prev => ({
+        ...prev,
+        tags: [...prev.tags, product.value],
+      }));
+    }
+  };
+  // Chuyển productData thành dạng options cho Select2
+  const productOptions = productData.map((product) => ({
+    value: product.id,
+    label: product.name,
+  }));
+
   return (
     <div className="right-content w-100">
       <div className="card shadow border-0 w-100 flex-row p-4">
@@ -293,6 +321,11 @@ const AddBlog = () => {
           </div>
 
           <div className="form-group">
+            <h6>Note</h6>
+            <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+          </div>
+
+          <div className="form-group">
             <h6>Type</h6>
             {/* <input type="text" name="category" value={formFields.category} onChange={handleChange} /> */}
             <Select
@@ -333,6 +366,29 @@ const AddBlog = () => {
           </div>
 
           <div className="form-group">
+            <h6>Related Products</h6>
+            <Autocomplete
+              multiple
+              id="tags-autocomplete"
+              options={productData}
+              getOptionLabel={(option) => option.name}
+              value={formFields.tags}
+              onChange={(event, newValue) => {
+                console.log(newValue)
+                setFormFields((prev) => ({
+                  ...prev,
+                  tags: newValue,
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Products" placeholder="Products" />
+              )}
+            />
+          </div>
+
+
+
+          {/* <div className="form-group">
             <h6>Relation Products &#40;Use "," to distint&#41;</h6>
             <input
               type="text"
@@ -342,7 +398,7 @@ const AddBlog = () => {
                 setFormFields({ ...formFields, tags: e.target.value.split(",").map((tag) => tag.trim()) })
               }
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="card p-4 mt-4">

@@ -1,5 +1,6 @@
 
 const { User } = require('../models/user');
+const { PostType } = require('../models/postType');
 const express = require('express');
 const router = express.Router();
 
@@ -52,6 +53,7 @@ router.post(`/userAdmin/create`, async (req, res) => {
     try {
         let postType = new PostType({
             name: req.body.name,
+            note: req.body.note,
         });
         postType = await postType.save();
         res.status(201).json(postType);
@@ -65,7 +67,9 @@ router.put(`/userAdmin/:id`, async (req, res) => {
     try {
         const postType = await PostType.findByIdAndUpdate(
             req.params.id,
-            { name: req.body.name },
+            { name: req.body.name,
+                note: req.body.note
+             },
             { new: true }
         );
         if (!postType) {

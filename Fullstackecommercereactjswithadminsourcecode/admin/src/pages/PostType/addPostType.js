@@ -51,6 +51,7 @@ const AddBlogType = () => {
   const [uploading, setUploading] = useState(false);
   const [formFields, setFormFields] = useState({
     name: "",
+    note: ""
   });
 
   const history = useNavigate();
@@ -123,6 +124,16 @@ const AddBlogType = () => {
                     type="text"
                     name="name"
                     value={formFields.name}
+                    onChange={changeInput}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <h6>Note</h6>
+                  <input
+                    type="text"
+                    name="note"
+                    value={formFields.note}
                     onChange={changeInput}
                   />
                 </div>

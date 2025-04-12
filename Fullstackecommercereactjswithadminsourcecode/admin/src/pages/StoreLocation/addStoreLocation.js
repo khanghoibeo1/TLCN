@@ -52,7 +52,10 @@ const AddStoreLocation = () => {
   const [formFields, setFormFields] = useState({
     iso2: "",
     location: "",
-    detailAddress: ""
+    detailAddress: "",
+    lat: "",
+    lng: "",
+    note: "",
   });
 
   const history = useNavigate();
@@ -145,6 +148,33 @@ const AddStoreLocation = () => {
                     type="text"
                     name="detailAddress"
                     value={formFields.detailAddress}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Lat</h6>
+                  <input
+                    type="number"
+                    name="lat"
+                    value={formFields.lat}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Lng</h6>
+                  <input
+                    type="number"
+                    name="lng"
+                    value={formFields.lng}
+                    onChange={changeInput}
+                  />
+                </div>
+                <div className="form-group">
+                  <h6>Note</h6>
+                  <input
+                    type="text"
+                    name="note"
+                    value={formFields.note}
                     onChange={changeInput}
                   />
                 </div>

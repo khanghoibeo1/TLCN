@@ -7,6 +7,10 @@ const postTypeSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    note: {
+        type: String,
+        default: null, 
+    },
 },{timestamps:true})
 
 postTypeSchema.virtual('id').get(function () {

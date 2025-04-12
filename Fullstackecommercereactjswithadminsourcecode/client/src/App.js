@@ -22,6 +22,7 @@ import Orders from "./Pages/Orders";
 import MyAccount from "./Pages/MyAccount";
 import SearchPage from "./Pages/Search";
 import Blog from "./Pages/Blog";
+import Map from "./Pages/Map";
 import DetailBlog from "./Pages/DetailBlog";
 
 import { fetchDataFromApi, postData } from "./utils/api";
@@ -78,8 +79,8 @@ function App() {
   },[isLogin]);
 
   useEffect(() => {
-    getCountry("https://countriesnow.space/api/v0.1/countries/");
-
+    //getCountry("https://countriesnow.space/api/v0.1/countries/");
+    getCountry(process.env.REACT_APP_COUNTRY_DROPDOWN);
     fetchDataFromApi("/api/category").then((res) => {
       setCategoryData(res.categoryList);
 
@@ -298,6 +299,7 @@ function App() {
           <Route exact={true} path="/my-account" element={<MyAccount />} />
           <Route exact={true} path="/search" element={<SearchPage />} />
           <Route exact={true} path="/blog" element={<Blog />} />
+          <Route exact={true} path="/map" element={<Map />} />
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}

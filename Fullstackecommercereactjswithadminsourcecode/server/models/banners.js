@@ -25,7 +25,12 @@ const bannersSchema = mongoose.Schema({
   display: {
     type: Boolean,
     default: "true",
-}
+},
+note: {
+    type: String,
+    default: null, 
+},
+
 });
 
 bannersSchema.virtual("id").get(function () {

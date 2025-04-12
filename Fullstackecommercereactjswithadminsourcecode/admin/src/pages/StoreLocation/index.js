@@ -126,6 +126,7 @@ const StoreLocation = () => {
                                 <tr>
                                     <th>STORE LOCATIONS</th>
                                     <th>DETAIL ADDRESS</th>
+                                    <th>NOTE</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -138,6 +139,7 @@ const StoreLocation = () => {
                                             <tr key={index}>
                                                 <td>{item.location}	</td>
                                                 <td>{item.detailAddress}</td>
+                                                <td>{item.note}</td>
                                                 <td>
                                                     <div className="actions d-flex align-items-center">
                                                         <Link to={`/storeLocations/edit/${item.id}`}> <Button className="success" color="success"><FaPencilAlt /></Button>

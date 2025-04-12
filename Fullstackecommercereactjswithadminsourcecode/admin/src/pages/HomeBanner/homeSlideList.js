@@ -137,6 +137,7 @@ const HomeSlidesList = () => {
                 <tr>
                   <th style={{ width: "200px" }}>IMAGE</th>
                   <th>IMAGE LINK</th>
+                  <th>NOTE</th>
                   <th>Display</th>
                   <th>ACTION</th>
                 </tr>
@@ -169,6 +170,7 @@ const HomeSlidesList = () => {
                         </td>
 
                         <td>{item?.link}</td>
+                        <td>{item?.note}</td>
                         <td>
                           <input
                             type="checkbox"

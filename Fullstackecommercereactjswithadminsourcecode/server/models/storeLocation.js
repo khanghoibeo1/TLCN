@@ -13,7 +13,21 @@ const storeLocationSchema = mongoose.Schema(
         detailAddress: {
             type: String,
             required: true,
-        }
+        },
+        lat: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        lng: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        note: {
+            type: String,
+            default: null, 
+        },
     },
     { timestamps: true }
 );

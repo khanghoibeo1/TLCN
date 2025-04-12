@@ -167,4 +167,13 @@
     background-color: #0056b3;
     transform: scale(1.1);
   }
-  
+
+  .tag-product-card{
+    background-color: #f7e8e8;
+  }
+
+  .tag-product-card:hover {
+    box-shadow: 0 4px 10px rgba(95, 215, 44, 0.15);
+    transform: translateY(-5px);
+    transition: all 0.5s ease-in-out;
+  }

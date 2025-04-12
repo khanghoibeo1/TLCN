@@ -141,6 +141,7 @@ const BannersList = () => {
                 <tr>
                   <th style={{ width: "200px" }}>IMAGE</th>
                   <th>IMAGE LINK</th>
+                  <th>NOTE</th>
                   <th>Category</th>
                   <th>Sub Category</th>
                   <th>Display</th>
@@ -175,6 +176,7 @@ const BannersList = () => {
                         </td>
 
                         <td>{item?.link}</td>
+                        <td>{item?.note}</td>
                         <td>{item?.catName}</td>
                         <td>{item?.subCatName}</td>
                         <td>

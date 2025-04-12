@@ -72,7 +72,7 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 
 // Sign up for user client
 router.post(`/signup`, async (req, res) => {
-    const { name, phone, email, password, isAdmin } = req.body;
+    const { name, phone, email, password, isAdmin, note } = req.body;
 
      // Validation rules
     const phoneRegex = /^[0-9]{10}$/;
@@ -115,6 +115,7 @@ router.post(`/signup`, async (req, res) => {
             password:hashPassword,
             isAdmin:isAdmin,
             verificationToken: verificationToken,
+            note: note,
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         });
 
@@ -344,6 +345,7 @@ router.get('/userAdmin', async (req, res) => {
 
 router.post(`/userAdmin/create`, async (req, res) => {
     try {
+        const hashPassword = await bcrypt.hash(req.body.password,10);
         let user = new User({
             name: req.body.name,
             phone: req.body.phone,
@@ -354,7 +356,8 @@ router.post(`/userAdmin/create`, async (req, res) => {
             locationManageName: req.body.locationManageName || "",
             locationManageId: req.body.locationManageId || "",
             role: req.body.role || "storeAdmin", // Mặc định là storeAdmin
-            password: req.body.password,
+            password: hashPassword,
+            note: req.body.note,
         });
 
         user = await user.save();
@@ -373,6 +376,7 @@ router.post(`/userAdmin/create`, async (req, res) => {
                 locationManageId: user.locationManageId,
                 role: user.role,
                 password: user.password,
+                note: user.note,
             }
         });
     } catch (error) {
@@ -382,6 +386,7 @@ router.post(`/userAdmin/create`, async (req, res) => {
 
 router.put(`/userAdmin/:id`, async (req, res) => {
     try {
+        const hashPassword = await bcrypt.hash(req.body.password,10);
         const user = await User.findByIdAndUpdate(
             req.params.id,
             {
@@ -393,7 +398,8 @@ router.put(`/userAdmin/:id`, async (req, res) => {
                 locationManageName: req.body.locationManageName,
                 locationManageId: req.body.locationManageId,
                 role: req.body.role,
-                password: req.body.password,
+                password: hashPassword,
+                note: req.body.note,
             },
             { new: true }
         );
@@ -416,6 +422,7 @@ router.put(`/userAdmin/:id`, async (req, res) => {
                 locationManageId: user.locationManageId,
                 role: user.role,
                 password: user.password,
+                note: user.note,
             }
         });
     } catch (error) {
@@ -445,6 +452,7 @@ router.get('/userAdmin/:id', async (req, res) => {
                 locationManageId: user.locationManageId || "",
                 role: user.role || "",
                 password: user.password,
+                note: user.note,
             }
         });
     } catch (error) {
@@ -482,7 +490,7 @@ router.get(`/get/count`, async (req, res) =>{
 
 // Verify google
 router.post(`/authWithGoogle`, async (req, res) => {
-    const {name, phone, email, password, images, isAdmin} = req.body;
+    const {name, phone, email, password, images, isAdmin, note} = req.body;
     
 
     try{
@@ -497,6 +505,7 @@ router.post(`/authWithGoogle`, async (req, res) => {
             images:images,
             isAdmin:isAdmin,
             isVerified: true,
+            note: note,
             });
 
     
@@ -529,7 +538,7 @@ router.post(`/authWithGoogle`, async (req, res) => {
 // Update user
 router.put('/:id',async (req, res)=> {
 
-    const { name,  email,phone, images, isAdmin} = req.body;
+    const { name,  email,phone, images, isAdmin, note} = req.body;
     console.log(req.body)
 
     const userExist = await User.findById(req.params.id);
@@ -551,6 +560,7 @@ router.put('/:id',async (req, res)=> {
             email:email,
             images: images,
             isAdmin: isAdmin,
+            note: note,
         },
         { new: true}
     )

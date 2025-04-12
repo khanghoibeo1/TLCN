@@ -101,6 +101,64 @@ const PromotionCodeList = () => {
             <div className="table-responsive mt-3">
                 <table className="table table-bordered table-striped v-align">
                 <thead className="thead-dark">
+                  <tr>
+                    <th>CODE</th>
+                    <th>DISCOUNT</th>
+                    <th>MAX USAGE</th>
+                    <th>USED</th>
+                    <th>MIN ORDER</th>
+                    <th>VALID FROM</th>
+                    <th>VALID TO</th>
+                    <th>ROLES</th>
+                    <th>USERS</th>
+                    <th>CAN COMBINE</th>
+                    <th>STATUS</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {promotionList?.data?.length > 0 &&
+                    promotionList.data.map((promotion, index) => (
+                      <tr key={index}>
+                        <td>{promotion?.code}</td>
+                        <td>
+                          {promotion.discountType === 'percent'
+                            ? `${promotion.discountValue}%`
+                            : `-$${promotion.discountValue}`}
+                        </td>
+                        <td>{promotion?.maxUsage}</td>
+                        <td>{promotion?.usedCount}</td>
+                        <td>${promotion?.minOrderValue}</td>
+                        <td>{promotion?.startDate ? new Date(promotion.startDate).toLocaleDateString() : 'N/A'}</td>
+                        <td>{promotion?.endDate ? new Date(promotion.endDate).toLocaleDateString() : 'N/A'}</td>
+                        <td>{promotion?.applicableRoles?.join(', ') || 'All'}</td>
+                        <td>{promotion?.applicableUsers?.length || 0}</td>
+                        <td>{promotion?.canCombine ? 'Yes' : 'No'}</td>
+                        <td>{promotion?.status}</td>
+                        <td>
+                          <div className="actions d-flex align-items-center">
+                            <Link to={`/promotionCode/details/${promotion?._id}`}>
+                              <Button className="secondary">
+                                <FaEye />
+                              </Button>
+                            </Link>
+
+                            <Link to={`/promotionCode/edit/${promotion._id}`}>
+                              <Button className="success">
+                                <FaPencilAlt />
+                              </Button>
+                            </Link>
+
+                            <Button className="error" onClick={() => deletePromotion(promotion._id)}>
+                              <MdDelete />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+
+                {/* <thead className="thead-dark">
                     <tr>
                     <th>PROMOTION CODE</th>
                     <th>DISCOUNT</th>
@@ -142,7 +200,7 @@ const PromotionCodeList = () => {
               </td>
             </tr>
           ))}
-      </tbody>
+      </tbody> */}
     </table>
   </div>
 </div>

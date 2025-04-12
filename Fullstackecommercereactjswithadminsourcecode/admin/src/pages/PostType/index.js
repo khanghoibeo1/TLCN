@@ -126,6 +126,7 @@ const PostType = () => {
                                 <tr>
 
                                     <th>BLOG TYPES</th>
+                                    <th>NOTE</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -139,6 +140,7 @@ const PostType = () => {
 
                                                 
                                                 <td>{item.name}	</td>
+                                                <td>{item.note}	</td>
                                                 <td>
                                                     <div className="actions d-flex align-items-center">
                                                         <Link to={`/postTypes/edit/${item._id}`}   >                                         <Button className="success" color="success"><FaPencilAlt /></Button>

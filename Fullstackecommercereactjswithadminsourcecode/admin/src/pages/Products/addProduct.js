@@ -113,6 +113,7 @@ const ProductUpload = () => {
     size: [],
     productWeight: [],
     location: [],
+    note: "",
   });
 
   const productImages = useRef();
@@ -851,6 +852,19 @@ const ProductUpload = () => {
                         className="basic-multi-select"
                         classNamePrefix="select"
                         onChange={handleChangeLocation}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-12">
+                  <div className="form-group">
+                      <h6>NOTE </h6>
+                      <input
+                        type="text"
+                        name="note"
+                        value={formFields.note}
+                        onChange={inputChange}
                       />
                     </div>
                   </div>
