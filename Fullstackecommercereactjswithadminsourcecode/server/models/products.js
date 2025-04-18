@@ -56,6 +56,20 @@ const productSchema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    amountAvailable: [
+        {
+          locationId: {
+            type: mongoose.Schema.Types.ObjectId,  // hoặc mongoose.Schema.Types.ObjectId nếu bạn có collection kho riêng
+            ref: 'Location',
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+            default: 0,
+          }
+        }
+      ],
     rating: {
         type: Number,
         default: 0,
@@ -96,6 +110,10 @@ const productSchema = mongoose.Schema({
       }
     },
   ],
+  note: {
+      type: String,
+      default: null, 
+  },
     dateCreated: {
         type: Date,
         default: Date.now,

@@ -9,7 +9,11 @@ const subCatSchema = mongoose.Schema({
     subCat:{
         type:String,
         required:true
-    }
+    },
+    note: {
+        type: String,
+        default: null, 
+    },
 })
 
 subCatSchema.virtual('id').get(function () {

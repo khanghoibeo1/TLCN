@@ -88,6 +88,9 @@ const Login = () => {
               email: res.user?.email,
               userId: res.user?.id,
               isAdmin: res.user?.isAdmin,
+              role: res.user?.role,
+              locationName: res.user?.locationManageName,
+              locationId: res.user?.locationManageId,
             };
 
             localStorage.removeItem("user");

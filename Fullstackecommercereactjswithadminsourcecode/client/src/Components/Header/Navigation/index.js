@@ -10,6 +10,11 @@ import Logo from "../../../assets/images/logo.jpg";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 import { FaBlog } from "react-icons/fa";
 
+import HomeImage from "../../../assets/images/homeimage.png";
+import BlogImage from "../../../assets/images/blogimage.png";
+import MapImage from "../../../assets/images/mapimage.jpg";
+import LicenseImage from "../../../assets/images/licenseimage.jpg";
+
 const Navigation = (props) => {
   const [isopenSidebarVal, setisopenSidebarVal] = useState(false);
   const [isOpenNav, setIsOpenNav] = useState(false);
@@ -39,10 +44,10 @@ const Navigation = (props) => {
 
   return (
     <nav>
-      <div className="container">
-        <div className="row">
+      <div className="container-header">
+        <div className="row ">
           <div className="col-sm-2 navPart1 ">
-            <div className="catWrapper">
+            <div className="catWrapper ">
               <Button
                 className="allCatTab align-items-center res-hide"
                 onClick={() => setisopenSidebarVal(!isopenSidebarVal)}
@@ -99,7 +104,7 @@ const Navigation = (props) => {
           </div>
 
           <div
-            className={`col-sm-10 navPart2 d-flex align-items-center res-nav-wrapper ${
+            className={`col-sm-10 navPart2 d-flex align-items-center res-nav-wrapper  ${
               isOpenNav === true ? "open" : "close"
             }`}
           >
@@ -114,7 +119,7 @@ const Navigation = (props) => {
                 </div>
               )}
 
-              <ul className="list list-inline ml-auto">
+              <ul className="list list-inline ml-auto d-flex align-items-center">
                 {context.windowWidth < 992 && (
                   <>
                     <li className="list-inline-item">
@@ -131,6 +136,7 @@ const Navigation = (props) => {
                       <Button>
                         <span className="mr-2">
                         </span>
+                        <img src={HomeImage} alt="Example" width="20"className="mr-2" />
                         Home
                       </Button>
                     </Link>
@@ -198,7 +204,28 @@ const Navigation = (props) => {
                     <Button>
                       <span className="mr-2">
                       </span>
+                      <img src={BlogImage} alt="Example" width="20"className="mr-2" />
                       Blogs
+                    </Button>
+                  </Link>
+                </li>
+                <li className="list-inline-item blog-item" >
+                  <Link to="/map" onClick={props.closeNav}>
+                    <Button>
+                      <span className="mr-2">
+                      </span>
+                      <img src={MapImage} alt="Example" width="20"className="mr-2" />
+                      Map Location
+                    </Button>
+                  </Link>
+                </li>
+                <li className="list-inline-item blog-item" >
+                  <Link to="/license" onClick={props.closeNav}>
+                    <Button>
+                      <span className="mr-2">
+                      </span>
+                      <img src={LicenseImage} alt="Example" width="20"className="mr-2" />
+                      Introduce & License
                     </Button>
                   </Link>
                 </li>

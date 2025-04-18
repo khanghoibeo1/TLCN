@@ -141,6 +141,7 @@ const BannersList = () => {
                   <th>Category</th>
                   <th>Sub Category</th>
                   <th>Display</th>
+                  <th>Note</th>
                   <th>ACTIONA</th>
                 </tr>
               </thead>
@@ -181,6 +182,7 @@ const BannersList = () => {
                             onChange={() => handleCheckboxChange(item.id, !item.display)}
                           />
                         </td>
+                        <td>{item?.note}</td>
 
                         <td>
                           <div className="actions d-flex align-items-center">

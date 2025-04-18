@@ -8,6 +8,8 @@ import { emphasize, styled } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import { useContext, useEffect, useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
 import {
   deleteData,
   deleteImages,
@@ -24,6 +26,7 @@ import { IoCloseSharp } from "react-icons/io5";
 
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import { Autocomplete, TextField } from "@mui/material";
 
 
 //breadcrumb code
@@ -50,8 +53,11 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const EditBlog = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [productData, setProductData] = useState([]);
+  const editor = useRef(null);
   const [formFields, setFormFields] = useState({
     title: "",
+    ytbLink: "",
     content: "",
     author: "",
     tags: [],
@@ -60,6 +66,7 @@ const EditBlog = () => {
     images: [],
     status: "draft",
     commentsCount: 0,
+    note: "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
 
@@ -82,12 +89,17 @@ const EditBlog = () => {
         });
       });
     });
+    //Lấy hết sản phẩm
+    fetchDataFromApi("/api/products/getAll").then((res) => {
+      setProductData(res || []);
+    });
 
     fetchDataFromApi(`/api/posts/${id}`)
       .then((res) => {
         setPreviews(res?.data?.images)
         setFormFields({
           title: res?.data?.title,
+          ytbLink: res?.data?.ytbLink,
           content: res?.data?.content,
           author: res?.data?.author,
           tags: res?.data?.tags,
@@ -95,6 +107,7 @@ const EditBlog = () => {
           catId: res?.data?.catId,
           images: res?.data?.images,
           status: res?.data?.status,
+          note: res?.data?.note,
         });
       })
       
@@ -114,7 +127,7 @@ const EditBlog = () => {
   //     category: event.target.value,
   //   }));
   // };
-  const selectCat = (cat, id) => {
+  const selectPostType = (cat, id) => {
     formFields.category = cat;
     formFields.catId = id;
   };
@@ -229,11 +242,7 @@ const EditBlog = () => {
 
     img_arr = [];
     formFields.images = appendedArray;
-    if (
-      formFields.name !== "" &&
-      formFields.color !== "" &&
-      previews.length !== 0
-    ) {
+    if (formFields.title !== "" && formFields.content !== "" && formFields.author !== "" && formFields.category !== "" && formFields.images !== "" ) {
       setIsLoading(true);
 
       editData(`/api/posts/${id}`, formFields).then((res) => {
@@ -276,8 +285,47 @@ const EditBlog = () => {
         </div>
 
         <div className="form-group">
+          <h6>Youtube ID &#40;Ex: "JDYFOSwh-g0" in "https://www.youtube.com/watch?v=JDYFOSwh-g0"&#41;</h6>
+          <input type="text" name="ytbLink" value={formFields.ytbLink} onChange={handleChange} />
+        </div>
+
+        <div className="form-group">
           <h6>Content</h6>
-          <textarea rows={5} name="content" value={formFields.content} onChange={handleChange} />
+          {/* <textarea rows={5} name="content" value={formFields.content} onChange={handleChange} /> */}
+          <JoditEditor
+              ref={editor}
+              value={formFields.content}
+              config={{
+                uploader: {
+                  insertImageAsBase64URI: false,
+                  url: `${process.env.REACT_APP_BASE_URL}/api/posts/richtext/upload`,
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                  format: "json",
+                  method: "POST",
+                  process: (resp) => {
+                    console.log("Server response:", resp);
+                    if (resp.success === 1) {
+                      console.log('aaaaaaaa')
+                      const imageUrl = resp.file.url;
+                      const editorElement = document.querySelector(".jodit-wysiwyg");
+                      if (editorElement) {
+                        editorElement.innerHTML += `<img src="${imageUrl}" alt="uploaded image"/>`;
+                      }
+                    }
+                    return resp; // JSON server đã trả đúng format
+                  },
+                  error: (error) => console.error("Upload Error:", error),
+                },
+                height: 1000,
+                buttons: "bold,italic,underline,|,ul,ol,|,image",
+              }}
+              onBlur={(newContent) => {
+                console.log("Nội dung Jodit sau khi upload ảnh:", newContent);
+                setFormFields((prev) => ({ ...prev, content: newContent }));
+              }}
+            />
         </div>
 
         <div className="form-group">
@@ -286,7 +334,12 @@ const EditBlog = () => {
         </div>
 
         <div className="form-group">
-          <h6>Category</h6>
+          <h6>Note</h6>
+          <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+        </div>
+
+        <div className="form-group">
+          <h6>Type</h6>
           {formFields.category !== "" && (
           <Select
             value={formFields.category}
@@ -295,16 +348,18 @@ const EditBlog = () => {
             inputProps={{ "aria-label": "Without label" }}
             className="w-100"
           >
-            {context.catData?.categoryList?.length !== 0 &&
-              context.catData?.categoryList?.map((cat, index) => {
+            {context.postTypeData?.length !== 0 &&
+              context.postTypeData
+              .filter((typ) => typ.name !== "All")
+              .map((typ, index) => {
                 return (
                   <MenuItem
                     className="text-capitalize"
-                    value={cat.name}
+                    value={typ.name}
                     key={index}
-                    onClick={() => selectCat(cat.name, cat._id)}
+                    onClick={() => selectPostType(typ.name, typ._id)}
                   >
-                    {cat.name}
+                    {typ.name}
                   </MenuItem>
                 );
               })}
@@ -319,22 +374,30 @@ const EditBlog = () => {
             <MenuItem value="published">Published</MenuItem>
           </Select>
         </div>
-
+        
         <div className="form-group">
-          <h6>Tags</h6>
-          <input
-            type="text"
-            name="tags"
-            value={formFields.tags.join(", ")}
-            onChange={(e) =>
-              setFormFields({ ...formFields, tags: e.target.value.split(",").map((tag) => tag.trim()) })
-            }
+          <h6>Related Products</h6>
+          <Autocomplete
+            multiple
+            id="tags-autocomplete"
+            options={productData}
+            getOptionLabel={(option) => option.name}
+            value={formFields.tags}
+            onChange={(event, newValue) => {
+              setFormFields((prev) => ({
+                ...prev,
+                tags: newValue,
+              }));
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Select Products" placeholder="Products" />
+            )}
           />
         </div>
       </div>
 
       <div className="card p-4 mt-4">
-        <h5>Media and Publication</h5>
+        <h5>Thumbnail Image</h5>
         <div className="imgUploadBox d-flex align-items-center">
           {previews.map((img, index) => (
             <div className="uploadBox" key={index}>
@@ -348,7 +411,7 @@ const EditBlog = () => {
             <input type="file" multiple onChange={(e) => onChangeFile(e, "/api/posts/upload")} />
             <div className="info">
               <FaCloudUploadAlt />
-              <h5>Upload Images</h5>
+              <h5>Upload Thumbnail Image</h5>
             </div>
           </div>
         </div>

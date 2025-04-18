@@ -33,7 +33,10 @@ const homeSideBannerSchema = require('./routes/homeSideBanner.js');
 const homeBottomBannerSchema = require('./routes/homeBottomBanner.js');
 const promotionCodeRoutes = require('./routes/promotionCode.js');
 const postRoutes = require('./routes/posts.js');
+const postTypeRoutes = require('./routes/postTypes.js');
 const commentRoutes = require('./routes/comments.js');
+const storeLocationRoutes = require('./routes/storeLocations.js');
+const batchCodeRoutes = require('./routes/batchCodes.js');
 
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
@@ -52,9 +55,13 @@ app.use(`/api/search`, searchRoutes);
 app.use(`/api/banners`, bannersSchema);
 app.use(`/api/homeSideBanners`, homeSideBannerSchema);
 app.use(`/api/homeBottomBanners`, homeBottomBannerSchema);
-app.use("/api/promotionCode", promotionCodeRoutes)
+app.use("/api/promotionCode", promotionCodeRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/postTypes", postTypeRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/storeLocations", storeLocationRoutes);
+app.use("/api/batchCodes", batchCodeRoutes);
+
 
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {

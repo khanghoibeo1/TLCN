@@ -60,6 +60,7 @@ const EditBanner = () => {
     subCatId: null,
     subCatName: null,
     link: "",
+    note: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -100,6 +101,7 @@ const EditBanner = () => {
       setSubCatVal(res?.subCatId);
       formFields.catId = res?.catId;
       formFields.subCatId = res?.subCatId;
+      formFields.note = res?.note;
       context.setProgress(100);
     });
   }, [id]);
@@ -385,6 +387,11 @@ const EditBanner = () => {
                 <div className="form-group">
                     <h6>Link</h6>
                     <input type="text" name="link" value={formFields.link} onChange={handleChange} />
+                  </div>
+
+                <div className="form-group">
+                    <h6>Note</h6>
+                    <input type="text" name="note" value={formFields.note} onChange={handleChange} />
                   </div>
 
                 <div className="imagesUploadSec">

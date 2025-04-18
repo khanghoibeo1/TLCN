@@ -29,7 +29,6 @@ import { FaRegUser } from "react-icons/fa6";
 import { CiFilter } from "react-icons/ci";
 import { IoBagCheckOutline } from "react-icons/io5";
 
-
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isOpenNav, setIsOpenNav] = useState(false);
@@ -41,6 +40,8 @@ const Header = () => {
   const context = useContext(MyContext);
 
   const history = useNavigate();
+
+  console.log(context.countryList)
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

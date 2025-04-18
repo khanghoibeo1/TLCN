@@ -31,8 +31,26 @@ import Blogs from "./pages/Blogs";
 import EditBlog from "./pages/Blogs/editBlogs";
 import AddBlog from "./pages/Blogs/addBlogs";
 
+
+import PostTypes from "./pages/PostType";
+import EditPostTypes from "./pages/PostType/editPostType";
+import AddPostTypes from "./pages/PostType/addPostType";
+
+import StoreLocations from "./pages/StoreLocation";
+import EditStoreLocations from "./pages/StoreLocation/editStoreLocation";
+import AddStoreLocations from "./pages/StoreLocation/addStoreLocation";
+
+import BatchCodes from "./pages/BatchCodes";
+import EditBatchCode from "./pages/BatchCodes/editBatchCode";
+import AddBatchCode from "./pages/BatchCodes/addBatchCode";
+import RequestBatchCode from "./pages/BatchCodes/requestBatchCode";
+
 import Users from "./pages/Users";
 import EditUser from "./pages/Users/editUsers";
+
+import UserAdmins from "./pages/UserAdmins";
+import EditUserAdmins from "./pages/UserAdmins/editUserAdmin";
+import AddUserAdmins from "./pages/UserAdmins/addUserAdmin";
 
 import PromotionCode from "./pages/PromotionCode";
 import EditPromotionCode from "./pages/PromotionCode/editPromotionCode";
@@ -56,6 +74,7 @@ import EditHomeBottomBanner from "./pages/HomeBottomBanners/editHomeBottomBanner
 import MyAccount from "./pages/MyAccount";
 import BlogDetails from "./pages/BlogDetails";
 import PromotionCodeDetails from "./pages/PromotionCodeDetails";
+import StoreLocation from "./pages/StoreLocation";
 
 const MyContext = createContext();
 
@@ -68,10 +87,14 @@ function App() {
   );
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [catData, setCatData] = useState([]);
+  const [postTypeData, setPostTypeData] = useState([]);
   const [user, setUser] = useState({
     name: "",
     email: "",
     userId: "",
+    role: "",
+    locationName: "",
+    locationId: "",
   });
 
   const [isOpenNav, setIsOpenNav] = useState(false);
@@ -113,7 +136,8 @@ function App() {
   }, [isLogin, localStorage.getItem("user")]);
 
   useEffect(() => {
-    getCountry("https://countriesnow.space/api/v0.1/countries/");
+    // getCountry("https://countriesnow.space/api/v0.1/countries/");
+    getCountry(process.env.REACT_APP_COUNTRY_DROPDOWN);
   }, []);
 
   const countryListArr = [];
@@ -125,7 +149,7 @@ function App() {
         res.data.data.map((item, index) => {
           countryListArr.push({
             value:item?.iso2,
-            label:item?.country,
+            label:item?.location,
           });
         });
         setCountryList(countryListArr);
@@ -147,11 +171,20 @@ function App() {
   useEffect(() => {
     setProgress(20);
     fetchCategory();
+    fetchPostType();
   }, []);
 
   const fetchCategory = () => {
     fetchDataFromApi("/api/category").then((res) => {
       setCatData(res);
+      console.log(res);
+      setProgress(100);
+    });
+  };
+
+  const fetchPostType = () => {
+    fetchDataFromApi("/api/postTypes").then((res) => {
+      setPostTypeData(res);
       console.log(res);
       setProgress(100);
     });
@@ -176,6 +209,8 @@ function App() {
     baseUrl,
     catData,
     fetchCategory,
+    postTypeData,
+    fetchPostType,
     setUser,
     user,
     countryList,
@@ -263,9 +298,27 @@ function App() {
               <Route path="/blog/edit/:id" exact={true} element={<EditBlog />} />
               <Route path="/blog/details/:id" exact={true} element={<BlogDetails />} />
               <Route path="/blog/add" exact={true} element={<AddBlog />} />
+              
+              <Route path="/postTypes" exact={true} element={<PostTypes />} />
+              <Route path="/postTypes/edit/:id" exact={true} element={<EditPostTypes />} />
+              <Route path="/postTypes/add" exact={true} element={<AddPostTypes />} />
+
+              <Route path="/storeLocations" exact={true} element={<StoreLocations />} />
+              <Route path="/storeLocations/edit/:id" exact={true} element={<EditStoreLocations />} />
+              <Route path="/storeLocations/add" exact={true} element={<AddStoreLocations />} />
 
               <Route path="/users" exact={true} element={<Users />} />
               <Route path="/user/edit/:id" exact={true} element={<EditUser />} />
+
+              <Route path="/userAdmins" exact={true} element={<UserAdmins />} />
+              <Route path="/userAdmin/edit/:id" exact={true} element={<EditUserAdmins />} />
+              <Route path="/userAdmin/add" exact={true} element={<AddUserAdmins />} />
+              
+              <Route path="/batchCodes" exact={true} element={<BatchCodes />} />
+              <Route path="/batchCode/edit/:id" exact={true} element={<EditBatchCode />} />
+              <Route path="/batchCode/add" exact={true} element={<AddBatchCode />} />
+              <Route path="/batchCodes/request" exact={true} element={<RequestBatchCode />} />
+
               <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
               <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />
               <Route path="/promotionCode/details/:id" exact={true} element={<PromotionCodeDetails />} />

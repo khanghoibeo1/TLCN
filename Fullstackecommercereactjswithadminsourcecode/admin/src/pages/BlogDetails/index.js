@@ -103,7 +103,7 @@ const BlogDetails = () => {
                     </div>
     
                     {/* Blog Images */}
-                    <ProductZoom images={blogData.data?.images} discount={0} />
+                    {/* <ProductZoom images={blogData.data?.images} discount={0} /> */}
                     {/* {blogData.data?.images?.length > 0 && (
                         <div className="imageGallery mb-4">
                             {blogData.data?.images.map((image, index) => (
@@ -120,11 +120,21 @@ const BlogDetails = () => {
                             ))}
                         </div>
                     )} */}
-    
+                    {/* Youtube */}
+                    <iframe 
+                        width="560" 
+                        height="315" 
+                        src={`https://www.youtube.com/embed/${blogData.data?.ytbLink}`} 
+                        title="YouTube video player" 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                    ></iframe>
                     {/* Blog Content */}
                     <div className="content">
                         <p>Content:</p>
-                        <p>{blogData.data?.content || "No Content Available"}</p>
+                        <div dangerouslySetInnerHTML={{ __html: blogData.data?.content || "No Content Available" }} />
+                        {/* <p>{blogData.data?.content || "No Content Available"}</p> */}
                     </div>
     
                     {/* Comments Count */}

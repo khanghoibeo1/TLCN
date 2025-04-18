@@ -67,6 +67,7 @@ const Products = () => {
   const open = Boolean(anchorEl);
 
   const context = useContext(MyContext);
+  const userContext = context.user;
 
   const history = useNavigate();
 
@@ -186,8 +187,7 @@ else{
       fetchDataFromApi(`/api/products?page=${1}&perPage=${10}`).then((res) => {
         setProductList(res);
       })
-    }
-   
+    } 
 }
 
 
@@ -260,7 +260,7 @@ else{
         </div>
 
         <div className="card shadow border-0 p-3 mt-4">
-          <h3 className="hd">Best Selling Products</h3>
+          <h3 className="hd">All Products</h3>
 
           <div className="row cardFilters mt-3">
             <div className="col-md-3">
@@ -332,7 +332,9 @@ else{
                   <th>SUB CATEGORY</th>
                   <th>BRAND</th>
                   <th>PRICE</th>
+                  <th>AMOUNT</th>
                   <th>RATING</th>
+                  <th>NOTE</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -372,6 +374,7 @@ else{
                             </span>
                           </div>
                         </td>
+                        <td>{item?.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0}</td>
                         <td>
                           <Rating
                             name="read-only"
@@ -381,6 +384,8 @@ else{
                             readOnly
                           />
                         </td>
+                        
+                        <td>{item?.note}</td>
 
                         <td>
                           <div className="actions d-flex align-items-center">

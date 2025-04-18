@@ -3,3 +3,8 @@
 .bannerSection .box{overflow: hidden; border-radius: 15px; cursor: pointer; display: block;}
 .bannerSection .box img{height: auto !important; transition:all 0.3s;}
 .bannerSection .box:hover img{transform: scale(1.1); }
+.bannerAds img {
+    height: 200px; /* hoặc bất kỳ giá trị nào phù hợp */
+    object-fit: cover;
+  }
+  

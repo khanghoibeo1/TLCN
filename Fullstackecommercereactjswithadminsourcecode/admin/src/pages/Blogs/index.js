@@ -246,6 +246,7 @@ const PostList = () => {
                   <th style={{ width: "300px" }}>POST</th>
                   <th>CATEGORY</th>
                   <th>AUTHOR</th>
+                  <th>NOTE</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -264,6 +265,7 @@ const PostList = () => {
                     </td>
                     <td>{post?.category}</td>
                     <td>{post?.author}</td>
+                    <td>{post?.note}</td>
                     <td>
                       <div className="actions d-flex align-items-center">
                         <Link to={`/blog/details/${post?.id}`}>

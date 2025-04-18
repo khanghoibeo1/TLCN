@@ -13,7 +13,11 @@ const homeBannerSchema = mongoose.Schema({
     display: {
         type: Boolean,
         default: "true",
-    }
+    },
+    note: {
+        type: String,
+        default: null, 
+    },
 })
 
 homeBannerSchema.virtual('id').get(function () {

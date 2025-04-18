@@ -132,6 +132,9 @@ Shopify provides an online shopping platform for users in the agricultural produ
 
     Press `Ctrl + C` in the terminal.
 
+9. Demo
+   Client site: https://app.netlify.com/sites/fruitstore-ecommerce-client/overview
+   Admin site: https://fruitstore-ecommerce-admin.netlify.app/login
 ---
 ## Technology Stack
 

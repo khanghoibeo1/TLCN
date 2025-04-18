@@ -18,6 +18,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { BiSolidCategory } from "react-icons/bi";
 import { TbSlideshow } from "react-icons/tb";
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import ImportantDevicesIcon from '@mui/icons-material/ImportantDevices';
+
 
 const Sidebar = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -25,7 +28,7 @@ const Sidebar = () => {
   const [isLogin, setIsLogin] = useState(false);
 
   const context = useContext(MyContext);
-
+  console.log(context.user)
   const isOpenSubmenu = (index) => {
     setActiveTab(index);
     if(activeTab===index){
@@ -82,7 +85,9 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          <li>
+          {
+            context.user.role === "mainAdmin" &&
+            <li>
             <Button
               className={`w-100 ${
                 activeTab === 1 && isToggleSubmenu === true ? "active" : ""
@@ -148,7 +153,7 @@ const Sidebar = () => {
                 </li>
               </ul>
             </div>
-          </li>
+          </li>}
 
           <li>
             <Button
@@ -253,7 +258,9 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          <li>
+          {
+            (context.user.role === "mainAdmin" || context.user.role === "storeAdmin") &&
+            <li>
             <Button
               className={`w-100 ${
                 activeTab === 5 && isToggleSubmenu === true ? "active" : ""
@@ -287,9 +294,22 @@ const Sidebar = () => {
                   </NavLink>
                 </li>
               </ul>
+
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/userAdmins"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    User Admin List
+                  </NavLink>
+                </li>
+              </ul>
               
             </div>
-          </li>
+          </li>}
 
           <li>
             <Button
@@ -322,6 +342,16 @@ const Sidebar = () => {
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Blogs List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/postTypes"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Blog Types
                   </NavLink>
                 </li>
               </ul>
@@ -360,6 +390,96 @@ const Sidebar = () => {
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Promotion Code List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>
+
+          {/* store location */}
+          {
+            (context.user.role === "mainAdmin" || context.user.role === "storeAdmin") &&
+            <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 8 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(8)}
+            >
+              <span className="icon">
+                <AddLocationAltIcon />
+              </span>
+              Store Location
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 8 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/storeLocations"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Store Location List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>}
+
+          {/*Batch Code*/}
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 9 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(9)}
+            >
+              <span className="icon">
+                <ImportantDevicesIcon  />
+              </span>
+              Batch Code
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 9 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/batchCodes"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Batch Code List
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/batchCodes/request"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Request Batch Code 
                   </NavLink>
                 </li>
               </ul>

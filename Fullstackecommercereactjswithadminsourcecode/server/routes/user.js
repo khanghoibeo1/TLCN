@@ -35,11 +35,8 @@ const storage = multer.diskStorage({
     },
 })
 
-
 const upload = multer({ storage: storage })
-
-
-
+// Upload image
 router.post(`/upload`, upload.array("images"), async (req, res) => {
     imagesArr=[];
 
@@ -68,18 +65,14 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
         imagesUploaded = await imagesUploaded.save();
         return res.status(200).json(imagesArr);
 
-       
-
     }catch(error){
         console.log(error);
     }
-
-
 });
 
-
+// Sign up for user client
 router.post(`/signup`, async (req, res) => {
-    const { name, phone, email, password, isAdmin } = req.body;
+    const { name, phone, email, password, isAdmin, note } = req.body;
 
      // Validation rules
     const phoneRegex = /^[0-9]{10}$/;
@@ -122,6 +115,7 @@ router.post(`/signup`, async (req, res) => {
             password:hashPassword,
             isAdmin:isAdmin,
             verificationToken: verificationToken,
+            note: note,
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         });
 
@@ -141,7 +135,7 @@ router.post(`/signup`, async (req, res) => {
     }
 })
 
-
+//Login
 router.post(`/signin`, async (req, res) => {
     const {email, password} = req.body;
 
@@ -163,14 +157,11 @@ router.post(`/signin`, async (req, res) => {
         }
 
         const token = jwt.sign({email:existingUser.email, id: existingUser._id}, process.env.JSON_WEB_TOKEN_SECRET_KEY);
-
-
        return res.status(200).send({
             user:existingUser,
             token:token,
             msg:"user Authenticated"
         })
-
     }catch (error) {
         res.status(500).json({error:true,msg:"something went wrong"});
         return;
@@ -178,6 +169,7 @@ router.post(`/signin`, async (req, res) => {
 
 })
 
+// Verify email
 router.post(`/verify-email`, async(req, res) => {
     const {code} = req.body;
     try{
@@ -212,6 +204,7 @@ router.post(`/verify-email`, async(req, res) => {
     }
 })
 
+// Change password for user
 router.put(`/changePassword/:id`, async (req, res) => {
    try{
     const { email, password, newPass} = req.body;
@@ -262,7 +255,7 @@ router.get('/get/count', async (req, res) => {
 });
 
 
-// Get all posts with pagination and optional location filter
+// Get all users with pagination and optional location filter
 router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 10;
@@ -306,30 +299,184 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async(req,res)=>{
-    const user = await User.findById(req.params.id);
+// Get all user admin with pagination and optional location filter
+router.get('/userAdmin', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10;
+    const locationFilter = req.query.location;
 
-    if(!user) {
-        res.status(500).json({ success: false, message: 'The user with the given ID was not found.' })
-    } else{
-        res.status(200).json({ success: true, data: user });
-    }
-    
-})
+    try {
+        const query = { isAdmin: true };
+        const totalUsers = await User.countDocuments(query);
+        const totalPages = Math.ceil(totalUsers / perPage);
 
-router.delete('/:id', (req, res)=>{
-    User.findByIdAndDelete(req.params.id).then(user =>{
-        if(user) {
-            return res.status(200).json({success: true, message: 'the user is deleted!'})
-        } else {
-            return res.status(404).json({success: false , message: "user not found!"})
+        if (page > totalUsers) {
+            return res.status(404).json({ success: false, message: "Page not found" });
         }
-    }).catch(err=>{
-       return res.status(500).json({success: false, error: err}) 
-    })
-})
+
+        let users = [];
+
+        if (locationFilter) {
+            const allUsers = await User.find(query)
+                .populate("name")
+                .exec();
+
+                users = allUsers.filter(user =>
+                user.location && user.location.some(loc => loc.value === locationFilter)
+            ).slice((page - 1) * perPage, page * perPage);
+        } else {
+            users = await User.find(query)
+                .populate("name")
+                .skip((page - 1) * perPage)
+                .limit(perPage)
+                .exec();
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: users,
+            totalUsers,
+            currentPage: page,
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.post(`/userAdmin/create`, async (req, res) => {
+    try {
+        const hashPassword = await bcrypt.hash(req.body.password,10);
+        let user = new User({
+            name: req.body.name,
+            phone: req.body.phone,
+            email: req.body.email,
+            status: req.body.status || "active",
+            images: req.body.images || [],
+            isAdmin: true, // Luôn là admin
+            locationManageName: req.body.locationManageName || "",
+            locationManageId: req.body.locationManageId || "",
+            role: req.body.role || "storeAdmin", // Mặc định là storeAdmin
+            password: hashPassword,
+            note: req.body.note,
+        });
+
+        user = await user.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Admin user created successfully",
+            data: {
+                id: user.id,
+                name: user.name,
+                phone: user.phone,
+                email: user.email,
+                status: user.status,
+                images: user.images,
+                locationManageName: user.locationManageName,
+                locationManageId: user.locationManageId,
+                role: user.role,
+                password: user.password,
+                note: user.note,
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error creating user", error });
+    }
+});
+
+router.put(`/userAdmin/:id`, async (req, res) => {
+    try {
+        const hashPassword = await bcrypt.hash(req.body.password,10);
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                phone: req.body.phone,
+                email: req.body.email,
+                status: req.body.status,
+                images: req.body.images,
+                locationManageName: req.body.locationManageName,
+                locationManageId: req.body.locationManageId,
+                role: req.body.role,
+                password: hashPassword,
+                note: req.body.note,
+            },
+            { new: true }
+        );
+
+        if (!user || !user.isAdmin) {
+            return res.status(404).json({ success: false, message: "Admin user not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Admin user updated successfully",
+            data: {
+                id: user.id,
+                name: user.name,
+                phone: user.phone,
+                email: user.email,
+                status: user.status,
+                images: user.images,
+                locationManageName: user.locationManageName,
+                locationManageId: user.locationManageId,
+                role: user.role,
+                password: user.password,
+                note: user.note,
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error updating user", error });
+    }
+});
 
 
+router.get('/userAdmin/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user || !user.isAdmin) {
+            return res.status(404).json({ success: false, message: 'Admin user not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                id: user.id,
+                name: user.name,
+                phone: user.phone,
+                email: user.email,
+                status: user.status,
+                images: user.images,
+                locationManageName: user.locationManageName || "",
+                locationManageId: user.locationManageId || "",
+                role: user.role || "",
+                password: user.password,
+                note: user.note,
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error fetching user", error });
+    }
+});
+
+
+// Delete user by Id
+router.delete('/userAdmin/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user || !user.isAdmin) {
+            return res.status(404).json({ success: false, message: "Admin user not found" });
+        }
+
+        res.status(200).json({ success: true, message: "Admin user deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error deleting user", error });
+    }
+});
+
+
+// Get count user
 router.get(`/get/count`, async (req, res) =>{
     const userCount = await User.countDocuments()
 
@@ -341,9 +488,9 @@ router.get(`/get/count`, async (req, res) =>{
     });
 })
 
-
+// Verify google
 router.post(`/authWithGoogle`, async (req, res) => {
-    const {name, phone, email, password, images, isAdmin} = req.body;
+    const {name, phone, email, password, images, isAdmin, note} = req.body;
     
 
     try{
@@ -351,13 +498,14 @@ router.post(`/authWithGoogle`, async (req, res) => {
 
         if(!existingUser){
             const result = await User.create({
-                name:name,
-                phone:phone,
-                email:email,
-                password:password,
-                images:images,
-                isAdmin:isAdmin,
-                isVerified: true,
+            name:name,
+            phone:phone,
+            email:email,
+            password:password,
+            images:images,
+            isAdmin:isAdmin,
+            isVerified: true,
+            note: note,
             });
 
     
@@ -381,16 +529,16 @@ router.post(`/authWithGoogle`, async (req, res) => {
                  msg:"User Login Successfully!"
              })
         }
-      
+        
     }catch(error){
         console.log(error)
     }
 })
 
-
+// Update user
 router.put('/:id',async (req, res)=> {
 
-    const { name,  email,phone, images, isAdmin} = req.body;
+    const { name,  email,phone, images, isAdmin, note} = req.body;
     console.log(req.body)
 
     const userExist = await User.findById(req.params.id);
@@ -412,6 +560,7 @@ router.put('/:id',async (req, res)=> {
             email:email,
             images: images,
             isAdmin: isAdmin,
+            note: note,
         },
         { new: true}
     )
@@ -422,6 +571,7 @@ router.put('/:id',async (req, res)=> {
     return res.status(200).json({ error: false, status: "SUCCESS" });;
 })
 
+// Forgot password
 router.post('/forgot-password', async (req, res) => {
     const {email} = req.body;
     try{
@@ -447,6 +597,7 @@ router.post('/forgot-password', async (req, res) => {
     };
 })
 
+//Reset password
 router.post('/reset-password/:token', async (req, res) => {
     try{
         const { token } = req.params;
@@ -475,6 +626,7 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 })
 
+// Delete image
 router.delete('/deleteImage', async (req, res) => {
     const imgUrl = req.query.img;
 

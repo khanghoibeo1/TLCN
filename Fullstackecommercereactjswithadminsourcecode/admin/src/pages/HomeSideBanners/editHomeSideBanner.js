@@ -60,6 +60,7 @@ const EditBanner = () => {
     subCatId: null,
     subCatName: null,
     link: "",
+    note: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -93,6 +94,7 @@ const EditBanner = () => {
       setFormFields((prevFields) => ({
         ...prevFields, // giữ nguyên các trường hiện tại trong state
         link: res.link, // cập nhật trường link
+        note: res.note,
       }));
       setPreviews(res.images);
       setcategoryVal(res?.catId);
@@ -385,6 +387,12 @@ const EditBanner = () => {
                     <h6>Link</h6>
                     <input type="text" name="link" value={formFields.link} onChange={handleChange} />
                   </div>
+                  
+                <div className="form-group">
+                    <h6>Note</h6>
+                    <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+                  </div>
+
 
                 <div className="imagesUploadSec">
                   <h5 className="mb-4">Media And Published</h5>

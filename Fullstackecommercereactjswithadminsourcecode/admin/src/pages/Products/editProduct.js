@@ -115,6 +115,7 @@ const EditUpload = () => {
     size: [],
     productWeight: [],
     location: [],
+    note: "",
   });
 
   const productImages = useRef();
@@ -209,6 +210,7 @@ const EditUpload = () => {
         size: res.size,
         productWeight: res.productWeight,
         location: res.location,
+        note: res.note,
       });
 
       setSelectedLocation(res.location);
@@ -898,6 +900,19 @@ const EditUpload = () => {
                       </div>
                     </div>
                   )}
+                </div>
+                <div className="row">
+                  <div className="col-md-12">
+                    <div className="form-group">
+                    <h6>NOTE </h6>
+                    <input
+                      type="text"
+                      name="note"
+                      value={formFields.note}
+                      onChange={inputChange}
+                    />
+                  </div>
+                  </div>
                 </div>
               </div>
             </div>

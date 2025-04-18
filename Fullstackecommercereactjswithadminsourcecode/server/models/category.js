@@ -22,7 +22,11 @@ const categorySchema = mongoose.Schema({
     },
     parentId:{
         type:String
-    }
+    },
+    note: {
+        type: String,
+        default: null, 
+    },
 },{timestamps:true})
 
 categorySchema.virtual('id').get(function () {

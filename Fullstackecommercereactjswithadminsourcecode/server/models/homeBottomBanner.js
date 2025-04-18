@@ -25,7 +25,11 @@ const homeBottomBannersSchema = mongoose.Schema({
   display: {
     type: Boolean,
     default: "true",
-}
+  },
+  note: {
+      type: String,
+      default: null, 
+  },
 });
 
 homeBottomBannersSchema.virtual("id").get(function () {

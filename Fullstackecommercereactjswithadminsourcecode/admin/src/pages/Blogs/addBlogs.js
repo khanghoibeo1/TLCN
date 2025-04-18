@@ -12,6 +12,10 @@ import { IoCloseSharp } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { MyContext } from "../../App";
 import { postData, uploadImage, fetchDataFromApi, deleteImages, deleteData } from "../../utils/api";
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
+import { Autocomplete, TextField } from "@mui/material";
+
 
 const AddBlog = () => {
   
@@ -19,9 +23,11 @@ const AddBlog = () => {
   const context = useContext(MyContext);
   const [uploading, setUploading] = useState(false);
   const [categoryVal, setcategoryVal] = useState("all");
+  const editor = useRef(null);
   const formdata = new FormData();
   const [formFields, setFormFields] = useState({
     title: "",
+    ytbLink: "",
     content: "",
     author: "",
     images: [],
@@ -30,6 +36,7 @@ const AddBlog = () => {
     tags: [],
     catId: null,
     commentsCount: 0,
+    note: "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -37,6 +44,7 @@ const AddBlog = () => {
   const [previews, setPreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [productData, setProductData] = useState([]);
 
   useEffect(() => {
     fetchDataFromApi("/api/imageUpload").then((res) => {
@@ -48,6 +56,10 @@ const AddBlog = () => {
         });
       });
     });
+    //Lấy hết sản phẩm
+    fetchDataFromApi("/api/products/getAll").then((res) => {
+      setProductData(res || []);
+    });
   }, []);
 
   // Xử lý thay đổi trường nhập
@@ -55,6 +67,7 @@ const AddBlog = () => {
     const { name, value } = e.target;
     setFormFields({ ...formFields, [name]: value });
   };
+
 
   let img_arr = [];
   let uniqueArray = [];
@@ -86,12 +99,12 @@ const AddBlog = () => {
     }
   };
 
-  const handleChangeCategory = (event) => {
-    setcategoryVal(event.target.value);
+  // const handleChangeCategory = (event) => {
+  //   setcategoryVal(event.target.value);
     
-  };
+  // };
 
-  const selectCat = (cat, id) => {
+  const selectPostType = (cat, id) => {
     formFields.category = cat;
     formFields.catId = id;
   };
@@ -134,7 +147,7 @@ const AddBlog = () => {
     }
 
     uploadImage(apiEndPoint, formdata).then((res) => {
-      console.log(selectedImages);
+      console.log(res);
       fetchDataFromApi("/api/imageUpload").then((response) => {
         if (
           response !== undefined &&
@@ -182,7 +195,7 @@ const AddBlog = () => {
     console.log(formFields);
 
 
-    if (!formFields.title || !formFields.content || !formFields.author || !formFields.category || !formFields.images || !previews.length) {
+    if (!formFields.title || !formFields.content || !formFields.author || !formFields.category || !formFields.images ) {
       context.setAlertBox({
         open: true,
         msg: "Please fill all required fields and upload images",
@@ -216,6 +229,26 @@ const AddBlog = () => {
     }
   };
 
+  
+  // Chọn product
+  const handleSelectProduct = (product) => {
+    if (!product) return;
+  
+    // Kiểm tra xem đã có trong danh sách chưa
+    const isExist = formFields.tags.some(p => p.id === product.id);
+    if (!isExist) {
+      setFormFields(prev => ({
+        ...prev,
+        tags: [...prev.tags, product.value],
+      }));
+    }
+  };
+  // Chuyển productData thành dạng options cho Select2
+  const productOptions = productData.map((product) => ({
+    value: product.id,
+    label: product.name,
+  }));
+
   return (
     <div className="right-content w-100">
       <div className="card shadow border-0 w-100 flex-row p-4">
@@ -237,8 +270,49 @@ const AddBlog = () => {
           </div>
 
           <div className="form-group">
+            <h6>Youtube ID &#40;Ex: "JDYFOSwh-g0" in "https://www.youtube.com/watch?v=JDYFOSwh-g0"&#41;</h6>
+            <input type="text" name="ytbLink" value={formFields.ytbLink} onChange={handleChange} />
+          </div>
+
+          <div className="form-group">
             <h6>Content</h6>
-            <textarea rows={5} name="content" value={formFields.content} onChange={handleChange} />
+            {/* <textarea rows={5} name="content" value={formFields.content} onChange={handleChange} /> */}
+            <JoditEditor
+              ref={editor}
+              value={formFields.content}
+              config={{
+                uploader: {
+                  insertImageAsBase64URI: false,
+                  url: `${process.env.REACT_APP_BASE_URL}/api/posts/richtext/upload`,
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                  format: "json",
+                  method: "POST",
+                  process: (resp) => {
+                    console.log("Server response:", resp);
+                    if (resp.success === 1) {
+                      console.log('aaaaaaaa')
+                      const imageUrl = resp.file.url;
+                      const editorElement = document.querySelector(".jodit-wysiwyg");
+                      if (editorElement) {
+                        editorElement.innerHTML += `<img src="${imageUrl}" alt="uploaded image"/>`;
+                      }
+                    }
+                    return resp; // JSON server đã trả đúng format
+                  },
+                  error: (error) => console.error("Upload Error:", error),
+                },
+                height: 1000,
+                buttons: "bold,italic,underline,|,ul,ol,|,image",
+              }}
+              onBlur={(newContent) => {
+                console.log("Nội dung Jodit sau khi upload ảnh:", newContent);
+                setFormFields((prev) => ({ ...prev, content: newContent }));
+              }}
+            />
+
+
           </div>
 
           <div className="form-group">
@@ -247,7 +321,12 @@ const AddBlog = () => {
           </div>
 
           <div className="form-group">
-            <h6>Category</h6>
+            <h6>Note</h6>
+            <input type="text" name="note" value={formFields.note} onChange={handleChange} />
+          </div>
+
+          <div className="form-group">
+            <h6>Type</h6>
             {/* <input type="text" name="category" value={formFields.category} onChange={handleChange} /> */}
             <Select
               value={formFields.category}
@@ -260,16 +339,18 @@ const AddBlog = () => {
               <MenuItem value="">
                 <em value={null}>None</em>
               </MenuItem>
-              {context.catData?.categoryList?.length !== 0 &&
-                context.catData?.categoryList?.map((cat, index) => {
+              {context.postTypeData?.length !== 0 &&
+                context.postTypeData
+                .filter((typ) => typ.name !== "All")
+                .map((typ, index) => {
                   return (
                     <MenuItem
                       className="text-capitalize"
-                      value={cat.name}
+                      value={typ.name}
                       key={index}
-                      onClick={() => selectCat(cat.name, cat._id)}
+                      onClick={() => selectPostType(typ.name, typ._id)}
                     >
-                      {cat.name}
+                      {typ.name}
                     </MenuItem>
                   );
                 })}
@@ -285,7 +366,30 @@ const AddBlog = () => {
           </div>
 
           <div className="form-group">
-            <h6>Tags</h6>
+            <h6>Related Products</h6>
+            <Autocomplete
+              multiple
+              id="tags-autocomplete"
+              options={productData}
+              getOptionLabel={(option) => option.name}
+              value={formFields.tags}
+              onChange={(event, newValue) => {
+                console.log(newValue)
+                setFormFields((prev) => ({
+                  ...prev,
+                  tags: newValue,
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Products" placeholder="Products" />
+              )}
+            />
+          </div>
+
+
+
+          {/* <div className="form-group">
+            <h6>Relation Products &#40;Use "," to distint&#41;</h6>
             <input
               type="text"
               name="tags"
@@ -294,11 +398,11 @@ const AddBlog = () => {
                 setFormFields({ ...formFields, tags: e.target.value.split(",").map((tag) => tag.trim()) })
               }
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="card p-4 mt-4">
-          <h5>Media and Publication</h5>
+          <h5>Thumbnail Image</h5>
           <div className="imgUploadBox d-flex align-items-center">
             {previews.map((img, index) => (
               <div className="uploadBox" key={index}>
@@ -312,7 +416,7 @@ const AddBlog = () => {
               <input type="file" multiple onChange={(e) => onChangeFile(e, "/api/posts/upload")} />
               <div className="info">
                 <FaCloudUploadAlt />
-                <h5>Upload Images</h5>
+                <h5>Upload Thumbnail Image</h5>
               </div>
             </div>
           </div>

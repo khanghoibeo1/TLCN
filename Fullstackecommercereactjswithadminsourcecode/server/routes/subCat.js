@@ -78,7 +78,8 @@ router.post('/create', async (req, res) => {
 
     let subCat = new SubCategory({
         category: req.body.category,
-        subCat:req.body.subCat
+        subCat:req.body.subCat,
+        note: req.body.note,
     });
 
 
@@ -127,6 +128,7 @@ router.put('/:id', async (req, res) => {
         {
             category: req.body.category,
             subCat: req.body.subCat,
+            note: req.body.note,
         },
         { new: true }
     )

@@ -7,6 +7,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { Navigation } from "swiper/modules";
 import ProductItem from "../../Components/ProductItem";
 import HomeCat from "../../Components/HomeCat";
@@ -48,6 +50,7 @@ const Home = () => {
   };
 
   useEffect(() => {
+    AOS.init({ duration: 800 });
     window.scrollTo(0, 0);
     context.setisHeaderFooterShow(true);
     setselectedCat(context.categoryData[0]?.name);
@@ -133,7 +136,7 @@ const Home = () => {
       {homeSlides?.length !== 0 ? (
         <HomeBanner data={homeSlides} />
       ) : (
-        <div className="container mt-3">
+        <div className="container mt-5">
           <div className="homeBannerSection">
             <img src={homeBannerPlaceholder} className="w-100" />
           </div>
@@ -144,7 +147,7 @@ const Home = () => {
         <HomeCat catData={context.categoryData} />
       )}
 
-      <section className="homeProducts pb-0">
+      <section className="homeProducts pb-0 " data-aos="flip-right">
         <div className="container">
           <div className="row homeProductsRow">
             <div className="col-md-3">
@@ -184,7 +187,7 @@ const Home = () => {
               </div> */}
             </div>
 
-            <div className="col-md-9 productRow">
+            <div className="col-md-9 productRow" >
               <div className="d-flex align-items-center res-flex-column">
                 <div className="info" style={{ width: "35%" }}>
                   <h3 className="mb-0 hd">Popular Products</h3>
@@ -263,7 +266,7 @@ const Home = () => {
                 )}
               </div>
 
-              <div className="d-flex align-items-center mt-2">
+              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info w-75">
                   <h3 className="mb-0 hd">NEW PRODUCTS</h3>
                   <p className="text-light text-sml mb-0">
@@ -281,7 +284,7 @@ const Home = () => {
                 </div>
               )}
 
-              <div className="product_row productRow2 w-100 mt-4 d-flex productScroller ml-0 mr-0">
+              <div className="product_row productRow2 w-100 mt-4 d-flex productScroller ml-0 mr-0" data-aos="fade-up">
                 {productsData?.products?.length !== 0 &&
                   productsData?.products
                     ?.slice(0)
@@ -292,10 +295,12 @@ const Home = () => {
               </div>
 
               {bannerList?.length !== 0 && (
-                <Banners data={bannerList} col={3} />
+                <div  data-aos="zoom-in">
+                  <Banners data={bannerList} col={3} />
+                </div>
               )}
 
-              <div className="d-flex align-items-center mt-2">
+              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info">
                   <h3 className="mb-0 hd">featured products</h3>
                   <p className="text-light text-sml mb-0">
@@ -304,7 +309,7 @@ const Home = () => {
                 </div>
               </div>
 
-              {featuredProducts?.length !== 0 &&  <div className="product_row w-100 mt-2">
+              {featuredProducts?.length !== 0 &&  <div className="product_row w-100 mt-2" data-aos="fade-up">
                   {context.windowWidth > 992 ? (
                     <Swiper
                       slidesPerView={4}
@@ -366,12 +371,15 @@ const Home = () => {
           </div>
 
           {bannerList?.length !== 0 && (
+            <div  data-aos="zoom-in">
             <Banners data={homeBottomBanners} col={3} />
+              
+            </div>
           )}
         </div>
       </section>
 
-      <div className="container">
+      <div className="container" data-aos="fade-up">
         {randomCatProducts?.length !== 0 &&  randomCatProducts?.products?.length!==0 && (
           <>
             <div className="d-flex align-items-center mt-1 pr-3">

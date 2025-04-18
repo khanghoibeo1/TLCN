@@ -38,7 +38,7 @@ const CountryDropdown = () => {
 
         if (keyword !== "") {
             const list = countryList.filter((item) => {
-                return item.country.toLowerCase().includes(keyword);
+                return item.location.toLowerCase().includes(keyword);
             });
             setcountryList(list);
         } else {
@@ -79,7 +79,7 @@ const CountryDropdown = () => {
                             return (
                                 <li key={index}><Button onClick={() => selectCountry(index, item.iso2)}
                                     className={`${selectedTab === index ? 'active' : ''}`}
-                                >{item.country}</Button></li>
+                                >{item.location}</Button></li>
                             )
                         })
                     }
