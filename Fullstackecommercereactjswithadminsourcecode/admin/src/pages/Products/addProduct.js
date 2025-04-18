@@ -75,7 +75,7 @@ const ProductUpload = () => {
   const [productWEIGHTData, setProductWEIGHTData] = useState([]);
   const [productSIZEData, setProductSIZEData] = useState([]);
 
-  const [ratingsValue, setRatingValue] = useState(1);
+  const [ratingsValue, setRatingValue] = useState(5);
   const [isFeaturedValue, setisFeaturedValue] = useState("");
 
   const [catData, setCatData] = useState([]);
