@@ -63,6 +63,11 @@ const productSchema = mongoose.Schema({
             ref: 'Location',
             required: true,
           },
+          iso2: {
+            type: String,  // hoặc mongoose.Schema.Types.ObjectId nếu bạn có collection kho riêng
+            required: true,
+            default: "no",
+          },
           quantity: {
             type: Number,
             required: true,
@@ -109,6 +114,13 @@ const productSchema = mongoose.Schema({
         type: String,
       }
     },
+  ],
+  // 🔹 Thêm role để phân quyền
+  season: [
+      {
+        type: String,
+        enum: ["Spring", "Summer", "Fall", "Winter"],
+      }
   ],
   note: {
       type: String,

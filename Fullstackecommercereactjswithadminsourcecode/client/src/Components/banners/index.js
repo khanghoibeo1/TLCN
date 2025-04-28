@@ -65,7 +65,7 @@ const Banners = (props) => {
                           {item.display && 
                             <img
                             src={item?.images[0]}
-                            className="w-100 transition"
+                            className="transition"
                             alt="banner img"
                         />}
                           

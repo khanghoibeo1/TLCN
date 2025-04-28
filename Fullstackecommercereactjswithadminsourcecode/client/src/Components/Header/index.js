@@ -7,6 +7,7 @@ import { FiUser } from "react-icons/fi";
 import { IoBagOutline } from "react-icons/io5";
 import SearchBox from "./SearchBox";
 import Navigation from "./Navigation";
+import NotificationItem from "./NotificationItem";
 import { useContext } from "react";
 import { MyContext } from "../../App";
 
@@ -28,8 +29,11 @@ import { IoMdHeartEmpty } from "react-icons/io";
 import { FaRegUser } from "react-icons/fa6";
 import { CiFilter } from "react-icons/ci";
 import { IoBagCheckOutline } from "react-icons/io5";
+import StarIcon from '@mui/icons-material/Star';
+import { fetchDataFromApi, postData } from "../../utils/api";
 
 const Header = () => {
+  const [notifications, setNotifications] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isOpenNav, setIsOpenNav] = useState(false);
   const [isOpenSearch, setIsOpenSearch] = useState(false);
@@ -80,6 +84,13 @@ const Header = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    fetchDataFromApi(`/api/notifications?userId=${context.user.userId}`).then((res) => {
+      setNotifications(res);
+    });
+
+  },[context.user])
 
   const openNav = () => {
     setIsOpenNav(!isOpenNav);
@@ -191,6 +202,10 @@ const Header = () => {
                     )}
 
                     {context.isLogin === true && (
+                        <NotificationItem notifications={notifications} />
+                    )}
+
+                    {context.isLogin === true && (
                       <div className="res-hide">
                         <Button className="circle mr-3" onClick={handleClick}>
                           <FiUser />
@@ -256,6 +271,14 @@ const Header = () => {
                                 <FaHeart fontSize="small" />
                               </ListItemIcon>
                               My List
+                            </MenuItem>
+                          </Link>
+                          <Link to="/memberRank">
+                            <MenuItem onClick={handleClose}>
+                              <ListItemIcon>
+                                <StarIcon fontSize="small" />
+                              </ListItemIcon>
+                              Member Rank
                             </MenuItem>
                           </Link>
                           <MenuItem onClick={logout}>

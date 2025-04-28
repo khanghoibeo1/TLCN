@@ -334,6 +334,7 @@ else{
                   <th>PRICE</th>
                   <th>AMOUNT</th>
                   <th>RATING</th>
+                  <th>SEASON</th>
                   <th>NOTE</th>
                   <th>ACTION</th>
                 </tr>
@@ -385,6 +386,7 @@ else{
                           />
                         </td>
                         
+                        <td>{item?.season.join(",")}</td>
                         <td>{item?.note}</td>
 
                         <td>

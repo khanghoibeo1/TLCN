@@ -155,30 +155,29 @@ const AddSubCat = () => {
                     <div className='row'>
                         <div className='col-sm-9'>
                             <div className='card p-4 mt-0'>
-
                                 <div className='form-group'>
                                     <h6>Parent Category</h6>
                                     <Select
-                                                value={categoryVal}
-                                                onChange={handleChangeCategory}
-                                                displayEmpty
-                                                inputProps={{ 'aria-label': 'Without label' }}
-                                                className='w-100'
-                                            >
-                                                <MenuItem value="">
-                                                    <em value={null}>None</em>
-                                                </MenuItem>
-                                                {
-                                                    catData?.categoryList?.length !== 0 && catData?.categoryList?.map((cat, index) => {
-                                                        return (
-                                                            <MenuItem className="text-capitalize" value={cat._id} key={index}
-                                                                onClick={() => selectCat(cat.name,cat._id)}
-                                                            >{cat.name}</MenuItem>
-                                                        )
-                                                    })
-                                                }
+                                        value={categoryVal}
+                                        onChange={handleChangeCategory}
+                                        displayEmpty
+                                        inputProps={{ 'aria-label': 'Without label' }}
+                                        className='w-100'
+                                    >
+                                        <MenuItem value="">
+                                            <em value={null}>None</em>
+                                        </MenuItem>
+                                        {
+                                            catData?.categoryList?.length !== 0 && catData?.categoryList?.map((cat, index) => {
+                                                return (
+                                                    <MenuItem className="text-capitalize" value={cat._id} key={index}
+                                                        onClick={() => selectCat(cat.name,cat._id)}
+                                                    >{cat.name}</MenuItem>
+                                                )
+                                            })
+                                        }
 
-                                            </Select>
+                                    </Select>
                                 </div>
 
 

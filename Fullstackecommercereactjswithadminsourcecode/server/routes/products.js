@@ -81,6 +81,7 @@ router.get(`/`, async (req, res) => {
 
   if (req.query.page !== undefined && req.query.perPage !== undefined) {
     if (req.query.location !== undefined) {
+      console.log(req.query.location)
       const productListArr = await Product.find()
         .populate("category")
         .skip((page - 1) * perPage)
@@ -88,9 +89,9 @@ router.get(`/`, async (req, res) => {
         .exec();
 
       for (let i = 0; i < productListArr.length; i++) {
+        productList.push(productListArr[i]);
         for (let j = 0; j < productListArr[i].location.length; j++) {
           if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
           }
         }
       }
@@ -154,9 +155,9 @@ router.get(`/catName`, async (req, res) => {
       .exec();
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       for (let j = 0; j < productListArr[i].location.length; j++) {
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
         }
       }
     }
@@ -205,10 +206,10 @@ router.get(`/catId`, async (req, res) => {
     const productListArr = await Product.find({ catId: req.query.catId });
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       //console.log(productList[i].location)
       for (let j = 0; j < productListArr[i].location.length; j++) {
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
         }
       }
     }
@@ -486,9 +487,11 @@ router.get(`/featured`, async (req, res) => {
     );
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       for (let j = 0; j < productListArr[i].location.length; j++) {
+        console.log(productListArr[i].location)
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
+          
         }
       }
     }
@@ -539,6 +542,7 @@ router.post(`/recentlyViewd`, async (req, res) => {
       productRam: req.body.productRam,
       size: req.body.size,
       productWeight: req.body.productWeight,
+      season: req.body.season,
       note: req.body.note
     });
 
@@ -591,6 +595,7 @@ router.post(`/create`, async (req, res) => {
     productRam: req.body.productRam,
     size: req.body.size,
     productWeight: req.body.productWeight,
+    season: req.body.season,
     note: req.body.note,
     location: req.body.location !== "" ? req.body.location : "All",
   });
@@ -715,6 +720,7 @@ router.put("/:id", async (req, res) => {
       productRam: req.body.productRam,
       size: req.body.size,
       productWeight: req.body.productWeight,
+      season: req.body.season,
       location: req.body.location,
       note: req.body.note
     },

@@ -204,12 +204,21 @@ const Blog = () => {
               {( !comment.parentId) &&
               <div className="info">
                 <div className="d-flex align-items-center w-100">
-                  <h5>
+                  <div className="d-flex align-items-center">
+                    {comment.parentId && (
+                      <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName} → </span>
+                    )}
+                    <span className="author-name">{comment.author.name}</span>
+                  </div>
+                  <div className="ml-2">
+                    <span className="comment-date">{comment.createdAt.split('T')[0]}</span>
+                  </div>
+                  {/* <h5>
                     {comment.parentId && <span style={{ color: 'gray' }}> {comment.parentName} → </span> }
                     {<span>{comment.author.name}</span>} 
                   </h5>
                   <div className="ml-auto">{<h6 className="text-light">{comment.createdAt.split('T')[0]}</h6>}
-                  </div>
+                  </div> */}
                 </div>
                 <p>{
                 <>
@@ -225,12 +234,21 @@ const Blog = () => {
                   {flag < expandedCount && [ index - 1, index - 2, index -3, index - 4].some(i => expandedIndexes.includes(i)) && comment.parentId && [ index - 1, index - 2, index - 3, index - 4].every(i => sortedComments[i]?.parentId !== null || expandedIndexes.includes(i)) &&
                     <div className="info ml-5">
                     <div className="d-flex align-items-center w-100 ">
-                      <h5>
+                      <div className="d-flex align-items-center">
+                        {comment.parentId && (
+                          <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName} → </span>
+                        )}
+                        <span className="author-name">{comment.author.name}</span>
+                      </div>
+                      <div className="ml-2">
+                        <span className="comment-date">{comment.createdAt.split('T')[0]}</span>
+                    </div>
+                      {/* <h5>
                         {comment.parentId && <span style={{ color: 'gray' }}> {comment.parentName} → </span> }
                         {<span className='font-weight-bold'>{comment.author.name}</span>} 
                       </h5>
                       <div className="ml-auto">{<h6 className="text-light">{comment.createdAt.split('T')[0]}</h6>}
-                      </div>
+                      </div> */}
                     </div>
                     <p>{
                     <>

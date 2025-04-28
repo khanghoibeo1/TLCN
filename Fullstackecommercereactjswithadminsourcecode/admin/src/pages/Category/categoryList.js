@@ -169,9 +169,6 @@ const Category = () => {
                                         )
                                     })
                                 }
-
-
-
                             </tbody>
 
                         </table>

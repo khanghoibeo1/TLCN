@@ -1,5 +1,6 @@
 const { User } = require('../models/user');
 const { ImageUpload } = require('../models/imageUpload');
+const { Orders } = require('../models/orders');
 
 const express = require('express');
 const router = express.Router();
@@ -714,5 +715,114 @@ router.post(`/admin`, async (req, res) => {
 
 
 })
+
+//cập nhật rank
+// Upgrade user rank
+router.put('/upgrade-rank/:rank', async (req, res) => {
+    const userId = req.user?._id || req.body.userId || req.query.userId; // tuỳ cách bạn xác thực
+    const newRank = req.params.rank;
+  
+    if (!userId || !newRank) {
+      return res.status(400).json({ status: 'FAILED', msg: 'Missing userId or rank' });
+    }
+  
+    const allowedRanks = ['bronze', 'silver', 'gold', 'platinum'];
+    if (!allowedRanks.includes(newRank)) {
+      return res.status(400).json({ status: 'FAILED', msg: 'Invalid rank' });
+    }
+  
+    try {
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { rank: newRank },
+        { new: true }
+      );
+  
+      if (!user) {
+        return res.status(404).json({ status: 'FAILED', msg: 'User not found or update failed' });
+      }
+  
+      return res.status(200).json({ status: 'SUCCESS', msg: 'User rank upgraded', user });
+    } catch (error) {
+      console.error('Upgrade rank error:', error);
+      return res.status(500).json({ status: 'FAILED', msg: 'Server error' });
+    }
+  });
+  
+
+router.get('/user-rank-stats', async (req, res) => {
+    try {
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'Missing userId' });
+        }
+
+        // Lấy thông tin user
+        const user = await User.findById(userId).select('rank');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Lấy danh sách đơn hàng của user
+        const orders = await Orders.find({ userid: userId, status: { $in: ['paid', 'verify'] } });
+
+        const totalOrders = orders.length;
+        const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
+
+        return res.status(200).json({
+            rank: user.rank || 'un',
+            totalOrders,
+            totalSpent
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+//xử lý cho tháng trước chứ ko phải toàn bộ:
+// router.get('/user-rank-stats', async (req, res) => {
+//     try {
+//       const { userId } = req.query;
+  
+//       if (!userId) {
+//         return res.status(400).json({ message: 'Missing userId' });
+//       }
+  
+//       // Get current date
+//       const now = new Date();
+  
+//       // Calculate first and last day of previous month
+//       const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+//       const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+  
+//       // Find user
+//       const user = await User.findById(userId).select('rank');
+//       if (!user) {
+//         return res.status(404).json({ message: 'User not found' });
+//       }
+  
+//       // Find orders from previous month
+//       const orders = await Orders.find({
+//         userid: userId,
+//         status: { $in: ['paid', 'verify'] },
+//         createdAt: { $gte: firstDayPrevMonth, $lte: lastDayPrevMonth }
+//       });
+  
+//       const totalOrders = orders.length;
+//       const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
+  
+//       return res.status(200).json({
+//         rank: user.rank || 'Bronze',
+//         totalOrders,
+//         totalSpent
+//       });
+//     } catch (error) {
+//       console.error(error);
+//       return res.status(500).json({ message: 'Server error' });
+//     }
+//   });
+  
 
 module.exports = router;

@@ -1,10 +1,43 @@
-.bannerSection{padding: 25px 0px; padding-bottom: 0px; display: grid; gap: 15px;}
-.bannerSection .col_{width: 100%;}
-.bannerSection .box{overflow: hidden; border-radius: 15px; cursor: pointer; display: block;}
-.bannerSection .box img{height: auto !important; transition:all 0.3s;}
-.bannerSection .box:hover img{transform: scale(1.1); }
+.bannerSection {
+  padding: 25px 0px;
+  padding-bottom: 0px;
+  display: grid;
+  gap: 15px;
+  justify-content: center; /* Thêm dòng này */
+}
+
+.bannerSection .col_ {
+  width: 150%;
+  left: 50%;
+  position: relative;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bannerSection .box {
+  width: 120%;
+  /* max-width: 800px; */ /* Bỏ hoặc tăng lên 1000px */
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+.bannerSection .box img {
+  width: 120%;
+  max-width: none;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.bannerSection .box:hover img {
+  transform: scale(1.1);
+}
+
 .bannerAds img {
-    height: 200px; /* hoặc bất kỳ giá trị nào phù hợp */
-    object-fit: cover;
-  }
-  
+  width: 1500px;
+  object-fit: contain;
+}

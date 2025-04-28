@@ -37,6 +37,9 @@ const postTypeRoutes = require('./routes/postTypes.js');
 const commentRoutes = require('./routes/comments.js');
 const storeLocationRoutes = require('./routes/storeLocations.js');
 const batchCodeRoutes = require('./routes/batchCodes.js');
+const notificationRoutes = require('./routes/notifications.js');
+//reset rank
+require('./routes/cron/resetUserRank');
 
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
@@ -61,6 +64,7 @@ app.use("/api/postTypes", postTypeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/storeLocations", storeLocationRoutes);
 app.use("/api/batchCodes", batchCodeRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 //Database

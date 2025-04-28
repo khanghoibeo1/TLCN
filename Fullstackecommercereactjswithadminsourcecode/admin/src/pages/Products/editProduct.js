@@ -114,6 +114,7 @@ const EditUpload = () => {
     productRam: [],
     size: [],
     productWeight: [],
+    season: [],
     location: [],
     note: "",
   });
@@ -209,6 +210,7 @@ const EditUpload = () => {
         productRam: res.productRam,
         size: res.size,
         productWeight: res.productWeight,
+        season: res.season,
         location: res.location,
         note: res.note,
       });
@@ -316,6 +318,13 @@ const EditUpload = () => {
 
     formFields.size = value;
   };
+
+  const seasonChange = (selectedOptions) => {
+    setFormFields(() => ({
+      ...formFields,
+      season: selectedOptions ? selectedOptions.map(option => option.value) : [],
+    }));
+  }
 
   const inputChange = (e) => {
     setFormFields(() => ({
@@ -793,6 +802,25 @@ const EditUpload = () => {
                         <MenuItem value={true}>True</MenuItem>
                         <MenuItem value={false}>False</MenuItem>
                       </Select>
+                    </div>
+                  </div>
+                  <div className="col">
+                    <div className="form-group">
+                      <h6 className="text-uppercase">Season </h6>
+                      <Select2
+                          defaultValue={formFields.season}
+                          isMulti
+                          name="season"
+                          options={[
+                            { label: "Spring", value: "Spring" },
+                            { label: "Fall", value: "Fall" },
+                            { label: "Autumn", value: "Autumn" },
+                            { label: "Winter", value: "Winter" }
+                          ]}
+                          className="basic-multi-select"
+                          classNamePrefix="select"
+                          onChange={seasonChange}
+                        />
                     </div>
                   </div>
 

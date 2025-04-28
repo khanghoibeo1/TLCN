@@ -45,6 +45,11 @@ import EditBatchCode from "./pages/BatchCodes/editBatchCode";
 import AddBatchCode from "./pages/BatchCodes/addBatchCode";
 import RequestBatchCode from "./pages/BatchCodes/requestBatchCode";
 
+import Notifications from "./pages/Notifications";
+import EditNotification from "./pages/Notifications/editNotification";
+import AddNotification from "./pages/Notifications/addNotification";
+import NotificationDetails from "./pages/NotificationDetails";
+
 import Users from "./pages/Users";
 import EditUser from "./pages/Users/editUsers";
 
@@ -317,7 +322,12 @@ function App() {
               <Route path="/batchCodes" exact={true} element={<BatchCodes />} />
               <Route path="/batchCode/edit/:id" exact={true} element={<EditBatchCode />} />
               <Route path="/batchCode/add" exact={true} element={<AddBatchCode />} />
-              <Route path="/batchCodes/request" exact={true} element={<RequestBatchCode />} />
+              <Route path="/batchCode/request" exact={true} element={<RequestBatchCode />} />
+              
+              <Route path="/notifications" exact={true} element={<Notifications />} />
+              <Route path="/notification/edit/:id" exact={true} element={<EditNotification />} />
+              <Route path="/notification/add" exact={true} element={<AddNotification/>} />
+              <Route path="/notification/details/:id" exact={true} element={<NotificationDetails/>} />
 
               <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
               <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />

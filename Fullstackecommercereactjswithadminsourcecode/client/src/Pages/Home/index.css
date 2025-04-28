@@ -43,9 +43,54 @@
   .home-bottom-section {
     padding: 50px 0;
   }
+
+  .hd {
+    font-size: 24px;
+    font-weight: 700;
+    color: #00712D;
+    margin-bottom: 5px;
+  }
   
-  .mySwiper {
-    padding-bottom: 30px;
+  .text-sml {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .homeProductsRow, .homeRandom {
+    background-color: #e4ed9f;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .product_row {
+    background-color: #feffe1;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  
+  
+  .info {
+    color: #dbb1e8;
+  }
+  
+  .tabsWrapper .MuiTab-root {
+    text-transform: capitalize;
+    font-weight: bold;
+    color: #2E7D32;
+  }
+  
+  .tabsWrapper .Mui-selected {
+    color: #1B5E20 !important;
+    border-bottom: 2px solid #2E7D32;
+  }
+  
+  .productScroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 12px;
   }
   
   @media (max-width: 768px) {

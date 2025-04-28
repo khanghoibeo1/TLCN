@@ -149,6 +149,7 @@ const Users = () => {
                   <th>EMAIL</th>
                   <th>PHONE</th>
                   <th>STATUS</th>
+                  <th>RANK</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -160,6 +161,7 @@ const Users = () => {
                       <td>{user.email}</td>
                       <td>{user.phone}</td>
                       <td>{user.status}</td>
+                      <td>{user.rank}</td>
                       <td>
                         <div className="actions d-flex align-items-center">
                         <Link to={`/user/edit/${user.id}`}>

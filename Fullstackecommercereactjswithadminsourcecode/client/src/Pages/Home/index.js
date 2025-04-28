@@ -7,6 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
+import "./index.css"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Navigation } from "swiper/modules";
@@ -56,6 +57,7 @@ const Home = () => {
     setselectedCat(context.categoryData[0]?.name);
 
     const location = localStorage.getItem("location");
+    console.log(location)
 
     if (location !== null && location !== "" && location !== undefined) {
       fetchDataFromApi(`/api/products/featured?location=${location}`).then(
@@ -65,7 +67,7 @@ const Home = () => {
       );
 
       fetchDataFromApi(
-        `/api/products?page=1&perPage=8&location=${location}`
+        `/api/products?page=1&perPage=4&location=${location}`
       ).then((res) => {
         setProductsData(res);
       });
@@ -129,6 +131,8 @@ const Home = () => {
       });
     }
   }, [selectedCat]);
+  console.log("Số sản phẩm:", productsData?.products?.length);
+
 
   return (
     <>
@@ -144,7 +148,10 @@ const Home = () => {
       )}
 
       {context.categoryData?.length !== 0 && (
-        <HomeCat catData={context.categoryData} />
+        <div  data-aos="flip-left">
+          <HomeCat catData={context.categoryData} />
+
+        </div>
       )}
 
       <section className="homeProducts pb-0 " data-aos="flip-right">
@@ -189,7 +196,7 @@ const Home = () => {
 
             <div className="col-md-9 productRow" >
               <div className="d-flex align-items-center res-flex-column">
-                <div className="info" style={{ width: "35%" }}>
+                <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
                   <h3 className="mb-0 hd">Popular Products</h3>
                   <p className="text-light text-sml mb-0">
                     Do not miss the current offers until the end of March.
@@ -267,7 +274,7 @@ const Home = () => {
               </div>
 
               <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
-                <div className="info w-75">
+                <div className="info w-100 d-flex flex-column align-items-center">
                   <h3 className="mb-0 hd">NEW PRODUCTS</h3>
                   <p className="text-light text-sml mb-0">
                     New products with updated stocks.
@@ -284,7 +291,7 @@ const Home = () => {
                 </div>
               )}
 
-              <div className="product_row productRow2 w-100 mt-4 d-flex productScroller ml-0 mr-0" data-aos="fade-up">
+              <div className="product_row productRow2 w-100 mt-2 d-flex productScroller ml-0 mr-0" data-aos="fade-up">
                 {productsData?.products?.length !== 0 &&
                   productsData?.products
                     ?.slice(0)
@@ -295,13 +302,13 @@ const Home = () => {
               </div>
 
               {bannerList?.length !== 0 && (
-                <div  data-aos="zoom-in">
+                <div className="mt-3 mb-3 " data-aos="zoom-in">
                   <Banners data={bannerList} col={3} />
                 </div>
               )}
 
-              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
-                <div className="info">
+              <div className="d-flex align-items-center mt-3" data-aos="zoom-in">
+                <div className="info w-100 d-flex flex-column align-items-center">
                   <h3 className="mb-0 hd">featured products</h3>
                   <p className="text-light text-sml mb-0">
                     Do not miss the current offers until the end of March.
@@ -371,7 +378,7 @@ const Home = () => {
           </div>
 
           {bannerList?.length !== 0 && (
-            <div  data-aos="zoom-in">
+            <div className="mt-2 mb-2 " data-aos="zoom-in">
             <Banners data={homeBottomBanners} col={3} />
               
             </div>
@@ -379,7 +386,7 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="container" data-aos="fade-up">
+      <div className="container homeRandom" data-aos="fade-up">
         {randomCatProducts?.length !== 0 &&  randomCatProducts?.products?.length!==0 && (
           <>
             <div className="d-flex align-items-center mt-1 pr-3">
