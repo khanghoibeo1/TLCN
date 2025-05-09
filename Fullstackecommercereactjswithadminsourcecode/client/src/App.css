@@ -17,7 +17,7 @@ body{font-family: "Lato", sans-serif; font-size: 14px; color: rgba(0,0,0,0.8); o
 
 .container-header {
   max-width: 80%;
-  margin: 0 auto;             /* căn giữa ngang */
+  margin: 0 auto 10px;             /* căn giữa ngang */
 }
 
 
@@ -235,7 +235,7 @@ nav .allCatTab .text{font-weight: 600; font-size: 12px;}
 nav .allCatTab .icon1 svg{font-size: 20px !important;}
 nav .allCatTab .icon2 svg{font-size: 15px !important;}
 
-nav .navPart2 ul{margin-bottom: 0px;}
+nav .navPart2 ul{margin-bottom: 0px; }
 nav .navPart2 ul li{padding-bottom: 20px; margin-right: 0px !important;}
 nav .navPart2 ul li a{text-decoration: none;}
 nav .navPart2 ul li a button{ font-size: 14px !important; font-weight: 600; text-decoration: none; color: rgba(0,0,0,0.7); text-transform:uppercase !important; display: flex; align-items: center; padding: 6px 20px; transition: all 0.2s ease-in-out; border-radius: 25px;}
@@ -367,7 +367,7 @@ text-decoration: line-through;}
 .productItem:hover .productItemSliderWrapper .productItemSlider{}
 
   .product_row{margin-left: -10px; margin-right: -10px;}
-  .product_row .swiper{}
+  /* .product_row .swiper{padding-right: 80px !important;} */
 .product_row .productItem{border-right: 1px solid transparent !important;}
 .product_row .swiper-slide:last-child .productItem{ border: 1px solid rgba(0,0,0,0.1) !important;}
 

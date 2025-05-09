@@ -155,7 +155,7 @@ const Home = () => {
       )}
 
       <section className="homeProducts pb-0 " data-aos="flip-right">
-        <div className="container">
+        <div className="container ">
           <div className="row homeProductsRow">
             <div className="col-md-3">
               <HomeSideBanner data={homeSideBanners} col={3}/>
@@ -199,7 +199,7 @@ const Home = () => {
                 <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
                   <h3 className="mb-0 hd">Popular Products</h3>
                   <p className="text-light text-sml mb-0">
-                    Do not miss the current offers until the end of March.
+                    Don't miss out on great offers this month!
                   </p>
                 </div>
 
@@ -274,7 +274,7 @@ const Home = () => {
               </div>
 
               <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
-                <div className="info w-100 d-flex flex-column align-items-center">
+                <div className="info w-100 d-flex flex-column">
                   <h3 className="mb-0 hd">NEW PRODUCTS</h3>
                   <p className="text-light text-sml mb-0">
                     New products with updated stocks.
@@ -308,7 +308,7 @@ const Home = () => {
               )}
 
               <div className="d-flex align-items-center mt-3" data-aos="zoom-in">
-                <div className="info w-100 d-flex flex-column align-items-center">
+                <div className="info w-100 d-flex flex-column ">
                   <h3 className="mb-0 hd">featured products</h3>
                   <p className="text-light text-sml mb-0">
                     Do not miss the current offers until the end of March.
@@ -393,7 +393,7 @@ const Home = () => {
               <div className="info">
                 <h3 className="mb-0 hd">{randomCatProducts?.catName}</h3>
                 <p className="text-light text-sml mb-0">
-                  Do not miss the current offers until the end of March.
+                  Don't miss out on great offers this month!
                 </p>
               </div>
 

@@ -11,8 +11,13 @@ const Banners = (props) => {
   const context = useContext(MyContext);
 
   const ReRoute = (link) => {
-    window.open(link, "_blank");
-  }
+    const isAbsoluteUrl = /^https?:\/\//i.test(link);
+    const baseUrl = window.location.origin;
+    const fullLink = isAbsoluteUrl ? link : `${baseUrl}/${link.replace(/^\/+/, '')}`;
+    window.open(fullLink, "_blank");
+  };
+
+  
 
   return (
     <>
@@ -51,6 +56,7 @@ const Banners = (props) => {
               .map((item, index) => {
                 return (
                   <SwiperSlide key={index}>
+                    <div className="note">{item.note}</div>
                     <div className={`col_`}>
                       {/* Kiểm tra xem item có cả subCatId và catId hay không */}
                       {item?.subCatId || item?.catId ? (

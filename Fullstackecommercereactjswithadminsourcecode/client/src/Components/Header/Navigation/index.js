@@ -1,6 +1,7 @@
 import Button from "@mui/material/Button";
 import { IoIosMenu } from "react-icons/io";
 import { FaAngleDown } from "react-icons/fa6";
+import {Typography, Box} from '@mui/material';
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { FaAngleRight } from "react-icons/fa6";
@@ -8,6 +9,7 @@ import { MyContext } from "../../../App";
 import CountryDropdown from "../../CountryDropdown";
 import Logo from "../../../assets/images/logo.jpg";
 import { RiLogoutCircleRFill } from "react-icons/ri";
+import MenuIcon from '@mui/icons-material/Menu';
 import { FaBlog } from "react-icons/fa";
 
 import HomeImage from "../../../assets/images/homeimage.png";
@@ -48,7 +50,7 @@ const Navigation = (props) => {
         <div className="row ">
           <div className="col-sm-2 navPart1 ">
             <div className="catWrapper ">
-              <Button
+              {/* <Button
                 className="allCatTab align-items-center res-hide"
                 onClick={() => setisopenSidebarVal(!isopenSidebarVal)}
               >
@@ -59,6 +61,16 @@ const Navigation = (props) => {
                 <span className="icon2  ml-2">
                   <FaAngleDown />
                 </span>
+              </Button> */}
+              <Button
+                startIcon={<MenuIcon />}
+                variant="contained"
+                sx={{ backgroundColor: '#6C3FC9', borderRadius: 10, px: 2 }}
+                onClick={() => setisopenSidebarVal(!isopenSidebarVal)}
+              >
+                All Categories
+                <span className="icon2  ml-2"></span> 
+                <FaAngleDown/>
               </Button>
 
               <div
@@ -104,7 +116,7 @@ const Navigation = (props) => {
           </div>
 
           <div
-            className={`col-sm-10 navPart2 d-flex align-items-center res-nav-wrapper  ${
+            className={`col-sm-10 navPart2 d-flex align-items-left res-nav-wrapper  ${
               isOpenNav === true ? "open" : "close"
             }`}
           >
@@ -119,117 +131,57 @@ const Navigation = (props) => {
                 </div>
               )}
 
-              <ul className="list list-inline ml-auto d-flex align-items-center">
-                {context.windowWidth < 992 && (
-                  <>
+              <ul className="list list-inline ml-auto d-flex flex-column flex-md-row align-items-end align-items-md-center">
+                  {context.windowWidth < 992 && (
                     <li className="list-inline-item">
-                      <div className="p-3">
-                        {context.countryList.length !== 0 &&
-                          context.windowWidth < 992 && <CountryDropdown />}
+                      <div className="p-5">
+                        {context.countryList.length !== 0 && <CountryDropdown />}
                       </div>
                     </li>
-                  </>
-                )}
-                {
-                  <li className="list-inline-item blog-item" >
-                    <Link to="/" onClick={props.closeNav}>
-                      <Button>
-                        <span className="mr-2">
-                        </span>
-                        <img src={HomeImage} alt="Example" width="20"className="mr-2" />
-                        Home
-                      </Button>
-                    </Link>
-                  </li>
-                }
-                {props.navData
-                  .filter((item, idx) => idx < 7)
-                  .map((item, index) => {
-                    return (
-                      <li className="list-inline-item ">
-                        <Link
-                          to={`/products/category/${item?._id}`}
-                          onClick={props.closeNav}
+                  )}
+
+                  {/* Menu items */}
+                  {[
+                    { to: '/', label: 'Home', img: HomeImage },
+                    { to: '/blog', label: 'Blogs', img: BlogImage },
+                    { to: '/map', label: 'Map Location', img: MapImage },
+                    { to: '/license', label: 'Introduce & License', img: LicenseImage },
+                  ].map((item, index) => (
+                    <Link
+                      to={item.to}
+                      onClick={props.closeNav}
+                      key={index}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        sx={{
+                          p: 1,
+                          px: 2,
+                          borderRadius: 2,
+                          transition: 'background-color 0.3s',
+                          '&:hover': {
+                            backgroundColor: '#f5f5f5',
+                          },
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            fontSize: '0.95rem',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
                         >
-                          <Button>
-                            <img
-                              src={item?.images[0]}
-                              width="20"
-                              className="mr-2"
-                            />{" "}
-                            {item?.name}
-                          </Button>
-                        </Link>
+                          {item.label}
+                        </Typography>
+                      </Box>
+                    </Link>
+                  ))}
 
-                        {item?.children?.length !== 0 &&
-                          context.windowWidth < 992 && (
-                            <span
-                              className={`arrow ${
-                                isOpenSubMenuIndex === index &&
-                                isOpenSubMenu_ === true &&
-                                "rotate"
-                              }`}
-                              onClick={() => IsOpenSubMenu(index)}
-                            >
-                              <FaAngleDown />
-                            </span>
-                          )}
-
-                        {item?.children?.length !== 0 && (
-                          <div
-                            className={`submenu ${
-                              isOpenSubMenuIndex === index &&
-                              isOpenSubMenu_ === true &&
-                              "open"
-                            }`}
-                          >
-                            {item?.children?.map((subCat, key) => {
-                              return (
-                                <Link
-                                  to={`/products/subCat/${subCat?._id}`}
-                                  key={key}
-                                  onClick={props.closeNav}
-                                >
-                                  <Button>{subCat?.name}</Button>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                <li className="list-inline-item blog-item" >
-                  <Link to="/blog" onClick={props.closeNav}>
-                    <Button>
-                      <span className="mr-2">
-                      </span>
-                      <img src={BlogImage} alt="Example" width="20"className="mr-2" />
-                      Blogs
-                    </Button>
-                  </Link>
-                </li>
-                <li className="list-inline-item blog-item" >
-                  <Link to="/map" onClick={props.closeNav}>
-                    <Button>
-                      <span className="mr-2">
-                      </span>
-                      <img src={MapImage} alt="Example" width="20"className="mr-2" />
-                      Map Location
-                    </Button>
-                  </Link>
-                </li>
-                <li className="list-inline-item blog-item" >
-                  <Link to="/license" onClick={props.closeNav}>
-                    <Button>
-                      <span className="mr-2">
-                      </span>
-                      <img src={LicenseImage} alt="Example" width="20"className="mr-2" />
-                      Introduce & License
-                    </Button>
-                  </Link>
-                </li>
-              </ul>
+                </ul>
 
               {context.windowWidth < 992 && (
                 <>

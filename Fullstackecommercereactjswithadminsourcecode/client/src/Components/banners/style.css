@@ -7,7 +7,7 @@
 }
 
 .bannerSection .col_ {
-  width: 150%;
+  width: 120%;
   left: 50%;
   position: relative;
   transform: translateX(-50%);
@@ -17,7 +17,7 @@
 }
 
 .bannerSection .box {
-  width: 120%;
+  width: 100%;
   /* max-width: 800px; */ /* Bỏ hoặc tăng lên 1000px */
   background-color: #f9f9f9;
   display: flex;
@@ -27,7 +27,7 @@
 }
 
 .bannerSection .box img {
-  width: 120%;
+  width: 100%;
   max-width: none;
   object-fit: contain;
   transition: transform 0.3s ease;
@@ -38,6 +38,14 @@
 }
 
 .bannerAds img {
-  width: 1500px;
+  width: 1000px;
   object-fit: contain;
+}
+
+.note {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
 }
