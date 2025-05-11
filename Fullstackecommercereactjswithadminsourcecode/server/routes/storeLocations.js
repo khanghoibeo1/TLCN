@@ -1,5 +1,5 @@
 const express = require("express");
-const { StoreLocation } = require("../models/storeLocation");
+const { StoreLocation } = require("../models/storeLocation.js");
 const {Product} = require('../models/products');
 const router = express.Router();
 

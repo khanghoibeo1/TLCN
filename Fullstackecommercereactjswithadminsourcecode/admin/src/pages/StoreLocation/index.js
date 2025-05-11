@@ -13,6 +13,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchBox from '../../components/SearchBox';
 
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
@@ -60,6 +61,8 @@ const StoreLocation = () => {
     }, []);
 
     const deleteStoreLocation = (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete?");
+        if (!confirmDelete) return;
         const userInfo = JSON.parse(localStorage.getItem("user"));
         if(userInfo?.email==="admin@admin.com"){
        
@@ -89,6 +92,17 @@ const StoreLocation = () => {
            }
     }
 
+    const onSearch = (keyword) => {
+        if (keyword !== "") {
+            fetchDataFromApi(`/api/search/storeLocation?q=${keyword}`).then((res) => {
+            setStoreLocationData(res);
+            });
+        } else {
+            fetchDataFromApi(`/api/storeLocations`).then((res) => {
+            setStoreLocationData(res);
+            });
+        }
+        };
 
 
     return (
@@ -120,6 +134,13 @@ const StoreLocation = () => {
                 </div>
 
                 <div className="card shadow border-0 p-3 mt-4">
+                    <div className="row cardFilters mt-3">
+                        <div className="col-md-6 d-flex justify-content-end">
+                            <div className="searchWrap d-flex">
+                                <SearchBox onSearch={onSearch} />
+                            </div>
+                        </div>
+                    </div>
                     <div className="table-responsive mt-3">
                         <table className="table table-bordered table-striped v-align">
                             <thead className="thead-dark">

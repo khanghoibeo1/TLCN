@@ -29,7 +29,9 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [productsData, setProductsData] = useState([]);
   const [selectedCat, setselectedCat] = useState();
+  const [selectedSeason, setselectedSeason] = useState();
   const [filterData, setFilterData] = useState([]);
+  const [seasonProductData, setSeasonProductData] = useState([]);
   const [homeSlides, setHomeSlides] = useState([]);
 
   const [value, setValue] = React.useState(0);
@@ -50,11 +52,16 @@ const Home = () => {
     setselectedCat(cat);
   };
 
+  const selectSeason = (season) => {
+    setselectedSeason(season);
+  };
+
   useEffect(() => {
     AOS.init({ duration: 800 });
     window.scrollTo(0, 0);
     context.setisHeaderFooterShow(true);
     setselectedCat(context.categoryData[0]?.name);
+    setselectedSeason('Fall');
 
     const location = localStorage.getItem("location");
     console.log(location)
@@ -127,11 +134,22 @@ const Home = () => {
       ).then((res) => {
         setFilterData(res.products);
         setIsLoading(false);
-        // console.log(selectedCat)
       });
     }
   }, [selectedCat]);
-  console.log("Số sản phẩm:", productsData?.products?.length);
+
+  useEffect(() => {
+    if (selectedSeason !== undefined) {
+      setIsLoading(true);
+      const location = localStorage.getItem("location");
+      fetchDataFromApi(
+        `/api/products/seasonName?seasonName=${selectedSeason}&location=${location}`
+      ).then((res) => {
+        setSeasonProductData(res.products);
+        setIsLoading(false);
+      });
+    }
+  }, [selectedSeason]);
 
 
   return (
@@ -374,6 +392,82 @@ const Home = () => {
                 </div>
                 
                 }
+              <div className="d-flex align-items-center res-flex-column mt-5">
+                <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
+                  <h3 className="mb-0 hd">Season Products</h3>
+                  <p className="text-light text-sml mb-0">
+                    Don't miss out on great offers this month!
+                  </p>
+                </div>
+
+                <div
+                  className="ml-auto d-flex align-items-center justify-content-end res-full"
+                  style={{ width: "65%" }}
+                >
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    className="filterTabs"
+                  >
+                    {["Fall", "Autumn", "Spring", "Winter"].map((season) => (
+                      <Tab
+                        key={season}
+                        className="item"
+                        label={season}
+                        onClick={() => selectSeason(season)}
+                      />
+                    ))}
+                  </Tabs>
+                </div>
+              </div>
+
+              <div
+                className="product_row w-100 mt-2"
+                style={{
+                  opacity: `${isLoading === true ? "0.5" : "1"}`,
+                }}
+              >
+               
+
+                {context.windowWidth > 992 ? (
+                  <Swiper
+                    slidesPerView={4}
+                    spaceBetween={0}
+                    navigation={true}
+                    slidesPerGroup={context.windowWidth > 992 ? 3 : 1}
+                    modules={[Navigation]}
+                    className="mySwiper"
+                  >
+                    {seasonProductData?.length !== 0 &&
+                      seasonProductData
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return (
+                            <SwiperSlide key={index}>
+                              <ProductItem item={item} />
+                            </SwiperSlide>
+                          );
+                        })}
+
+                    <SwiperSlide style={{ opacity: 0 }}>
+                      <div className={`productItem`}></div>
+                    </SwiperSlide>
+                  </Swiper>
+                ) : (
+                  <div className="productScroller">
+                    {seasonProductData?.length !== 0 &&
+                      seasonProductData
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return <ProductItem item={item} key={index} />;
+                        })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -28,6 +28,8 @@ const PromotionCodeList = () => {
   }, []);
 
   const deletePromotion = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
+    if (!confirmDelete) return;
     const userInfo = JSON.parse(localStorage.getItem("user"));
     if (userInfo?.email === "admin@admin.com") {
       context.setProgress(40);

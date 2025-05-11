@@ -30,6 +30,8 @@ const RequestBatchCode = () => {
     }, []);
 
     const deleteBatchCode = (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete?");
+        if (!confirmDelete) return;
         setIsLoading(true);
         context.setProgress(30);
         deleteData(`/api/batchCodes/${id}`).then(() => {

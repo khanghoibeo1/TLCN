@@ -4,6 +4,9 @@ const { User } = require("../models/user.js");
 const { Orders } = require("../models/orders.js");
 const { PromotionCode } = require("../models/promotionCode.js");
 const { BatchCode } = require("../models/batchCode.js");
+const { PostType } = require("../models/postType.js");
+const { StoreLocation } = require("../models/storeLocation.js");
+const { Notification } = require("../models/notification.js");
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -121,7 +124,6 @@ router.get("/post", async (req, res) => {
         { title: { $regex: query, $options: "i" } },
         { content: { $regex: query, $options: "i" } },
         { author: { $regex: query, $options: "i" } },
-        { tags: { $regex: query, $options: "i" } },
       ],
     };
 
@@ -367,4 +369,88 @@ router.get("/batchCode", async (req, res) => {
   }
 });
 
+// search postType
+router.get("/postType", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    // Kiểm tra xem query có tồn tại hay không
+    if (!query) {
+      return res.status(400).json({ msg: "Query is required" });
+    }
+
+    // Tìm kiếm đơn hàng với các tiêu chí
+    const searchConditions = {
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { note: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    // Tìm tất cả đơn hàng khớp với query
+    const postTypes = await PostType.find(searchConditions);
+    // Trả về danh sách đơn hàng
+    return res.status(200).json({data: postTypes});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// search storeLocation
+router.get("/storeLocation", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    // Kiểm tra xem query có tồn tại hay không
+    if (!query) {
+      return res.status(400).json({ msg: "Query is required" });
+    }
+
+    // Tìm kiếm đơn hàng với các tiêu chí
+    const searchConditions = {
+      $or: [
+        { location: { $regex: query, $options: "i" } },
+        { detailAddress: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    // Tìm tất cả đơn hàng khớp với query
+    const storeLocations = await StoreLocation.find(searchConditions);
+    // Trả về danh sách đơn hàng
+    return res.status(200).json({data: storeLocations});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// search notificaiton
+router.get("/notification", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    // Kiểm tra xem query có tồn tại hay không
+    if (!query) {
+      return res.status(400).json({ msg: "Query is required" });
+    }
+
+    // Tìm kiếm đơn hàng với các tiêu chí
+    const searchConditions = {
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { message: { $regex: query, $options: "i" } },
+        { type: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    // Tìm tất cả đơn hàng khớp với query
+    const notifications = await Notification.find(searchConditions);
+    // Trả về danh sách đơn hàng
+    return res.status(200).json({data: notifications});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
 module.exports = router;

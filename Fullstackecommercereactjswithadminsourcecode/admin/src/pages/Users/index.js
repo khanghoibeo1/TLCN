@@ -59,6 +59,8 @@ const Users = () => {
   };
 
   const deleteUser = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
+    if (!confirmDelete) return;
     deleteData(`/api/user/${id}`).then(() => {
       context.setAlertBox({
         open: true,
