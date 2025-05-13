@@ -21,36 +21,62 @@ export const fetchDataFromApi = async (url) => {
     }
 }
 
+/**
+ * Gửi POST, tự động phát hiện JSON hay FormData
+ * @param {string} url 
+ * @param {object|FormData} payload
+ */
+export const postData = async (url, payload) => {
+  try {
+    // kiểm tra xem payload có phải FormData không
+    const isForm = payload instanceof FormData;
 
+    const response = await fetch(process.env.REACT_APP_API_URL + url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // chỉ set Content-Type khi payload là JSON
+        ...(isForm ? {} : { 'Content-Type': 'application/json' }),
+      },
+      // body: nếu FormData thì truyền nguyên, JSON thì phải stringify
+      body: isForm ? payload : JSON.stringify(payload),
+    });
 
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error in postData:', error);
+    throw error;
+  }
+};
 
-export const postData = async (url, formData) => {
-    try {
-        const response = await fetch(process.env.REACT_APP_API_URL + url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`, // Include your API key in the Authorization header
-                'Content-Type': 'application/json', // Adjust the content type as needed
-              },
+// export const postData = async (url, formData) => {
+//     try {
+//         const response = await fetch(process.env.REACT_APP_API_URL + url, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`, // Include your API key in the Authorization header
+//                 'Content-Type': 'application/json', // Adjust the content type as needed
+//               },
            
-            body: JSON.stringify(formData)
-        });
+//             body: JSON.stringify(formData)
+//         });
 
 
-        if (response.ok) {
-            const data = await response.json();
-            //console.log(data)
-            return data;
-        } else {
-            const errorData = await response.json();
-            return errorData;
-        }
+//         if (response.ok) {
+//             const data = await response.json();
+//             //console.log(data)
+//             return data;
+//         } else {
+//             const errorData = await response.json();
+//             return errorData;
+//         }
 
-    } catch (error) {
-        console.error('Error:', error);
-    }
+//     } catch (error) {
+//         console.error('Error:', error);
+//     }
 
-}
+// }
 
 
 export const editData = async (url, updatedData ) => {

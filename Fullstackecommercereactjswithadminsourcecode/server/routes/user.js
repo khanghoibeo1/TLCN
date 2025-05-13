@@ -715,4 +715,14 @@ router.post(`/admin`, async (req, res) => {
 
 })
 
+router.get('/:id', async(req,res)=>{
+    const user = await User.findById(req.params.id);
+
+    if(!user) {
+        res.status(500).json({ success: false, message: 'The user with the given ID was not found.' })
+    } else{
+        res.status(200).json({ success: true, data: user });
+    }
+    
+})
 module.exports = router;

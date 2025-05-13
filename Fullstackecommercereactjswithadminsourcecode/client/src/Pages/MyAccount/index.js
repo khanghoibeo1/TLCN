@@ -106,6 +106,7 @@ const MyAccount = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
+      console.log(res.data)
       setUserData(res.data);
       setPreviews(res.data.images);
 
@@ -317,7 +318,7 @@ const MyAccount = () => {
           newPass: fields.password,
         };
         console.log(data);
-        editData(`/api/user/changePassword/${user?.userId}`, data).then(
+        editData2(`/api/user/changePassword/${user?.userId}`, data).then(
           (res) => {
             console.log(res?.error);
             console.log(res?.status);

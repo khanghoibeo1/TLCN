@@ -1,10 +1,15 @@
 const express = require('express');
-const app = express();
+
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv/config');
 
+const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const {init , getIo} = require('./helper/socketIO/socket.js')
+// const {io, getReceiverSocketId} = socketIo(server);
 
 app.use(cors());
 app.options('*', cors())
@@ -37,6 +42,7 @@ const postTypeRoutes = require('./routes/postTypes.js');
 const commentRoutes = require('./routes/comments.js');
 const storeLocationRoutes = require('./routes/storeLocations.js');
 const batchCodeRoutes = require('./routes/batchCodes.js');
+const messageRoutes = require('./routes/messages.js')
 
 app.use("/api/user",userRoutes);
 app.use("/uploads",express.static("uploads"));
@@ -61,8 +67,9 @@ app.use("/api/postTypes", postTypeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/storeLocations", storeLocationRoutes);
 app.use("/api/batchCodes", batchCodeRoutes);
+app.use("/api/messages", messageRoutes)
 
-
+init(server)
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {
     useNewUrlParser: true,
@@ -71,10 +78,17 @@ mongoose.connect(process.env.CONNECTION_STRING, {
     .then(() => {
         console.log('Database Connection is ready...');
         //Server
-        app.listen(process.env.PORT, () => {
+        server.listen(process.env.PORT, () => {
             console.log(`server is running http://localhost:${process.env.PORT}`);
         })
     })
     .catch((err) => {
         console.log(err);
     })
+
+const io = getIo();
+
+io.on("connection", socket => {
+  console.log("User connected (extra handler):", socket.id);
+  socket.emit("message", "Hello from server (extra)");
+});

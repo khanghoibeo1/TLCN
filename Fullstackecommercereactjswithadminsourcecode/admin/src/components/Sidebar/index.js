@@ -486,6 +486,18 @@ const Sidebar = () => {
               
             </div>
           </li>
+
+          {/* Thêm mục Admin Chat vào Sidebar */}
+          <li>
+            <NavLink exact activeClassName="is-active" to="/message">
+              <Button
+                className={`w-100 ${activeTab === 10 ? "active" : ""}`}
+                onClick={() => isOpenSubmenu(10)}
+              >
+                <span className="icon"><MdMessage /></span> Admin Chat
+              </Button>
+            </NavLink>
+          </li>
         </ul>
 
         <div className="logoutWrapper">

@@ -28,6 +28,8 @@ import DetailBlog from "./Pages/DetailBlog";
 import { fetchDataFromApi, postData } from "./utils/api";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import IntroduceAndLicense from "./Pages/License";
+import ClientChat from "./Components/Message";
 
 const MyContext = createContext();
 
@@ -301,10 +303,13 @@ function App() {
           <Route exact={true} path="/blog" element={<Blog />} />
           <Route exact={true} path="/map" element={<Map />} />
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
+          <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 
         {isOpenProductModal === true && <ProductModal data={productData} />}
+
+        {isLogin && <ClientChat />}
       </MyContext.Provider>
     </BrowserRouter>
   );

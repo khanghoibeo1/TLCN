@@ -988,3 +988,37 @@ input[type=number]::-webkit-outer-spin-button {
 .gotoTop svg{color: #fff !important; font-size: 25px !important;}
 
 .gotoTop.show{opacity: 1 !important; bottom: 12% !important;  transform: scale(1) !important;}
+
+.chatbox {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.chat-box-messages {
+  height: 300px;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+}
+
+.message-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+}
+
+input {
+  width: 80%;
+  padding: 10px;
+}
+
+button {
+  width: 18%;
+  padding: 10px;
+}
