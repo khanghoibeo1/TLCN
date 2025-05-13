@@ -76,6 +76,8 @@ router.post(`/create`, async (req, res) => {
             importDate: req.body.importDate,
             expiredDate: req.body.expiredDate,
             price: req.body.price,
+            oldPrice: req.body.oldPrice,
+            discount: req.body.discount,
             locationName: req.body.locationName,
             locationId: req.body.locationId ? req.body.locationId : undefined,
             status: req.body.locationName ? req.body.status : "delivered",
@@ -101,6 +103,8 @@ router.put(`/:id`, async (req, res) => {
                 importDate: req.body.importDate,
                 expiredDate: req.body.expiredDate,
                 price: req.body.price,
+                oldPrice: req.body.oldPrice,
+                discount: req.body.discount,
                 locationName: req.body.locationName,
                 locationId: req.body.locationId ? req.body.locationId : undefined,
                 status: req.body.status,
@@ -202,6 +206,8 @@ router.post("/:id/status", async (req, res) => {
                 importDate: sourceBatch.importDate,
                 expiredDate: sourceBatch.expiredDate,
                 price: sourceBatch.price,
+                oldPrice: sourceBatch.oldPrice,
+                discount: sourceBatch.discount,
                 locationId: targetBatch.locationId,
                 locationName: targetBatch.locationName,
                 status: "delivered",
@@ -259,65 +265,6 @@ router.post("/:id/status", async (req, res) => {
     }
 });
 
-// router.post('/:id/status', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { status } = req.body;
-
-//         const batch = await BatchCode.findById(id);
-//         if (!batch) return res.status(404).json({ message: 'BatchCode not found' });
-
-//         if (status === 'delivered') {
-//             // 1. Tìm lô hàng ở kho tổng cùng productId
-//             const mainStoreBatch = await BatchCode.findOne({
-//                 productId: batch.productId,
-//                 locationId: null,
-//                 status: "delivered", // đảm bảo là batch đã có hàng
-//                 amountRemain: { $gte: batch.amount }
-//             });
-
-//             if (!mainStoreBatch) {
-//                 return res.status(400).json({ message: "Not enough stock in main store" });
-//             }
-
-//             // 2. Trừ đi amount
-//             mainStoreBatch.amountRemain -= batch.amount;
-//             await mainStoreBatch.save();
-
-//             // 3. Cộng vào product theo location
-//             const product = await Product.findById(batch.productId);
-//             if (!product) return res.status(404).json({ message: 'Product not found' });
-
-//             const entry = product.amountAvailable.find(
-//                 item => item.locationId?.toString() === batch.locationId?.toString()
-//             );
-
-//             if (entry) {
-//                 entry.quantity += batch.amount;
-//             } else {
-//                 product.amountAvailable.push({
-//                     locationId: batch.locationId,
-//                     quantity: batch.amount
-//                 });
-//             }
-
-//             await product.save();
-//         }
-
-//         batch.status = status;
-//         await batch.save();
-
-//         res.json({ message: 'BatchCode status updated successfully', batch });
-
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Server error', error: error.message });
-//     }
-// });
-
-
-// updata amount remain
-// PATCH /api/batch/updateRemain/:batchId
 router.patch('/updateRemain/:batchId', async (req, res) => {
     try {
       const { batchId } = req.params;

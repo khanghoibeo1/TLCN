@@ -1,5 +1,5 @@
 const express = require("express");
-const { StoreLocation } = require("../models/storeLocation");
+const { StoreLocation } = require("../models/storeLocation.js");
 const {Product} = require('../models/products');
 const router = express.Router();
 
@@ -59,23 +59,42 @@ router.get(`/:id`, async (req, res) => {
 });
 
 // 👇 Hàm cập nhật tất cả sản phẩm khi tạo location
-const addNewLocationToAllProducts = async (newLocationId) => {
+const addNewLocationToAllProducts = async (newLocationId, newIso2) => {
     const products = await Product.find();
   
     for (const product of products) {
+      let updated = false;
+  
       const exists = product.amountAvailable.some(
         (entry) => entry.locationId.toString() === newLocationId.toString()
       );
   
       if (!exists) {
+        // Thêm mới location
         product.amountAvailable.push({
           locationId: newLocationId,
+          iso2: newIso2,
           quantity: 0,
         });
+        updated = true;
+      } else {
+        // Cập nhật iso2 nếu đã tồn tại locationId
+        for (const entry of product.amountAvailable) {
+          if (entry.locationId.toString() === newLocationId.toString()) {
+            if (entry.iso2 !== newIso2) {
+              entry.iso2 = newIso2;
+              updated = true;
+            }
+          }
+        }
+      }
+  
+      if (updated) {
         await product.save();
       }
     }
   };
+  
 
 // Tạo một store location mới
 router.post(`/create`, async (req, res) => {
@@ -93,7 +112,7 @@ router.post(`/create`, async (req, res) => {
         location = await location.save();
         console.log(location.id)
         // gọi hàm cập nhật
-        await addNewLocationToAllProducts(location.id);
+        await addNewLocationToAllProducts(location.id, location.iso2);
         res.status(201).json({
             error: false,
             msg: "Store location created",
@@ -127,6 +146,7 @@ router.put(`/:id`, async (req, res) => {
             },
             { new: true }
         );
+        await addNewLocationToAllProducts(req.params.id, req.body.iso2);
 
         if (!location) {
             return res.status(404).json({ error: true, msg: "Store location not found" });

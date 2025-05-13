@@ -30,6 +30,8 @@ const RequestBatchCode = () => {
     }, []);
 
     const deleteBatchCode = (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete?");
+        if (!confirmDelete) return;
         setIsLoading(true);
         context.setProgress(30);
         deleteData(`/api/batchCodes/${id}`).then(() => {
@@ -55,7 +57,7 @@ const RequestBatchCode = () => {
                         <Chip component="a" href="#" label="Dashboard" icon={<HomeIcon fontSize="small" />} />
                         <Chip label="Batch Codes" deleteIcon={<ExpandMoreIcon />} />
                     </Breadcrumbs>
-                    <Link to="/batchCode/add"><Button className="btn-blue ml-3 pl-3 pr-3">Add Batch Code</Button></Link>
+                    {user.locationId !== null && <Link to="/batchCode/add"><Button className="btn-blue ml-3 pl-3 pr-3">Add Batch Code</Button></Link>}
                 </div>
             </div>
             <div className="card shadow border-0 p-3 mt-4">

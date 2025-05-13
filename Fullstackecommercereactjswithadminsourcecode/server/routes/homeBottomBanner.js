@@ -43,7 +43,11 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
         req.files[i].path,
         options,
         function (error, result) {
-          imagesArr.push(result.secure_url);
+          if (result && result.secure_url) {
+            imagesArr.push(result.secure_url);
+          } else {
+            console.error("Cloudinary upload failed", result);
+          }
           fs.unlinkSync(`uploads/${req.files[i].filename}`);
         }
       );

@@ -112,6 +112,7 @@ const ProductUpload = () => {
     productRam: [],
     size: [],
     productWeight: [],
+    season: [],
     location: [],
     note: "",
   });
@@ -208,6 +209,13 @@ const ProductUpload = () => {
   const checkSubCatName = (subCatName) => {
     formFields.subCatName = subCatName;
   };
+
+  const seasonChange = (selectedOptions) => {
+    setFormFields(() => ({
+      ...formFields,
+      season: selectedOptions ? selectedOptions.map(option => option.value) : [],
+    }));
+  }
 
   const handleChangeProductRams = (event) => {
     // setProductRAMS(event.target.value);
@@ -755,6 +763,26 @@ const ProductUpload = () => {
                       </Select>
                     </div>
                   </div> 
+
+                  <div className="col">
+                    <div className="form-group">
+                      <h6 className="text-uppercase">Season </h6>
+                      <Select2
+                          defaultValue={formFields.season}
+                          isMulti
+                          name="season"
+                          options={[
+                            { label: "Spring", value: "Spring" },
+                            { label: "Fall", value: "Fall" },
+                            { label: "Autumn", value: "Autumn" },
+                            { label: "Winter", value: "Winter" }
+                          ]}
+                          className="basic-multi-select"
+                          classNamePrefix="select"
+                          onChange={seasonChange}
+                        />
+                    </div>
+                  </div>
 
                   {/* <div className="col-md-4">
                     <div className="form-group">

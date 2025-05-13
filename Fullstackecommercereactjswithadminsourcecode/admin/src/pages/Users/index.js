@@ -59,6 +59,8 @@ const Users = () => {
   };
 
   const deleteUser = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
+    if (!confirmDelete) return;
     deleteData(`/api/user/${id}`).then(() => {
       context.setAlertBox({
         open: true,
@@ -149,6 +151,7 @@ const Users = () => {
                   <th>EMAIL</th>
                   <th>PHONE</th>
                   <th>STATUS</th>
+                  <th>RANK</th>
                   <th>ACTION</th>
                 </tr>
               </thead>
@@ -160,6 +163,7 @@ const Users = () => {
                       <td>{user.email}</td>
                       <td>{user.phone}</td>
                       <td>{user.status}</td>
+                      <td>{user.rank}</td>
                       <td>
                         <div className="actions d-flex align-items-center">
                         <Link to={`/user/edit/${user.id}`}>

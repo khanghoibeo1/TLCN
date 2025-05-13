@@ -177,62 +177,62 @@ const AddPromotionCode = () => {
           <TextField label="Applicable Products (IDs, comma-separated)" name="applicableProductIds" value={formFields.applicableProductIds} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Applicable Categories (IDs, comma-separated)" name="applicableCategoryIds" value={formFields.applicableCategoryIds} onChange={handleChange} fullWidth margin="normal" /> */}
           <div className="form-group">
-  <h6>Applicable Users</h6>
-  <Autocomplete
-    multiple
-    id="users-autocomplete"
-    options={userData}
-    getOptionLabel={(option) => option.name || option.email || option._id}
-    value={formFields.applicableUsers}
-    onChange={(event, newValue) => {
-      setFormFields((prev) => ({
-        ...prev,
-        applicableUsers: newValue,
-      }));
-    }}
-    renderInput={(params) => (
-      <TextField {...params} label="Select Users" placeholder="Users" />
-    )}
-  />
-</div>
-<div className="form-group">
-  <h6>Applicable Products</h6>
-  <Autocomplete
-    multiple
-    id="products-autocomplete"
-    options={productData}
-    getOptionLabel={(option) => option.name}
-    value={formFields.applicableProductIds}
-    onChange={(event, newValue) => {
-      setFormFields((prev) => ({
-        ...prev,
-        applicableProductIds: newValue,
-      }));
-    }}
-    renderInput={(params) => (
-      <TextField {...params} label="Select Products" placeholder="Products" />
-    )}
-  />
-</div>
-<div className="form-group">
-  <h6>Applicable Categories</h6>
-  <Autocomplete
-    multiple
-    id="categories-autocomplete"
-    options={categoryData}
-    getOptionLabel={(option) => option.name}
-    value={formFields.applicableCategoryIds}
-    onChange={(event, newValue) => {
-      setFormFields((prev) => ({
-        ...prev,
-        applicableCategoryIds: newValue,
-      }));
-    }}
-    renderInput={(params) => (
-      <TextField {...params} label="Select Categories" placeholder="Categories" />
-    )}
-  />
-</div>
+            <h6>Applicable Users</h6>
+            <Autocomplete
+              multiple
+              id="users-autocomplete"
+              options={userData}
+              getOptionLabel={(option) => option.name || option.email || option._id}
+              value={formFields.applicableUsers}
+              onChange={(event, newValue) => {
+                setFormFields((prev) => ({
+                  ...prev,
+                  applicableUsers: newValue,
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Users" placeholder="Users" />
+              )}
+            />
+          </div>
+          <div className="form-group">
+            <h6>Applicable Products</h6>
+            <Autocomplete
+              multiple
+              id="products-autocomplete"
+              options={productData}
+              getOptionLabel={(option) => option.name}
+              value={formFields.applicableProductIds}
+              onChange={(event, newValue) => {
+                setFormFields((prev) => ({
+                  ...prev,
+                  applicableProductIds: newValue,
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Products" placeholder="Products" />
+              )}
+            />
+          </div>
+          <div className="form-group">
+            <h6>Applicable Categories</h6>
+            <Autocomplete
+              multiple
+              id="categories-autocomplete"
+              options={categoryData}
+              getOptionLabel={(option) => option.name}
+              value={formFields.applicableCategoryIds}
+              onChange={(event, newValue) => {
+                setFormFields((prev) => ({
+                  ...prev,
+                  applicableCategoryIds: newValue,
+                }));
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Categories" placeholder="Categories" />
+              )}
+            />
+          </div>
 
           
           <TextField label="Note" name="note" value={formFields.note} onChange={handleChange} fullWidth multiline rows={2} margin="normal" />

@@ -7,6 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
+import "./index.css"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Navigation } from "swiper/modules";
@@ -28,7 +29,9 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [productsData, setProductsData] = useState([]);
   const [selectedCat, setselectedCat] = useState();
+  const [selectedSeason, setselectedSeason] = useState();
   const [filterData, setFilterData] = useState([]);
+  const [seasonProductData, setSeasonProductData] = useState([]);
   const [homeSlides, setHomeSlides] = useState([]);
 
   const [value, setValue] = React.useState(0);
@@ -49,13 +52,19 @@ const Home = () => {
     setselectedCat(cat);
   };
 
+  const selectSeason = (season) => {
+    setselectedSeason(season);
+  };
+
   useEffect(() => {
     AOS.init({ duration: 800 });
     window.scrollTo(0, 0);
     context.setisHeaderFooterShow(true);
     setselectedCat(context.categoryData[0]?.name);
+    setselectedSeason('Fall');
 
     const location = localStorage.getItem("location");
+    console.log(location)
 
     if (location !== null && location !== "" && location !== undefined) {
       fetchDataFromApi(`/api/products/featured?location=${location}`).then(
@@ -65,7 +74,7 @@ const Home = () => {
       );
 
       fetchDataFromApi(
-        `/api/products?page=1&perPage=8&location=${location}`
+        `/api/products?page=1&perPage=4&location=${location}`
       ).then((res) => {
         setProductsData(res);
       });
@@ -125,10 +134,23 @@ const Home = () => {
       ).then((res) => {
         setFilterData(res.products);
         setIsLoading(false);
-        // console.log(selectedCat)
       });
     }
   }, [selectedCat]);
+
+  useEffect(() => {
+    if (selectedSeason !== undefined) {
+      setIsLoading(true);
+      const location = localStorage.getItem("location");
+      fetchDataFromApi(
+        `/api/products/seasonName?seasonName=${selectedSeason}&location=${location}`
+      ).then((res) => {
+        setSeasonProductData(res.products);
+        setIsLoading(false);
+      });
+    }
+  }, [selectedSeason]);
+
 
   return (
     <>
@@ -144,11 +166,14 @@ const Home = () => {
       )}
 
       {context.categoryData?.length !== 0 && (
-        <HomeCat catData={context.categoryData} />
+        <div  data-aos="flip-left">
+          <HomeCat catData={context.categoryData} />
+
+        </div>
       )}
 
       <section className="homeProducts pb-0 " data-aos="flip-right">
-        <div className="container">
+        <div className="container ">
           <div className="row homeProductsRow">
             <div className="col-md-3">
               <HomeSideBanner data={homeSideBanners} col={3}/>
@@ -189,10 +214,10 @@ const Home = () => {
 
             <div className="col-md-9 productRow" >
               <div className="d-flex align-items-center res-flex-column">
-                <div className="info" style={{ width: "35%" }}>
+                <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
                   <h3 className="mb-0 hd">Popular Products</h3>
                   <p className="text-light text-sml mb-0">
-                    Do not miss the current offers until the end of March.
+                    Don't miss out on great offers this month!
                   </p>
                 </div>
 
@@ -267,7 +292,7 @@ const Home = () => {
               </div>
 
               <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
-                <div className="info w-75">
+                <div className="info w-100 d-flex flex-column">
                   <h3 className="mb-0 hd">NEW PRODUCTS</h3>
                   <p className="text-light text-sml mb-0">
                     New products with updated stocks.
@@ -284,7 +309,7 @@ const Home = () => {
                 </div>
               )}
 
-              <div className="product_row productRow2 w-100 mt-4 d-flex productScroller ml-0 mr-0" data-aos="fade-up">
+              <div className="product_row productRow2 w-100 mt-2 d-flex productScroller ml-0 mr-0" data-aos="fade-up">
                 {productsData?.products?.length !== 0 &&
                   productsData?.products
                     ?.slice(0)
@@ -295,13 +320,13 @@ const Home = () => {
               </div>
 
               {bannerList?.length !== 0 && (
-                <div  data-aos="zoom-in">
+                <div className="mt-3 mb-3 " data-aos="zoom-in">
                   <Banners data={bannerList} col={3} />
                 </div>
               )}
 
-              <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
-                <div className="info">
+              <div className="d-flex align-items-center mt-3" data-aos="zoom-in">
+                <div className="info w-100 d-flex flex-column ">
                   <h3 className="mb-0 hd">featured products</h3>
                   <p className="text-light text-sml mb-0">
                     Do not miss the current offers until the end of March.
@@ -367,11 +392,87 @@ const Home = () => {
                 </div>
                 
                 }
+              <div className="d-flex align-items-center res-flex-column mt-5">
+                <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
+                  <h3 className="mb-0 hd">Season Products</h3>
+                  <p className="text-light text-sml mb-0">
+                    Don't miss out on great offers this month!
+                  </p>
+                </div>
+
+                <div
+                  className="ml-auto d-flex align-items-center justify-content-end res-full"
+                  style={{ width: "65%" }}
+                >
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    className="filterTabs"
+                  >
+                    {["Fall", "Autumn", "Spring", "Winter"].map((season) => (
+                      <Tab
+                        key={season}
+                        className="item"
+                        label={season}
+                        onClick={() => selectSeason(season)}
+                      />
+                    ))}
+                  </Tabs>
+                </div>
+              </div>
+
+              <div
+                className="product_row w-100 mt-2"
+                style={{
+                  opacity: `${isLoading === true ? "0.5" : "1"}`,
+                }}
+              >
+               
+
+                {context.windowWidth > 992 ? (
+                  <Swiper
+                    slidesPerView={4}
+                    spaceBetween={0}
+                    navigation={true}
+                    slidesPerGroup={context.windowWidth > 992 ? 3 : 1}
+                    modules={[Navigation]}
+                    className="mySwiper"
+                  >
+                    {seasonProductData?.length !== 0 &&
+                      seasonProductData
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return (
+                            <SwiperSlide key={index}>
+                              <ProductItem item={item} />
+                            </SwiperSlide>
+                          );
+                        })}
+
+                    <SwiperSlide style={{ opacity: 0 }}>
+                      <div className={`productItem`}></div>
+                    </SwiperSlide>
+                  </Swiper>
+                ) : (
+                  <div className="productScroller">
+                    {seasonProductData?.length !== 0 &&
+                      seasonProductData
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return <ProductItem item={item} key={index} />;
+                        })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {bannerList?.length !== 0 && (
-            <div  data-aos="zoom-in">
+            <div className="mt-2 mb-2 " data-aos="zoom-in">
             <Banners data={homeBottomBanners} col={3} />
               
             </div>
@@ -379,14 +480,14 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="container" data-aos="fade-up">
+      <div className="container homeRandom" data-aos="fade-up">
         {randomCatProducts?.length !== 0 &&  randomCatProducts?.products?.length!==0 && (
           <>
             <div className="d-flex align-items-center mt-1 pr-3">
               <div className="info">
                 <h3 className="mb-0 hd">{randomCatProducts?.catName}</h3>
                 <p className="text-light text-sml mb-0">
-                  Do not miss the current offers until the end of March.
+                  Don't miss out on great offers this month!
                 </p>
               </div>
 

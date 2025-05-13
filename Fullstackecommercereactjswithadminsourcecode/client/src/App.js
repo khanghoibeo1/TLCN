@@ -17,6 +17,7 @@ import ResetPassword from "./Pages/ResetPassword";
 import ForgotPassword from "./Pages/ForgotPassword";
 import EmailVerification from "./Pages/EmailVerification";
 import MyList from "./Pages/MyList";
+import MemberRank from "./Pages/MemberRank";
 import Checkout from "./Pages/Checkout";
 import Orders from "./Pages/Orders";
 import MyAccount from "./Pages/MyAccount";
@@ -296,6 +297,7 @@ function App() {
           <Route exact={true} path="/verify-email" element={<EmailVerification/>} />
           <Route exact={true} path="/signUp" element={<SignUp />} />
           <Route exact={true} path="/my-list" element={<MyList />} />
+          <Route exact={true} path="/memberRank" element={<MemberRank />} />
           <Route exact={true} path="/checkout" element={<Checkout />} />
           <Route exact={true} path="/orders" element={<Orders />} />
           <Route exact={true} path="/my-account" element={<MyAccount />} />

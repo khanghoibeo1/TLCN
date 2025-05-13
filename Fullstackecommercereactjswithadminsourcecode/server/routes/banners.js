@@ -172,12 +172,12 @@ router.put("/:id", async (req, res) => {
     req.params.id,
     {
       images: req.body.images || banner.images,
-      catId: req.body.catId || banner.catId,
-      catName:req.body.catName || banner.catName,
-      subCatId: req.body.subCatId || banner.subCatId,
-      subCatName:req.body.subCatName || banner.subCatName,
+      catId: req.body.catId ,
+      catName:req.body.catName ,
+      subCatId: req.body.subCatId ,
+      subCatName:req.body.subCatName ,
       link: req.body.link || banner.link,
-      note:req.body.note || banner.note, 
+      note:req.body.note , 
       display: req.body.display ?? banner.display
     },  
     { new: true }

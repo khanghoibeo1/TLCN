@@ -99,6 +99,8 @@ const Products = () => {
   }, []);
 
   const deleteProduct = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
+    if (!confirmDelete) return;
     const userInfo = JSON.parse(localStorage.getItem("user"));
     if(userInfo?.email==="admin@admin.com"){
     context.setProgress(40);
@@ -334,6 +336,7 @@ else{
                   <th>PRICE</th>
                   <th>AMOUNT</th>
                   <th>RATING</th>
+                  <th>SEASON</th>
                   <th>NOTE</th>
                   <th>ACTION</th>
                 </tr>
@@ -385,6 +388,7 @@ else{
                           />
                         </td>
                         
+                        <td>{item?.season.join(",")}</td>
                         <td>{item?.note}</td>
 
                         <td>

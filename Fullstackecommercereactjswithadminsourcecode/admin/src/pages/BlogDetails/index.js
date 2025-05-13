@@ -101,25 +101,6 @@ const BlogDetails = () => {
                               ))
                             : "No Tags Available"}
                     </div>
-    
-                    {/* Blog Images */}
-                    {/* <ProductZoom images={blogData.data?.images} discount={0} /> */}
-                    {/* {blogData.data?.images?.length > 0 && (
-                        <div className="imageGallery mb-4">
-                            {blogData.data?.images.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={image}
-                                    alt={`Blog Image ${index + 1}`}
-                                    style={{
-                                        width: "100%",
-                                        marginBottom: "16px",
-                                        borderRadius: "8px",
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    )} */}
                     {/* Youtube */}
                     <iframe 
                         width="560" 
@@ -134,7 +115,6 @@ const BlogDetails = () => {
                     <div className="content">
                         <p>Content:</p>
                         <div dangerouslySetInnerHTML={{ __html: blogData.data?.content || "No Content Available" }} />
-                        {/* <p>{blogData.data?.content || "No Content Available"}</p> */}
                     </div>
     
                     {/* Comments Count */}

@@ -47,6 +47,8 @@ const AddBatchCode = () => {
     importDate: "",
     expiredDate: "",
     price: null,
+    oldPrice: null,
+    discount: null,
     locationName: "",
     locationId: "",
     note: "",
@@ -106,6 +108,23 @@ const AddBatchCode = () => {
     });
   };
 
+  //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
+  useEffect(() => {
+    if(formFields.oldPrice === '' || formFields.discount === ''){
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: '',
+      }));
+    }
+    if (formFields.oldPrice && formFields.discount) {
+      const discountedPrice = formFields.oldPrice - (formFields.oldPrice * (formFields.discount / 100));
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: discountedPrice.toFixed(0),
+      }));
+    }
+  }, [formFields.oldPrice, formFields.discount]); 
+
   const addBatch = (e) => {
     e.preventDefault();
 
@@ -118,7 +137,12 @@ const AddBatchCode = () => {
 
       postData(`/api/batchCodes/create`, formFields).then((res) => {
         setIsLoading(false);
-        history("/batchCodes/request");
+        if(user.locationId !== null)
+          history("/batchCode/request");
+        else{
+          history("/batchCodes");
+
+        }
       });
     } else {
       context.setAlertBox({
@@ -227,10 +251,10 @@ const AddBatchCode = () => {
                   type="number"
                   name="amount"
                   value={formFields.amount}
-                  max={maxAmount !== null ? maxAmount : undefined}
+                  max={user.locationId !== null ? maxAmount : Infinity }
                   onChange={(e) => {
                     const value = Number(e.target.value);
-                    if (maxAmount !== null && value > maxAmount) {
+                    if (user.locationId !== null && maxAmount !== null && value > maxAmount) {
                       context.setAlertBox({
                         open: true,
                         error: true,
@@ -241,9 +265,13 @@ const AddBatchCode = () => {
                     changeInput(e);
                   }}
                 />
-                {maxAmount !== null && (
+                {(maxAmount !== null && user.locationId !== null) ? (
                   <small style={{ color: "gray" }}>
                     Maximum available: {maxAmount}
+                  </small>
+                ): (
+                  <small style={{ color: "gray" }}>
+                    Available: {maxAmount}
                   </small>
                 )}
               </div>
@@ -262,8 +290,20 @@ const AddBatchCode = () => {
 
               {user.locationId === null &&   
               <div className="form-group">
+                <h6>Old Price</h6>
+                <input type="number" name="oldPrice" value={formFields.oldPrice} onChange={changeInput} />
+              </div>}
+
+              {user.locationId === null &&   
+              <div className="form-group">
+                <h6>Discount</h6>
+                <input type="number" name="discount" value={formFields.discount} onChange={changeInput} />
+              </div>}
+              
+              {user.locationId === null &&   
+              <div className="form-group">
                 <h6>Price</h6>
-                <input type="number" name="price" value={formFields.price} onChange={changeInput} />
+                <input type="number" name="price" value={formFields.price} onChange={changeInput} readOnly/>
               </div>}
               
               {/* <div className="form-group">

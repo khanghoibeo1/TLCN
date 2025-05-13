@@ -68,6 +68,11 @@ const userSchema = mongoose.Schema({
         type: String,
         default: null, 
     },
+    rank: { 
+        type: String, 
+        enum: ["bronze", "silver", "gold", "platinum"], 
+        default: "bronze",
+    },
 });
 
 userSchema.virtual('id').get(function () {

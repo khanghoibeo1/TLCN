@@ -42,9 +42,9 @@ const EditPromotionCode = () => {
     canCombine: false,
     note: "",
     applicableRoles: [],
-    applicableUsers: "",
-    applicableProductIds: "",
-    applicableCategoryIds: "",
+    applicableProductIds: [],
+    applicableCategoryIds: [],
+    applicableUsers: [],
   });
 
    useEffect(() => {

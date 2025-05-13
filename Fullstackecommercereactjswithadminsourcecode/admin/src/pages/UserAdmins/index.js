@@ -80,6 +80,8 @@ const UserAdmin = () => {
       }, [page, perPage]);
 
     const deleteUserAdmin = (id) => {
+      const confirmDelete = window.confirm("Are you sure you want to delete?");
+      if (!confirmDelete) return;
         deleteData(`/api/user/userAdmin/${id}`).then(() => {
           context.setAlertBox({
             open: true,

@@ -42,6 +42,9 @@ const postTypeRoutes = require('./routes/postTypes.js');
 const commentRoutes = require('./routes/comments.js');
 const storeLocationRoutes = require('./routes/storeLocations.js');
 const batchCodeRoutes = require('./routes/batchCodes.js');
+const notificationRoutes = require('./routes/notifications.js');
+//reset rank
+require('./routes/cron/resetUserRank');
 const messageRoutes = require('./routes/messages.js')
 
 app.use("/api/user",userRoutes);
@@ -67,7 +70,8 @@ app.use("/api/postTypes", postTypeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/storeLocations", storeLocationRoutes);
 app.use("/api/batchCodes", batchCodeRoutes);
-app.use("/api/messages", messageRoutes)
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/messages", messageRoutes);
 
 init(server)
 //Database

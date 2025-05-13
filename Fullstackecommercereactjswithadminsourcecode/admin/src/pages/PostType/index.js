@@ -13,7 +13,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import SearchBox from '../../components/SearchBox';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
@@ -60,6 +60,8 @@ const PostType = () => {
     }, []);
 
     const deletePostType = (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete?");
+        if (!confirmDelete) return;
         const userInfo = JSON.parse(localStorage.getItem("user"));
         if(userInfo?.email==="admin@admin.com"){
        
@@ -89,6 +91,17 @@ const PostType = () => {
            }
     }
 
+    const onSearch = (keyword) => {
+        if (keyword !== "") {
+          fetchDataFromApi(`/api/search/postType?q=${keyword}`).then((res) => {
+            setPostTypeData(res.data);
+          });
+        } else {
+          fetchDataFromApi(`/api/postTypes`).then((res) => {
+            setPostTypeData(res);
+          });
+        }
+      };
 
 
     return (
@@ -96,6 +109,7 @@ const PostType = () => {
             <div className="right-content w-100">
                 <div className="card shadow border-0 w-100 flex-row p-4 align-items-center">
                     <h5 className="mb-0">Blog Types</h5>
+                    
 
                     <div className="ml-auto d-flex align-items-center">
                         <Breadcrumbs aria-label="breadcrumb" className="ml-auto breadcrumbs_">
@@ -120,6 +134,13 @@ const PostType = () => {
                 </div>
 
                 <div className="card shadow border-0 p-3 mt-4">
+                    <div className="row cardFilters mt-3">
+                        <div className="col-md-6 d-flex justify-content-end">
+                            <div className="searchWrap d-flex">
+                                <SearchBox onSearch={onSearch} />
+                            </div>
+                        </div>
+                    </div>
                     <div className="table-responsive mt-3">
                         <table className="table table-bordered table-striped v-align">
                             <thead className="thead-dark">

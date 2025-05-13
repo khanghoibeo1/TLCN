@@ -20,6 +20,7 @@ import { BiSolidCategory } from "react-icons/bi";
 import { TbSlideshow } from "react-icons/tb";
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import ImportantDevicesIcon from '@mui/icons-material/ImportantDevices';
+import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 
 
 const Sidebar = () => {
@@ -179,21 +180,25 @@ const Sidebar = () => {
             >
               <ul className="submenu">
                 <li>
-                  <Link
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
                     to="/category"
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Category List
-                  </Link>
+                  </NavLink>
                 </li>
                 
                 <li>
-                  <Link
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
                     to="/subCategory"
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Sub Category List
-                  </Link>
+                  </NavLink>
                 </li>
                 
               </ul>
@@ -476,7 +481,7 @@ const Sidebar = () => {
                   <NavLink
                     exact
                     activeClassName="is-active"
-                    to="/batchCodes/request"
+                    to="/batchCode/request"
                     onClick={() => context.setIsOpenNav(false)}
                   >
                     Request Batch Code 
@@ -487,7 +492,44 @@ const Sidebar = () => {
             </div>
           </li>
 
-          {/* Thêm mục Admin Chat vào Sidebar */}
+          {/*notification*/}
+          <li>
+            <Button
+              className={`w-100 ${
+                activeTab === 10 && isToggleSubmenu === true ? "active" : ""
+              }`}
+              onClick={() => isOpenSubmenu(10)}
+            >
+              <span className="icon">
+                <CircleNotificationsIcon  />
+              </span>
+              Notification for user
+              <span className="arrow">
+                <FaAngleRight />
+              </span>
+            </Button>
+            <div
+              className={`submenuWrapper ${
+                activeTab === 10 && isToggleSubmenu === true
+                  ? "colapse"
+                  : "colapsed"
+              }`}
+            >
+              <ul className="submenu">
+                <li>
+                  <NavLink
+                    exact
+                    activeClassName="is-active"
+                    to="/notifications"
+                    onClick={() => context.setIsOpenNav(false)}
+                  >
+                    Notification List
+                  </NavLink>
+                </li>
+              </ul>
+              
+            </div>
+          </li>
           <li>
             <NavLink exact activeClassName="is-active" to="/message">
               <Button

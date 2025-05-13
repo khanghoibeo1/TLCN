@@ -9,6 +9,7 @@ const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
 const mongoose = require("mongoose");
+const { constrainedMemory } = require("process");
 
 const cloudinary = require("cloudinary").v2;
 
@@ -81,6 +82,7 @@ router.get(`/`, async (req, res) => {
 
   if (req.query.page !== undefined && req.query.perPage !== undefined) {
     if (req.query.location !== undefined) {
+      console.log(req.query.location)
       const productListArr = await Product.find()
         .populate("category")
         .skip((page - 1) * perPage)
@@ -88,9 +90,9 @@ router.get(`/`, async (req, res) => {
         .exec();
 
       for (let i = 0; i < productListArr.length; i++) {
+        productList.push(productListArr[i]);
         for (let j = 0; j < productListArr[i].location.length; j++) {
           if (productListArr[i].location[j].value === req.query.location) {
-            productList.push(productListArr[i]);
           }
         }
       }
@@ -121,7 +123,7 @@ router.get(`/getAll/`, async (req, res) => {
     }
 });
 
-
+// lấy theo category
 router.get(`/catName`, async (req, res) => {
   let productList = [];
 
@@ -154,9 +156,9 @@ router.get(`/catName`, async (req, res) => {
       .exec();
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       for (let j = 0; j < productListArr[i].location.length; j++) {
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
         }
       }
     }
@@ -176,6 +178,60 @@ router.get(`/catName`, async (req, res) => {
     }
   }
 });
+
+// lấy theo season
+router.get(`/seasonName`, async (req, res) => {
+  let productList = [];
+  console.log(req.query.seasonName)
+  const page = parseInt(req.query.page) || 1;
+  const perPage = parseInt(req.query.perPage);
+  const seasonName = req.query.seasonName;
+  const location = req.query.location || "All";
+
+  if (!seasonName) {
+    return res.status(400).json({ message: "Missing seasonName parameter" });
+  }
+
+  const totalPosts = await Product.countDocuments({ season: seasonName });
+  const totalPages = Math.ceil(totalPosts / perPage);
+
+  if (page > totalPages && totalPages > 0) {
+    return res.status(404).json({ message: "Page not found" });
+  }
+
+  const productListArr = await Product.find({ season: seasonName })
+    .populate("category")
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .exec();
+  console.log(productListArr)
+
+  // Nếu lọc theo location khác "All"
+  if (location !== "All") {
+    for (let i = 0; i < productListArr.length; i++) {
+      for (let j = 0; j < productListArr[i].location.length; j++) {
+        if (productListArr[i].location[j].value === location) {
+          ///productList.push(productListArr[i]);
+          //break;
+        }
+      }
+    }
+
+    return res.status(200).json({
+      products: productListArr,
+      totalPages: totalPages,
+      page: page,
+    });
+  }
+
+  // Nếu location là "All"
+  return res.status(200).json({
+    products: productListArr,
+    totalPages: totalPages,
+    page: page,
+  });
+});
+
 
 router.get(`/catId`, async (req, res) => {
   let productList = [];
@@ -205,10 +261,10 @@ router.get(`/catId`, async (req, res) => {
     const productListArr = await Product.find({ catId: req.query.catId });
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       //console.log(productList[i].location)
       for (let j = 0; j < productListArr[i].location.length; j++) {
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
         }
       }
     }
@@ -486,9 +542,11 @@ router.get(`/featured`, async (req, res) => {
     );
 
     for (let i = 0; i < productListArr.length; i++) {
+      productList.push(productListArr[i]);
       for (let j = 0; j < productListArr[i].location.length; j++) {
+        console.log(productListArr[i].location)
         if (productListArr[i].location[j].value === req.query.location) {
-          productList.push(productListArr[i]);
+          
         }
       }
     }
@@ -539,6 +597,7 @@ router.post(`/recentlyViewd`, async (req, res) => {
       productRam: req.body.productRam,
       size: req.body.size,
       productWeight: req.body.productWeight,
+      season: req.body.season,
       note: req.body.note
     });
 
@@ -591,6 +650,7 @@ router.post(`/create`, async (req, res) => {
     productRam: req.body.productRam,
     size: req.body.size,
     productWeight: req.body.productWeight,
+    season: req.body.season,
     note: req.body.note,
     location: req.body.location !== "" ? req.body.location : "All",
   });
@@ -715,6 +775,7 @@ router.put("/:id", async (req, res) => {
       productRam: req.body.productRam,
       size: req.body.size,
       productWeight: req.body.productWeight,
+      season: req.body.season,
       location: req.body.location,
       note: req.body.note
     },

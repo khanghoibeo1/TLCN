@@ -11,8 +11,11 @@ const HomeSideBanner = (props) => {
   const context = useContext(MyContext);
 
   const ReRoute = (link) => {
-    window.open(link, "_blank");
-  }
+    const isAbsoluteUrl = /^https?:\/\//i.test(link);
+    const baseUrl = window.location.origin;
+    const fullLink = isAbsoluteUrl ? link : `${baseUrl}/${link.replace(/^\/+/, '')}`;
+    window.open(fullLink, "_blank");
+  };
 
   return (
     <>
