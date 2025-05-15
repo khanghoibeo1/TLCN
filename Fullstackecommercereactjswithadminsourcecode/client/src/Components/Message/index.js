@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { io } from 'socket.io-client';
+import EmojiPicker from 'emoji-picker-react'
 import { MyContext } from '../../App';  // Import MyContext từ App.js
 import { fetchDataFromApi, postData, putData } from "../../utils/api"
-import { FaImage, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';  // Dùng icon hình ảnh và icon mũi tên gửi tin nhắn từ thư viện react-icons
+import { FaImage, FaPaperPlane, FaArrowLeft, FaSmile} from 'react-icons/fa';  // Dùng icon hình ảnh và icon mũi tên gửi tin nhắn từ thư viện react-icons
 import { TbRuler } from 'react-icons/tb';
 
 function ClientChat() {
@@ -15,6 +16,7 @@ function ClientChat() {
   const [admin, setAdmin] = useState(null);          // thông tin admin
   const socketRef = useRef(); 
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
   
    useEffect(() => {
@@ -128,6 +130,9 @@ function ClientChat() {
       }
 };
 
+const onEmojiClick = (emojiObject) => {
+    setMessage(msg => msg + emojiObject.emoji);
+  };
   const handleImageUpload = e => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -383,9 +388,8 @@ function ClientChat() {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <input
-                    type="text"
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+                  <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={e => {
@@ -394,13 +398,48 @@ function ClientChat() {
                         handleSendMessage();     // gửi tin
                       }
                     }}
+                    onInput={e => {
+                      // auto-grow
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
                     placeholder="Type a message..."
-                    style={{ flex: 1, padding: 8, borderRadius: 5, border: '1px solid #ccc' }}
+                    style={{ flex: 1, padding: 8, borderRadius: 5, border: '1px solid #ccc',resize: 'none',overflow: 'hidden', lineHeight: '1.4', maxHeight: '120px' }}
                   />
 
+                  {/* Nút emoji */}
+                  <button
+                    onClick={() => setShowEmojiPicker(open => !open)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '1.2rem',
+                    }}
+                  >
+                    <FaSmile color="#6A1B9A" />
+                  </button>
+
+                  {/* Emoji Picker */}
+                  {showEmojiPicker && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 'calc(100% + 10px)',
+                      right: 40,
+                      zIndex: 10000,
+                    }}>
+                      <EmojiPicker
+                        onEmojiClick={onEmojiClick}
+                        disableAutoFocus={true}
+                        native
+                        pickerStyle={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)', maxHeight: '250px', overflowY: 'auto', width: '320px' }}
+                      />
+                    </div>
+                  )}
+
                   {/* 2. Nút chọn file */}
-                  <label htmlFor="image-upload" style={{ cursor: 'pointer' }}>
-                    <FaImage size={24} color="#6A1B9A" />
+                  <label htmlFor="image-upload" style={{ cursor: 'pointer', padding: '6px 10px', display: 'flex',alignItems: 'center',justifyContent: 'center' }}>
+                    <FaImage size={18} color="#6A1B9A" />
                   </label>
                   <input
                     id="image-upload"
@@ -416,12 +455,15 @@ function ClientChat() {
                       background: '#6A1B9A',
                       color: 'white',
                       border: 'none',
-                      padding: '8px 12px',
-                      borderRadius: 5,
+                      padding: '6px 10px',
+                      borderRadius: '5px',
                       cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
-                    <FaPaperPlane size={20} />
+                    <FaPaperPlane size={18} />
                   </button>
                 </div>
               </div>
