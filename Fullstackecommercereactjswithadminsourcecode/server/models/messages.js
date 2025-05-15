@@ -25,6 +25,7 @@ const messageSchema = mongoose.Schema({
             enum: ['client', 'mainAdmin','bot'],
             required: true,
         },
+        isRead: { type: Boolean, default: false },
     },
     {timestamps: true}
 );

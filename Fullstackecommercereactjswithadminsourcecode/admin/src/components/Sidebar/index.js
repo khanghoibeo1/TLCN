@@ -530,16 +530,30 @@ const Sidebar = () => {
               
             </div>
           </li>
+          {context.user.role === "mainAdmin" && (
           <li>
-            <NavLink exact activeClassName="is-active" to="/message">
+            <NavLink
+              exact
+              to="/message"
+              className={({ isActive }) => isActive ? "is-active" : ""}
+            >
               <Button
-                className={`w-100 ${activeTab === 10 ? "active" : ""}`}
-                onClick={() => isOpenSubmenu(10)}
+                className={`w-100 ${
+                  activeTab === 11 && isToggleSubmenu ? "active" : ""
+                }`}
+                onClick={() => {
+                  setActiveTab(11);
+                  context.setIsOpenNav(false);
+                }}
               >
-                <span className="icon"><MdMessage /></span> Admin Chat
+                <span className="icon">
+                  <MdMessage />
+                </span>
+                Admin Chat
               </Button>
             </NavLink>
           </li>
+        )}
         </ul>
 
         <div className="logoutWrapper">

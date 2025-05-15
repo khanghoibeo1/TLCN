@@ -283,5 +283,24 @@ router.post("/sendBot", authenticateToken, async (req, res) => {
     }
 });
 
+router.get('/count/unread', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const count = await Messages.countDocuments({
+    receiverId: userId,
+    senderRole: 'mainAdmin',
+    isRead: false
+  });
+  res.json({ unreadCount: count });
+});
+
+// 2) đánh dấu đã đọc
+router.put('/count/mark-read', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  await Messages.updateMany(
+    { receiverId: userId, senderRole: 'mainAdmin', isRead: false },
+    { $set: { isRead: true } }
+  );
+  res.json({ success: true });
+});
 
 module.exports = router;

@@ -77,7 +77,21 @@ export const postData = async (url, payload) => {
 //     }
 
 // }
-
+export const putData = async (url, payload) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    process.env.REACT_APP_API_URL + url,
+    {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  return response.json();
+}
 
 export const editData = async (url, updatedData ) => {
     const { res } = await axios.put(`${process.env.REACT_APP_API_URL}${url}`,updatedData, params)
