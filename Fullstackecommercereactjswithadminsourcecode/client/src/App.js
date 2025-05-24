@@ -36,8 +36,6 @@ import DetailBlog from "./Pages/DetailBlog";
 
 // Utils
 import { fetchDataFromApi, postData } from "./utils/api";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import IntroduceAndLicense from "./Pages/License";
 import ClientChat from "./Components/Message";
 
