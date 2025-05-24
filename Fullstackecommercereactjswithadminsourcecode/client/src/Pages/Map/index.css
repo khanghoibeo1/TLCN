@@ -1,0 +1,15 @@
+.shippingfee-guide{
+    margin-left:800px;
+}
+  .storeLocationPage .shippingfee-guide {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 30px;
+  }
+  
+  .storeLocationPage .shippingfee-guide ul {
+    list-style: disc;
+    padding-left: 20px;
+  }
+  

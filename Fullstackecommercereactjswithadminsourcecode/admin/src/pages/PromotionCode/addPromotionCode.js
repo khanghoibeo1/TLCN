@@ -18,7 +18,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { MyContext } from "../../App";
 import { Autocomplete } from "@mui/material";
 
-const rolesList = ["client", "gold", "platium","silver"];
+const rolesList = ["bronze","silver", "gold", "platium"];
 
 const AddPromotionCode = () => {
   const navigate = useNavigate();
@@ -43,7 +43,6 @@ const AddPromotionCode = () => {
     applicableRoles: [],
     applicableProductIds: [],
     applicableCategoryIds: [],
-    applicableUsers: [],
   });
 
   useEffect(() => {
@@ -176,25 +175,7 @@ const AddPromotionCode = () => {
           {/* <TextField label="Applicable Users (IDs, comma-separated)" name="applicableUsers" value={formFields.applicableUsers} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Applicable Products (IDs, comma-separated)" name="applicableProductIds" value={formFields.applicableProductIds} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Applicable Categories (IDs, comma-separated)" name="applicableCategoryIds" value={formFields.applicableCategoryIds} onChange={handleChange} fullWidth margin="normal" /> */}
-          <div className="form-group">
-            <h6>Applicable Users</h6>
-            <Autocomplete
-              multiple
-              id="users-autocomplete"
-              options={userData}
-              getOptionLabel={(option) => option.name || option.email || option._id}
-              value={formFields.applicableUsers}
-              onChange={(event, newValue) => {
-                setFormFields((prev) => ({
-                  ...prev,
-                  applicableUsers: newValue,
-                }));
-              }}
-              renderInput={(params) => (
-                <TextField {...params} label="Select Users" placeholder="Users" />
-              )}
-            />
-          </div>
+         
           <div className="form-group">
             <h6>Applicable Products</h6>
             <Autocomplete

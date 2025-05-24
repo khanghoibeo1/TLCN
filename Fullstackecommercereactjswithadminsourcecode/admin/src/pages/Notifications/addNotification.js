@@ -19,6 +19,7 @@ import { MyContext } from "../../App";
 import { fetchDataFromApi, postData } from "../../utils/api";
 
 const typesList = ["info", "warning", "success", "error", "import", "export"];
+const rolesList = ["bronze","silver", "gold", "platium"];
 
 const AddNotification = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const AddNotification = () => {
     message: "",
     type: "info",
     recipients: [],
+    applicableRoles: [],
   });
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const AddNotification = () => {
     } = event;
     setFormFields({
       ...formFields,
-      type: typeof value === "string" ? value.split(",") : value,
+      applicableRoles: typeof value === "string" ? value.split(",") : value,
     });
   };
 
@@ -156,6 +158,24 @@ const AddNotification = () => {
               )}
             />
           </div>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Applicable Roles</InputLabel>
+            <Select
+              multiple
+              name="applicableRoles"
+              value={formFields.applicableRoles}
+              onChange={handleRolesChange}
+              input={<OutlinedInput label="Applicable Roles" />}
+              renderValue={(selected) => selected.join(", ")}
+            >
+              {rolesList.map((role) => (
+                <MenuItem key={role} value={role}>
+                  <Checkbox checked={formFields.applicableRoles.indexOf(role) > -1} />
+                  <ListItemText primary={role} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         <Button type="submit" disabled={isLoading} className="btn-blue btn-lg w-100 mt-4">

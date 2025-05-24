@@ -83,16 +83,6 @@ const PromotionCodeDetail = () => {
                 <p><strong>Note:</strong> {promotionData.note}</p>
 
                 <p><strong>Applicable Roles:</strong> {promotionData.applicableRoles.join(", ") || 'All'}</p>
-                <p><strong>Applicable Users:</strong></p>
-                <ul>
-                    {promotionData.applicableUsers?.length > 0 ? (
-                        promotionData.applicableUsers.map(user => (
-                            <li key={user.id}>{user.name} (ID: {user.id})</li>
-                        ))
-                    ) : (
-                        <li>All users</li>
-                    )}
-                </ul>
 
                 <p><strong>Applicable Products:</strong></p>
                 <ul>

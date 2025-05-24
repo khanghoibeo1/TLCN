@@ -17,6 +17,7 @@ import { MdOutlineEmail } from "react-icons/md";
 import { FaPhoneAlt } from "react-icons/fa";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { MdOutlineDateRange } from "react-icons/md";
+import FormControl from "@mui/material/FormControl";
 
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
@@ -51,6 +52,10 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [products, setproducts] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [status, setStatus] = useState('all');
+  const [querySearch, setQuerySearch] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const [singleOrder, setSingleOrder] = useState();
   const [statusVal, setstatusVal] = useState(null);
@@ -62,14 +67,12 @@ const Orders = () => {
     window.scrollTo(0, 0);
 
     fetchOrders();
-    }, [page]);
+    }, [page,startDate, endDate]);
 
 
   const fetchOrders = () => {
-    const query = "";
-    fetchDataFromApi(`/api/orders?${query ? `${query}&` : ""  }page=${page}&limit=10`).then((res) => {
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }${startDate  ? `startDate=${startDate }&` : ""  }${endDate  ? `endDate=${endDate }&` : ""  }page=${page}&limit=10`).then((res) => {
         setOrders(res.orders);
-        console.log('oders :', res.orders);
         setTotalPages(res.totalPages);
     })
     .catch((err) => {
@@ -88,28 +91,10 @@ const handlePageChange = (event, value) => {
     });
   };
 
-  const handleChangeStatus = (e, orderId) => {
-    setstatusVal(e.target.value);
-    setIsLoading(true);
-    context.setProgress(40);
-    editData2(`/api/orders/admin-update/${orderId}`, { status: e.target.value })
-      .then((res) => {
-        
-          fetchOrders();
-          context.setProgress(100);
-          setIsLoading(false);
-        
-      }).catch((err) => {
-        console.error("Error updating order status by admin:", err);
-        context.setProgress(100);
-        setIsLoading(false);
-      });
-      };
-  
-
   const onSearch = (keyword) => {
     const query = keyword ? `q=${keyword}&` : "";
-    fetchDataFromApi(`/api/orders?${query}page=${page}&limit=10`)
+    setQuerySearch(query)
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10`)
       .then((res) => {
         setOrders(res.orders);
         setTotalPages(res.totalPages);
@@ -118,6 +103,16 @@ const handlePageChange = (event, value) => {
       .catch((err) => {
         console.error("Error during search:", err);
     });
+  };
+
+  const handleChangeStatus = (event) => {
+    setStatus(event.target.value);
+    fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10`).then(
+      (res) => {
+        setOrders(res.orders);
+        context.setProgress(100);
+      }
+    );
   };
 
   return (
@@ -148,12 +143,54 @@ const handlePageChange = (event, value) => {
 
         <div className="card shadow border-0 p-3 mt-4">
           <div className="table-responsive mt-3 orderTable">
-          <div className="col-md-6 d-flex justify-content-end">
-              <div className="searchWrap d-flex  pb-4">
-                <SearchBox onSearch={onSearch} />
+            <div className="row cardFilters">
+              <div className="col-md-3">
+                <label>STATUS BY</label>
+                <FormControl size="small" className="w-100">
+                  <Select
+                    value={status}
+                    onChange={handleChangeStatus}
+                    displayEmpty
+                    inputProps={{ "aria-label": "Without label" }}
+                    className="w-100"
+                  >
+                    <MenuItem value="all">
+                      <em>All</em>
+                    </MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="paid">Paid</MenuItem>
+                    <MenuItem value="cancel">Cancel</MenuItem>
+                    <MenuItem value="verify">Verify</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="col-md-2">
+                <label>Start Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  className="form-control"
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div className="col-md-2">
+                <label>End Date</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  className="form-control"
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              <div className="col-md-5 d-flex justify-content-end">
+                <div className="searchWrap d-flex ">
+                  <SearchBox onSearch={onSearch} />
+                </div>
               </div>
             </div>
-            <table className="table table-bordered table-striped v-align">
+            
+            
+            <table className="table table-bordered table-striped v-align mt-3">
               <thead className="thead-dark">
               <tr>
                 <th>Order Id</th> 
@@ -169,6 +206,7 @@ const handlePageChange = (event, value) => {
                 <th>User Id</th>
                 <th>Order Status</th>
                 <th>Date</th>
+                <th>Note</th>
             </tr>
               </thead>
 
@@ -239,6 +277,9 @@ const handlePageChange = (event, value) => {
                           </td>
                           <td>
                             <MdOutlineDateRange /> {order?.date?.split("T")[0]}
+                          </td>
+                          <td>
+                            {order?.note}
                           </td>
                         </tr>
                       </>

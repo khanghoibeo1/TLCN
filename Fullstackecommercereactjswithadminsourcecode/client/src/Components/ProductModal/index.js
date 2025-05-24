@@ -22,8 +22,11 @@ const ProductModal = (props) => {
     const [activeSize, setActiveSize] = useState(null);
     const [tabError, setTabError] = useState(false);
     const [isAddedToMyList, setSsAddedToMyList] = useState(false);
+    const [latestBatch, setLatestBatch] = useState(null);
+
 
     const context = useContext(MyContext);
+    const selectedCountry = context.selectedCountry;
 
     useEffect(() => {
         if (props?.data?.productRam.length === 0 && props?.data?.productWeight.length === 0 && props?.data?.size.length === 0) {
@@ -40,6 +43,12 @@ const ProductModal = (props) => {
 
     }, [])
 
+    useEffect(() => {
+        fetchDataFromApi(`/api/batchCodes/${props.data.id}/${selectedCountry}/latest-batch`).then((res) => {
+            setLatestBatch(res);
+        });
+    }, [props.data.id]);
+
     const quantity = (val) => {
         setProductQuantity(val);
         setchengeQuantity(val)
@@ -49,35 +58,6 @@ const ProductModal = (props) => {
         setActiveSize(index);
         setTabError(false);
     }
-
-    // const selectedItem = (item, quantityVal) => {
-    //     if (chengeQuantity !== 0) {
-    //         setIsLoading(true);
-    //         const user = JSON.parse(localStorage.getItem("user"));
-    //         cartFields.productTitle = item?.productTitle
-    //         cartFields.image = item?.image
-    //         cartFields.rating = item?.rating
-    //         cartFields.price = item?.price
-    //         cartFields.quantity = quantityVal
-    //         cartFields.subTotal = parseInt(item?.price * quantityVal)
-    //         cartFields.productId = item?.id
-    //         cartFields.userId = user?.userId
-
-    //         //console.log(item?._id)
-
-    //         editData(`/api/cart/${item?._id}`, cartFields).then((res) => {
-    //             setTimeout(() => {
-    //                 setIsLoading(false);
-    //                 const user = JSON.parse(localStorage.getItem("user"));
-    //                 fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
-    //                     setCartData(res);
-    //                 })
-    //             }, 1000)
-    //         })
-    //     }
-
-    // }
-
 
     const addtoCart = () => {
 
@@ -167,67 +147,27 @@ const ProductModal = (props) => {
                     <div className='col-md-7'>
                         <div className='d-flex info align-items-center mb-3'>
                             {/* <span className='oldPrice lg mr-2'>${props?.data?.oldPrice}</span> */}
-                            <span className='netPrice text-danger lg'>$: {props?.data?.price}</span>
+                            {/* <span className='netPrice text-danger lg'>$: {props?.data?.price}</span> */}
+                            {latestBatch && latestBatch.price != null && (
+                                <div className="d-flex">
+                                    {latestBatch.discount > 0 && (
+                                        <span className="oldPrice">${latestBatch.oldPrice}</span>
+                                    )}
+                                    <span className="netPrice text-danger ml-2">${latestBatch.price}</span>
+                                </div>
+                            )}
                         </div>
 
-                        <span className="badge bg-success">IN STOCK</span>
+                        {
+                            //props?.item?.countInStock>=1 ?  <span className="text-success d-block">In Stock</span>
+                            props?.data?.amountAvailable.find(amount => amount.iso2 === selectedCountry)?.quantity >=1 ?  <span className="badge badge-success">In Stock</span>
+                            :
+
+                            <span className="badge badge-danger">Out of Stock</span>
+
+                        }
 
                         <p className='mt-3'>Description: {props?.data?.description}</p>
-
-
-
-                        {
-                            props?.data?.productRam?.length !== 0 &&
-                            <div className='productSize d-flex align-items-center'>
-                                <span>RAM:</span>
-                                <ul className={`list list-inline mb-0 pl-4 ${tabError === true && 'error'}`}>
-                                    {
-                                        props?.data?.productRam?.map((item, index) => {
-                                            return (
-                                                <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item}</a></li>
-                                            )
-                                        })
-                                    }
-
-                                </ul>
-                            </div>
-                        }
-
-
-                        {
-                            props?.data?.size?.length !== 0 &&
-                            <div className='productSize d-flex align-items-center'>
-                                <span>Size:</span>
-                                <ul className={`list list-inline mb-0 pl-4 ${tabError === true && 'error'}`}>
-                                    {
-                                        props?.data?.size?.map((item, index) => {
-                                            return (
-                                                <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item}</a></li>
-                                            )
-                                        })
-                                    }
-
-                                </ul>
-                            </div>
-                        }
-
-
-                        {
-                            props?.data?.productWeight?.length !== 0 &&
-                            <div className='productSize d-flex align-items-center'>
-                                <span>Weight:</span>
-                                <ul className={`list list-inline mb-0 pl-4 ${tabError === true && 'error'}`}>
-                                    {
-                                        props?.data?.productWeight?.map((item, index) => {
-                                            return (
-                                                <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item}</a></li>
-                                            )
-                                        })
-                                    }
-
-                                </ul>
-                            </div>
-                        }
 
 
 

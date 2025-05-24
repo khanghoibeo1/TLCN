@@ -40,7 +40,11 @@ const cartSchema = mongoose.Schema({
     userId:{
         type:String,
         required:true
-    }
+    }, 
+    batchId:{
+        type:String,
+    }, 
+
 })
 
 cartSchema.virtual('id').get(function () {

@@ -334,7 +334,6 @@ else{
                   <th>SUB CATEGORY</th>
                   <th>BRAND</th>
                   <th>PRICE</th>
-                  <th>AMOUNT</th>
                   <th>RATING</th>
                   <th>SEASON</th>
                   <th>NOTE</th>
@@ -377,7 +376,7 @@ else{
                             </span>
                           </div>
                         </td>
-                        <td>{item?.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0}</td>
+                        {/* <td>{item?.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0}</td> */}
                         <td>
                           <Rating
                             name="read-only"

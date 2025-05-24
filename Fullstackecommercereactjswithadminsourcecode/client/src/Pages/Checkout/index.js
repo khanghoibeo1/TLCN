@@ -16,13 +16,13 @@ const Checkout = () => {
   const [formFields, setFormFields] = useState({
     fullName: "",
     country: "",
-    streetAddressLine1: "",
-    streetAddressLine2: "",
+    streetAddress: "",
     city: "",
     state: "",
     zipCode: "",
     phoneNumber: "",
     email: "",
+    note: ""
   });
 
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -155,6 +155,18 @@ const Checkout = () => {
   };
 
   const context = useContext(MyContext);
+  const userContext = context.user;
+  const userAddress = context.selectedAddress;
+  useEffect(() => {
+    setFormFields(prev => ({
+      ...prev,
+      fullName: userContext.name || prev.fullName,
+      phoneNumber: userAddress?.phoneNumber || prev.phoneNumber,
+      email: userAddress?.email || prev.email,
+      streetAddress: userAddress?.address,
+    }));
+  }, [userContext, userAddress]);
+
   const history = useNavigate();
 
   const checkout = async (e) => {
@@ -198,14 +210,14 @@ const Checkout = () => {
         return false;
       }
 
-      if (formFields.country === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill country ",
-        });
-        return false;
-      }
+      // if (formFields.country === "") {
+      //   context.setAlertBox({
+      //     open: true,
+      //     error: true,
+      //     msg: "Please fill country ",
+      //   });
+      //   return false;
+      // }
 
       if (formFields.streetAddressLine1 === "") {
         context.setAlertBox({
@@ -216,41 +228,41 @@ const Checkout = () => {
         return false;
       }
 
-      if (formFields.streetAddressLine2 === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill  Street address",
-        });
-        return false;
-      }
+      // if (formFields.streetAddressLine2 === "") {
+      //   context.setAlertBox({
+      //     open: true,
+      //     error: true,
+      //     msg: "Please fill  Street address",
+      //   });
+      //   return false;
+      // }
 
-      if (formFields.city === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill city ",
-        });
-        return false;
-      }
+      // if (formFields.city === "") {
+      //   context.setAlertBox({
+      //     open: true,
+      //     error: true,
+      //     msg: "Please fill city ",
+      //   });
+      //   return false;
+      // }
 
-      if (formFields.state === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill state ",
-        });
-        return false;
-      }
+      // if (formFields.state === "") {
+      //   context.setAlertBox({
+      //     open: true,
+      //     error: true,
+      //     msg: "Please fill state ",
+      //   });
+      //   return false;
+      // }
 
-      if (formFields.zipCode === "") {
-        context.setAlertBox({
-          open: true,
-          error: true,
-          msg: "Please fill zipCode ",
-        });
-        return false;
-      }
+      // if (formFields.zipCode === "") {
+      //   context.setAlertBox({
+      //     open: true,
+      //     error: true,
+      //     msg: "Please fill zipCode ",
+      //   });
+      //   return false;
+      // }
 
       if (formFields.phoneNumber === "") {
         context.setAlertBox({
@@ -290,7 +302,7 @@ const Checkout = () => {
       const addressInfo = {
         name: formFields.fullName,
         phoneNumber: formFields.phoneNumber,
-        address: formFields.streetAddressLine1 + formFields.streetAddressLine2,
+        address: formFields.streetAddress,
         pincode: formFields.zipCode,
         date: new Date().toLocaleString("en-US", {
           month: "short",
@@ -309,10 +321,11 @@ const Checkout = () => {
       pincode: addressInfo.pincode,
       amount: parseInt(totalAmount),
       payment: paymentMethod,
-      email: user.email,
+      email: formFields.email,
       userid: user.userId,
       products: cartData,
       orderDiscount: discount,
+      note: formFields.note,
       date:addressInfo?.date,
       // totalSpent: user.totalSpent + parseInt(totalAmount),
     };
@@ -354,18 +367,7 @@ const Checkout = () => {
             msg: "Checkout failed. Please try again.",
         });
     }
-  // }else {
-  //   context.setAlertBox({
-  //     open: true,
-  //     error: true,
-  //     msg: "You are banned! ",
-  //   });
-  // }
 };
-
-  // useEffect(() => {
-  //   console.log('Order ID updated:', orderId);
-  // }, [orderId]);
 
   const createOrder = async (data, actions) => {
     const response = await postData('/api/orders/create-paypal-order', {orderId});
@@ -425,12 +427,13 @@ const Checkout = () => {
                       className="w-100"
                       size="small"
                       name="fullName"
+                      value={userContext?.name}
                       onChange={onChangeInput}
                     />
                   </div>
                 </div>
 
-                <div className="col-md-6">
+                {/* <div className="col-md-6">
                   <div className="form-group">
                     <TextField
                       label="Country *"
@@ -441,7 +444,7 @@ const Checkout = () => {
                       onChange={onChangeInput}
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <h6>Street address *</h6>
@@ -454,25 +457,26 @@ const Checkout = () => {
                       variant="outlined"
                       className="w-100"
                       size="small"
-                      name="streetAddressLine1"
+                      name="streetAddress"
+                      value={userAddress?.address}
                       onChange={onChangeInput}
                     />
                   </div>
 
                   <div className="form-group">
                     <TextField
-                      label="Apartment, suite, unit, etc. (optional)"
+                      label="Another note. (optional)"
                       variant="outlined"
                       className="w-100"
                       size="small"
-                      name="streetAddressLine2"
+                      name="note"
                       onChange={onChangeInput}
                     />
                   </div>
                 </div>
               </div>
 
-              <h6>Town / City *</h6>
+              {/* <h6>Town / City *</h6>
 
               <div className="row">
                 <div className="col-md-12">
@@ -487,9 +491,9 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <h6>State / County *</h6>
+              {/* <h6>State / County *</h6>
 
               <div className="row">
                 <div className="col-md-12">
@@ -504,9 +508,9 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <h6>Postcode / ZIP *</h6>
+              {/* <h6>Postcode / ZIP *</h6>
 
               <div className="row">
                 <div className="col-md-12">
@@ -521,7 +525,7 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="row">
                 <div className="col-md-6">
@@ -532,6 +536,7 @@ const Checkout = () => {
                       className="w-100"
                       size="small"
                       name="phoneNumber"
+                      value={userAddress?.phoneNumber}
                       onChange={onChangeInput}
                     />
                   </div>
@@ -545,6 +550,7 @@ const Checkout = () => {
                       className="w-100"
                       size="small"
                       name="email"
+                      value={userAddress?.email}
                       onChange={onChangeInput}
                     />
                   </div>

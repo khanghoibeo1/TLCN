@@ -18,6 +18,7 @@ const ProductItem = (props) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddedToMyList, setSsAddedToMyList] = useState(false);
+    const [latestBatch, setLatestBatch] = useState(null);
 
     const context = useContext(MyContext);
     const selectedCountry = context.selectedCountry;
@@ -76,6 +77,13 @@ const ProductItem = (props) => {
             setIsLoading(false);
         }, 500);
     }, []);
+
+    useEffect(() => {
+        fetchDataFromApi(`/api/batchCodes/${props.item.id}/${selectedCountry}/latest-batch`).then((res) => {
+            setLatestBatch(res);
+            console.log(res)
+        });
+    }, [props.item.id]);
 
 
     const addToMyList=(id)=>{
@@ -201,12 +209,15 @@ const ProductItem = (props) => {
                    
                     <Rating className="mt-2 mb-2" name="read-only" value={props?.item?.rating} readOnly size="small" precision={0.5} />
 
-                    <div className="d-flex">
-                        {props.item?.discount > 0 && (
-                            <span className="oldPrice">${props?.item?.oldPrice}</span>
-                        )}
-                        <span className="netPrice text-danger ml-2">${props?.item?.price}</span>
-                    </div>
+                    {latestBatch && latestBatch.price != null && (
+                        <div className="d-flex">
+                            {latestBatch.discount > 0 && (
+                                <span className="oldPrice">${latestBatch.oldPrice}</span>
+                            )}
+                            <span className="netPrice text-danger ml-2">${latestBatch.price}</span>
+                        </div>
+                    )}
+
 
                 </div>
 

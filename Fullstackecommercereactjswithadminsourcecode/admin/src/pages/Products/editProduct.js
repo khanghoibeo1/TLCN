@@ -814,7 +814,7 @@ const EditUpload = () => {
                           options={[
                             { label: "Spring", value: "Spring" },
                             { label: "Fall", value: "Fall" },
-                            { label: "Autumn", value: "Autumn" },
+                            { label: "Summer", value: "Summer" },
                             { label: "Winter", value: "Winter" }
                           ]}
                           className="basic-multi-select"

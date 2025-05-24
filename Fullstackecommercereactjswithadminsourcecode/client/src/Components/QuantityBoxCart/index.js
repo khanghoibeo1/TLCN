@@ -3,15 +3,21 @@ import { FaPlus } from "react-icons/fa6";
 import Button from '@mui/material/Button';
 import { useContext, useEffect, useState } from "react";
 import { MyContext } from "../../App";
+import { fetchDataFromApi, postData } from '../../utils/api';
 
 const QuantityBox = (props) => {
 
     const [inputVal, setInputVal] = useState(1);
+    const [batchData, setBatchData] = useState(null);
 
     const context = useContext(MyContext);
     const selectedCountry = context.selectedCountry;
 
     useEffect(() => {
+        fetchDataFromApi(`/api/batchCodes/${props.item.batchId}`).then((res) => {
+            setBatchData(res)
+            console.log(res)
+        })
         if (props?.value !== undefined && props?.value !== null && props?.value !== "") {
             setInputVal(parseInt(props?.value))
         }
@@ -28,7 +34,7 @@ const QuantityBox = (props) => {
     }
 
     const handleChange = (e) => {
-        let stock = parseInt(props.item.amountAvailable.find(amount => amount.iso2 === selectedCountry)?.quantity);
+        let stock = parseInt(batchData.amountRemain);
         const value = e.target.value;
         if (/^\d*$/.test(value) && parseInt(value) <= stock) {
             setInputVal(value);
@@ -36,7 +42,7 @@ const QuantityBox = (props) => {
       };
 
     const plus = () => {
-        let stock = parseInt(props.item.amountAvailable.find(amount => amount.iso2 === selectedCountry)?.quantity);
+        let stock = parseInt(batchData.amountRemain);
         if(inputVal<stock){
             setInputVal(inputVal + 1);
         }else{

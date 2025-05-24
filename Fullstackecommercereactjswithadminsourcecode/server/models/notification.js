@@ -15,6 +15,7 @@ const notificationSchema = new mongoose.Schema({
       isRead: { type: Boolean, default: false },
     }
   ],
+  applicableRoles: [{ type: String }],
 }, { timestamps: true });
 notificationSchema.virtual('id').get(function () {
     return this._id.toHexString();

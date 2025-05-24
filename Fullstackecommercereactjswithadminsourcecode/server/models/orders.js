@@ -15,7 +15,7 @@ const ordersSchema = mongoose.Schema({
     },
     pincode: {
         type: String,
-        required: true
+        default: ""
     },
     amount: {
         type: Number,
@@ -42,6 +42,9 @@ const ordersSchema = mongoose.Schema({
             productTitle: {
                 type: String
             },
+            batchId: {
+                type: String
+            },
             quantity:{
                 type:Number
             },
@@ -64,7 +67,10 @@ const ordersSchema = mongoose.Schema({
     orderDiscount: {
         type: Number,
         default: 0 // Phần trăm giảm giá
-      },
+    },
+    note: {
+        type: String,
+    },
     date: {
         type: Date,
         default: Date.now

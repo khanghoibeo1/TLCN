@@ -1,6 +1,7 @@
 const express = require("express"); 
 const { BatchCode } = require("../models/batchCode");
 const { Product } = require("../models/products");
+const { StoreLocation } = require("../models/storeLocation");
 const router = express.Router();
 const mongoose = require('mongoose');
 
@@ -46,6 +47,40 @@ router.get(`/locationBatchCode`, async (req, res) => {
         res.status(500).json({ success: false, message: "Error fetching batch codes", error });
     }
 });
+
+// Get the latest delivered batch for a product at a specific location
+router.get('/:id/:location/latest-batch', async (req, res) => {
+    try {
+        const { id, location } = req.params;
+        const locationDoc = await StoreLocation.findOne({ iso2: location });
+        const locationId = locationDoc?.id;
+
+
+        // Nếu location là "null", thì là kho tổng
+        const query = {
+            productId: id,
+            status: "delivered",
+            ...(location !== "null"
+                ? { locationId: locationId }
+                : { locationId: null }
+            )
+        };
+
+        const latestBatch = await BatchCode.find(query)
+            .sort({ importDate: 1 }) // Lấy batch nhập gần nhất
+            .limit(1);
+
+        if (!latestBatch || latestBatch.length === 0) {
+            return res.status(404).json({ success: false, message: "No batch found" });
+        }
+
+        res.status(200).json(latestBatch[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error fetching latest batch", error });
+    }
+});
+
 
 
 
@@ -231,7 +266,6 @@ router.post("/:id/status", async (req, res) => {
         // }
         const product = await Product.findById(productId);
         if (!product) return res.status(404).json({ message: 'Product not found' });
-        console.log(product);
         console.log(targetBatch.locationId)
 
         const entry = product.amountAvailable.find(

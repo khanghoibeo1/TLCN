@@ -74,9 +74,11 @@ const RequestBatchCode = () => {
                                 <th>Product ID</th>
                                 <th>Product Name</th>
                                 <th>Amount</th>
+                                <th>Remain</th>
                                 <th>Import Date</th>
                                 <th>Expired Date</th>
                                 <th>Price</th>
+                                <th>LocationName</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -88,9 +90,11 @@ const RequestBatchCode = () => {
                                     <td>{batch.productId}</td>
                                     <td>{batch.productName}</td>
                                     <td>{batch.amount}</td>
+                                    <td>{batch.amountRemain}</td>
                                     <td>{batch.importDate ? new Date(batch.importDate).toLocaleDateString() : ""}</td>
                                     <td>{batch.importDate ? new Date(batch.expiredDate).toLocaleDateString() : ""}</td>
                                     <td>{batch.price}</td>
+                                    {batch.locationName ? <td>{batch.locationName}</td> : <td>Main Store</td>}
                                     <td>
                                         { (
                                             <Select

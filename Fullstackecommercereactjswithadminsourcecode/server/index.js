@@ -38,6 +38,7 @@ const commentRoutes = require('./routes/comments.js');
 const storeLocationRoutes = require('./routes/storeLocations.js');
 const batchCodeRoutes = require('./routes/batchCodes.js');
 const notificationRoutes = require('./routes/notifications.js');
+const userAddressRoutes = require('./routes/userAddress.js');
 //reset rank
 require('./routes/cron/resetUserRank');
 
@@ -65,6 +66,7 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/storeLocations", storeLocationRoutes);
 app.use("/api/batchCodes", batchCodeRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/userAddress", userAddressRoutes);
 
 
 //Database

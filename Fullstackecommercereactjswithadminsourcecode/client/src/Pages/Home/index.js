@@ -411,7 +411,7 @@ const Home = () => {
                     scrollButtons="auto"
                     className="filterTabs"
                   >
-                    {["Fall", "Autumn", "Spring", "Winter"].map((season) => (
+                    {["Fall", "Summer", "Spring", "Winter"].map((season) => (
                       <Tab
                         key={season}
                         className="item"

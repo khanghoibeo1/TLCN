@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Rating from '@mui/material/Rating';
 import QuantityBox from "../../Components/QuantityBox";
+import QuantityBoxCart from "../../Components/QuantityBoxCart";
 import { IoIosClose } from "react-icons/io";
 import Button from '@mui/material/Button';
 
@@ -155,7 +156,7 @@ const Cart = () => {
                                                                     currency: "USD",
                                                                 })}</td>
                                                                 <td width="25%">
-                                                                    <QuantityBox quantity={quantity} item={item} selectedItem={selectedItem} value={item?.quantity} />
+                                                                    <QuantityBoxCart quantity={quantity} item={item} selectedItem={selectedItem} value={item?.quantity} />
                                                                 </td>
                                                                 <td width="15%">{item?.subTotal.toLocaleString("en-US", {
                                                                     style: "currency",

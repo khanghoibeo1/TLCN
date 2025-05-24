@@ -18,7 +18,7 @@ import { MyContext } from "../../App";
 import { fetchDataFromApi, editData } from "../../utils/api";
 import { Autocomplete } from "@mui/material";
 
-const rolesList = ["admin", "user", "guest"];
+const rolesList = ["bronze","silver", "gold", "platium"];
 
 const EditPromotionCode = () => {
   const navigate = useNavigate();
@@ -44,7 +44,6 @@ const EditPromotionCode = () => {
     applicableRoles: [],
     applicableProductIds: [],
     applicableCategoryIds: [],
-    applicableUsers: [],
   });
 
    useEffect(() => {
@@ -80,7 +79,6 @@ const EditPromotionCode = () => {
         canCombine: data?.canCombine || false,
         note: data?.note || "",
         applicableRoles: data?.applicableRoles || [],
-        applicableUsers: data?.applicableUsers,
         applicableProductIds: data?.applicableProductIds,
         applicableCategoryIds: data?.applicableCategoryIds
       });
@@ -204,25 +202,7 @@ const EditPromotionCode = () => {
             </Select>
           </FormControl>
 
-          <div className="form-group">
-            <h6>Applicable Users</h6>
-            <Autocomplete
-              multiple
-              id="users-autocomplete"
-              options={userData}
-              getOptionLabel={(option) => option.name || option.email || option._id}
-              value={formFields.applicableUsers}
-              onChange={(event, newValue) => {
-                setFormFields((prev) => ({
-                  ...prev,
-                  applicableUsers: newValue,
-                }));
-              }}
-              renderInput={(params) => (
-                <TextField {...params} label="Select Users" placeholder="Users" />
-              )}
-            />
-          </div>
+          
           <div className="form-group">
             <h6>Applicable Products</h6>
             <Autocomplete

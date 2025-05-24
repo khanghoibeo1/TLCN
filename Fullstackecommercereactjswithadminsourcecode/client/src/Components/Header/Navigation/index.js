@@ -7,23 +7,26 @@ import { useContext, useEffect, useState } from "react";
 import { FaAngleRight } from "react-icons/fa6";
 import { MyContext } from "../../../App";
 import CountryDropdown from "../../CountryDropdown";
+import AddressDropdown from "../../AddressDropdown";
 import Logo from "../../../assets/images/logo.jpg";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 import MenuIcon from '@mui/icons-material/Menu';
 import { FaBlog } from "react-icons/fa";
+import { Select, MenuItem } from '@mui/material';
 
 import HomeImage from "../../../assets/images/homeimage.png";
 import BlogImage from "../../../assets/images/blogimage.png";
 import MapImage from "../../../assets/images/mapimage.jpg";
 import LicenseImage from "../../../assets/images/licenseimage.jpg";
-
 const Navigation = (props) => {
+  const [selectedLang, setSelectedLang] = useState('en');
   const [isopenSidebarVal, setisopenSidebarVal] = useState(false);
   const [isOpenNav, setIsOpenNav] = useState(false);
   const [isOpenSubMenuIndex, setIsOpenSubMenuIndex] = useState(null);
   const [isOpenSubMenu_, setIsOpenSubMenu_] = useState(false);
 
   const context = useContext(MyContext);
+  const userContext = context.user;
   const history = useNavigate();
 
   useEffect(() => {
@@ -180,7 +183,12 @@ const Navigation = (props) => {
                       </Box>
                     </Link>
                   ))}
-
+                  
+                  {userContext.userId && 
+                    <div style={{marginLeft: '23rem'}}>
+                      <AddressDropdown/>
+                    </div>
+                  }
                 </ul>
 
               {context.windowWidth < 992 && (

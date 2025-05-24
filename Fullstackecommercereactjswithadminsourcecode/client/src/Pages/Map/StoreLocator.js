@@ -7,6 +7,15 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import markerIconUser from "../../assets/images/marker-icon-red.png";
 import markerIconStore from "leaflet/dist/images/marker-icon.png";
 
+// Tính phí giao hàng
+const calculateShippingFee = (distanceMeters) => {
+  const distanceKm = distanceMeters / 1000;
+  if (distanceKm <= 3) return 0;
+  if (distanceKm <= 10) return 10000;
+  if (distanceKm <= 20) return 20000;
+  return 30000;
+};
+
 // Component điều khiển bản đồ
 const FlyToLocation = ({ lat, lng }) => {
   const map = useMap();
@@ -203,8 +212,9 @@ const StoreLocator = ({ userLocation, stores }) => {
               }
             >
               <span style={{ fontWeight: "500" }}>{store.name}</span>
-              <span style={{ color: "#555" }}>
-                {(store.distance / 1000).toFixed(2)} km
+              <span style={{ color: "#555", textAlign: "right" }}>
+                {(store.distance / 1000).toFixed(2)} km<br />
+                {calculateShippingFee(store.distance).toLocaleString()} 
               </span>
             </li>
           ))}

@@ -1,5 +1,5 @@
 const express = require('express');
-const { PromotionCode } = require('../models/promotionCode');
+const { PromotionCode } = require("../models/promotionCode.js");
 const router = express.Router();
 
 // Create a new promotion code
@@ -14,7 +14,6 @@ router.post('/create', async (req, res) => {
       startDate,
       endDate,
       maxUsage,
-      applicableUsers,
       applicableRoles,
       applicableProductIds,
       applicableCategoryIds,
@@ -37,7 +36,6 @@ router.post('/create', async (req, res) => {
       startDate,
       endDate,
       maxUsage,
-      applicableUsers: applicableUsers || [],
       applicableRoles: applicableRoles || [],
       applicableProductIds: applicableProductIds || [],
       applicableCategoryIds: applicableCategoryIds || [],

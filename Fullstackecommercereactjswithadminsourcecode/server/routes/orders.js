@@ -1,5 +1,6 @@
 const { Orders } = require('../models/orders');
-
+const { BatchCode } = require('../models/batchCode');
+const { Product } = require('../models/products');
 
 const express = require('express');
 const router = express.Router();
@@ -25,45 +26,61 @@ router.get(`/user`, async (req, res) => {
         res.status(500).json({ success: false })
     }
 });
-router.get(`/`, async (req, res) => {
 
-    try {
-        const { page = 1, limit = 10, q } = req.query;
+router.get('/', async (req, res) => {
+  try {
+    const { status, q, page = 1, limit = 10, startDate, endDate } = req.query;
 
-        // Chuyển đổi sang số nguyên
-        const pageInt = parseInt(page);
-        const limitInt = parseInt(limit);
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
 
-        const searchQuery = q
-            ? {
-                $or: [
-                    { name: { $regex: q, $options: "i" } }, // Tìm theo tên
-                    { email: { $regex: q, $options: "i" } }, // Tìm theo email
-                    { phoneNumber: { $regex: q, $options: "i" } }, // Tìm theo số điện thoại
-                ],
-            }
-            : {};
+    let filter = {};
 
-        // Lấy danh sách hóa đơn, phân trang và sắp xếp
-        const ordersList = await Orders.find(searchQuery)
-            .sort({ date: -1 }) // Sắp xếp theo ngày mới nhất
-            .skip(limitInt ? (pageInt - 1) * limitInt : 0) // Bỏ qua các hóa đơn trước trang hiện tại
-            .limit(limitInt || 0); // Lấy số lượng hóa đơn theo limit
-        
-        // console.log(("orde : ", ordersList))
-        const totalOrders = await Orders.countDocuments(searchQuery); // Tổng số hóa đơn
-
-        return res.status(200).json({
-            orders: ordersList,
-            currentPage: pageInt,
-            totalPages: Math.ceil(totalOrders / limitInt),
-            totalOrders,
-        });
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    // Lọc theo từ khóa
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+        { phoneNumber: { $regex: q, $options: "i" } },
+        { address: { $regex: q, $options: "i" } },
+      ];
     }
+
+    // Lọc theo trạng thái
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    // Lọc theo khoảng thời gian tạo đơn
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      // Đặt end là cuối ngày (23:59:59)
+      end.setHours(23, 59, 59, 999);
+
+      filter.date = { $gte: start, $lte: end };
+    }
+
+    const totalOrders = await Orders.countDocuments(filter);
+
+    const ordersList = await Orders.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    return res.status(200).json({
+      orders: ordersList,
+      currentPage: pageInt,
+      totalPages: Math.ceil(totalOrders / limitInt),
+      totalOrders,
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
 });
+
 
 router.get('/:id', async (req, res) => {
 
@@ -90,7 +107,7 @@ router.get(`/get/count`, async (req, res) =>{
 router.post('/create', async (req, res) => {
 
     try{
-        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date, orderDiscount } = req.body;
+        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
 
         if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
@@ -112,10 +129,40 @@ router.post('/create', async (req, res) => {
             products,
             date,
             orderDiscount,
+            note,
             status: 'pending' 
         });
 
         const savedOrder = await newOrder.save();
+        for (const item of products) {
+            const batch = await BatchCode.findById(item.batchId);
+            if (!batch) continue;
+
+            // Trừ trong batchCode
+            batch.amountRemain -= item.quantity;
+            if (batch.amountRemain < 0) {
+                return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
+            }
+            await batch.save();
+
+            // Trừ trong product.amountAvailable theo locationId từ batch
+            const product = await Product.findById(item.productId);
+            if (!product) continue;
+
+            const locationIndex = product.amountAvailable.findIndex(
+                a => a.locationId?.toString() === batch.locationId?.toString()
+            );
+            console.log(locationIndex)
+
+            if (locationIndex >= 0) {
+                product.amountAvailable[locationIndex].quantity -= item.quantity;
+                if (product.amountAvailable[locationIndex].quantity < 0) {
+                return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
+                }
+            }
+
+            await product.save();
+            }
         return res.status(201).json(savedOrder);
     }catch(error){
         console.error('Error while creating order:', error);
@@ -145,7 +192,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     try {
-        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, status, date } = req.body;
+        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, status, date, note } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
         if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
@@ -170,6 +217,7 @@ router.put('/:id', async (req, res) => {
         order.products = products || order.products;
         order.status = status || order.status;
         order.date = date || order.date;
+        order.note = note || order.note;
 
         const updatedOrder = await order.save();
         return res.status(200).json(updatedOrder);
@@ -430,6 +478,26 @@ router.get("/get/data/stats/sales", async (req, res) => {
         // Kiểm tra logic trạng thái từ phía client
         // pending -> cancel (nếu payment=COD)
         if (order.status === 'pending' && order.payment === 'Cash on Delivery' && status === 'cancel') {
+            for (const item of order.products) {
+                const batch = await BatchCode.findById(item.batchId);
+                if (batch) {
+                    batch.amountRemain += item.quantity;
+                    await batch.save();
+                }
+
+                const product = await Product.findById(item.productId);
+                if (!product) continue;
+
+                const locationIndex = product.amountAvailable.findIndex(
+                    a => a.locationId?.toString() === batch?.locationId?.toString()
+                );
+
+                if (locationIndex >= 0) {
+                    product.amountAvailable[locationIndex].quantity += item.quantity;
+                }
+
+                await product.save();
+                }
             order.status = 'cancel';
             await order.save();
             return res.status(200).json(order);

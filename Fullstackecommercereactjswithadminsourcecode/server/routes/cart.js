@@ -1,4 +1,7 @@
 const { Cart } = require('../models/cart');
+const { StoreLocation } = require("../models/storeLocation");
+const { BatchCode } = require('../models/batchCode');
+const { Product } = require('../models/products');
 const express = require('express');
 const router = express.Router();
 
@@ -22,86 +25,72 @@ router.get(`/`, async (req, res) => {
 
 
 
+
 router.post('/add', async (req, res) => {
-    try{
-        const {
-            productTitle,
-            image,
-            rating,
-            price,
-            quantity,
-            subTotal, // Mặc định là 1 nếu không có quantity
-            countInStock,
-            productId,
-            userId
-        } = req.body;
-        
-        console.log('Product ID received in backend', productId);
-        console.log('User ID sent from backtend:', userId);
-        const cartItem = await Cart.findOne({ productId, userId });
-        if (cartItem) {
-            // Nếu đã tồn tại, tăng số lượng
-            cartItem.quantity += quantity || 1; // Mặc định tăng thêm 1 nếu không có quantity
-            cartItem.subTotal = cartItem.price * cartItem.quantity; // Cập nhật subTotal
-            await cartItem.save();
-            return res.status(200).json({ success: true, message: "Product quantity updated in cart.", cartItem });
-        } else {
-            let cartList = new Cart({
-                productTitle,
-                image,
-                rating,
-                price,
-                quantity,
-                subTotal,
-                productId,
-                userId,
-                countInStock,
-            });
-            cartList = await cartList.save();
-            if (!cartList) {
-                return res.status(500).json({ success: false, message: "Failed to add product to cart." });
-            }
-            return res.status(201).json({ success: true, message: "Product added to cart.", cartItem: cartList});
-        }
-    }catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Server error.", error: error.message });
+  try {
+    const {image, productTitle, productId, quantity, userId, location } = req.body;
+    const locationDoc = await StoreLocation.findOne({ iso2: location });
+    const locationId = locationDoc?.id;
+
+    // 1. Lấy thông tin product
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    // 2. Lấy các batch khả dụng theo FIFO
+    const batches = await BatchCode.find({
+      productId,
+      status: 'delivered',
+      amountRemain: {  $gt: 0 },
+      locationId: locationId
+    }).sort({ importDate: 1 });
+
+    if (!batches || batches.length === 0) {
+      return res.status(400).json({ message: 'No available batches for this product' });
     }
-    
 
-    // if(cartItem.length===0){
-    //     let cartList = new Cart({
-    //         productTitle: req.body.productTitle,
-    //         image: req.body.image,
-    //         rating: req.body.rating,
-    //         price: req.body.price,
-    //         quantity: req.body.quantity,
-    //         subTotal: req.body.subTotal,
-    //         productId: req.body.productId,
-    //         userId: req.body.userId,
-    //         countInStock:req.body.countInStock,
-    //     });
-    
-    
-    
-    //     if (!cartList) {
-    //         res.status(500).json({
-    //             error: err,
-    //             success: false
-    //         })
-    //     }
-    
-    
-    //     cartList = await cartList.save();
-    
-    //     res.status(201).json(cartList);
-    // }else{
-    //     res.status(401).json({status:false,msg:"Product already added in the cart"})
-    // }
+    let remainingQty = quantity;
+    const cartItems = [];
 
-   
+    for (const batch of batches) {
+      if (remainingQty === 0) break;
 
+      const takeQty = Math.min(remainingQty, batch.amountRemain);
+      const subTotal = takeQty * batch.price;
+
+      const newCart = new Cart({
+        productTitle: productTitle,
+        image: image,
+        rating: product.rating,
+        price: batch.price,
+        quantity: takeQty,
+        subTotal: subTotal,
+        productId: product.id,
+        countInStock: batch.amountRemain,
+        userId: userId,
+        batchId: batch.id,
+      });
+
+      cartItems.push(newCart);
+      remainingQty -= takeQty;
+    }
+
+    if (remainingQty > 0) {
+      return res.status(400).json({ message: 'Not enough stock to fulfill request' });
+    }
+
+    // Lưu toàn bộ cartItems
+    for (const item of cartItems) {
+      await item.save();
+    }
+
+    return res.status(201).json({ message: 'Cart items added', items: cartItems });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
+
 
 
 router.delete('/:id', async (req, res) => {

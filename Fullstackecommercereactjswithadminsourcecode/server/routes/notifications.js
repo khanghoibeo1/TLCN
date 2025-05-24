@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Notification } = require("../models/notification");
+const { User } = require('../models/user');
 const mongoose = require("mongoose");
 
 // Get all notifications for a specific user
@@ -39,39 +40,99 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+
 // Create a new notification
 router.post("/create", async (req, res) => {
-    try {
-      const { title, message, type, recipients } = req.body;
-        console.log(title);
-        console.log(message);
-        console.log(type)
-      if (!title || !message || !Array.isArray(recipients) || recipients.length === 0) {
-        return res.status(400).json({ success: false, message: "Missing required fields" });
-      }
-      console.log(recipients)
-  
-      // Convert recipient list to correct format { userId, isRead }
-      const formattedRecipients = recipients.map((user) => ({
-        userId: user._id , // in case frontend sends _id or userId
+  try {
+    const { title, message, type, recipients = [], applicableRoles = [] } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Step 1: Lấy danh sách user theo applicableRoles
+    let roleBasedUsers = [];
+    if (applicableRoles.length > 0) {
+      roleBasedUsers = await User.find({ rank: { $in: applicableRoles } });
+    }
+
+    // Step 2: Gộp recipients từ body và từ role-based
+    const allRecipientsMap = new Map();
+
+    // Add recipients từ frontend
+    recipients.forEach(user => {
+      allRecipientsMap.set(user._id.toString(), {
+        userId: user._id,
         name: user.name,
-        isRead: false,
-      }));
-      console.log(formattedRecipients)
+        isRead: false
+      });
+    });
+
+    // Add recipients từ applicableRoles
+    roleBasedUsers.forEach(user => {
+      if (!allRecipientsMap.has(user._id.toString())) {
+        allRecipientsMap.set(user._id.toString(), {
+          userId: user._id,
+          name: user.name,
+          isRead: false
+        });
+      }
+    });
+
+    const formattedRecipients = Array.from(allRecipientsMap.values());
+
+    const newNotification = new Notification({
+      title,
+      message,
+      type,
+      recipients: formattedRecipients,
+      applicableRoles
+    });
+
+    const saved = await newNotification.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error creating notification", error });
+  }
+});
+
   
-      const newNotification = new Notification({
+// Update a notification by ID
+router.put("/:id", async (req, res) => {
+  try {
+    const { title, message, type, recipients, applicableRoles } = req.body;
+
+    if (!title || !message || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    const formattedRecipients = recipients.map((user) => ({
+      userId: user._id || user.userId,
+      name: user.name,
+      isRead: false,
+    }));
+
+    const updatedNotification = await Notification.findByIdAndUpdate(
+      req.params.id,
+      {
         title,
         message,
         type,
         recipients: formattedRecipients,
-      });
-  
-      const saved = await newNotification.save();
-      res.status(201).json(saved);
-    } catch (error) {
-      res.status(500).json({ success: false, message: "Error creating notification", error });
+        applicableRoles: applicableRoles || [],
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedNotification) {
+      return res.status(404).json({ success: false, message: "Notification not found" });
     }
-  });
+
+    res.status(200).json(updatedNotification);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating notification", error });
+  }
+});
 
 // Mark a notification as read by user
 router.put("/:id/read", async (req, res) => {

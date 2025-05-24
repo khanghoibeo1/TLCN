@@ -25,6 +25,7 @@ const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [reviewsData, setreviewsData] = useState([]);
   const [isAddedToMyList, setSsAddedToMyList] = useState(false);
+    const [latestBatch, setLatestBatch] = useState(null);
 
   let [cartFields, setCartFields] = useState({});
   let [productQuantity, setProductQuantity] = useState();
@@ -33,6 +34,7 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const context = useContext(MyContext);
+  const selectedCountry = context.selectedCountry;
 
   const isActive = (index) => {
     setActiveSize(index);
@@ -79,6 +81,12 @@ const ProductDetails = () => {
 
     
     context.setEnableFilterTab(false);
+  }, [id]);
+
+  useEffect(() => {
+      fetchDataFromApi(`/api/batchCodes/${id}/${selectedCountry}/latest-batch`).then((res) => {
+          setLatestBatch(res);
+      });
   }, [id]);
 
   const [rating, setRating] = useState(1);
@@ -174,7 +182,7 @@ const ProductDetails = () => {
     if (activeSize !== null) {
       const user = JSON.parse(localStorage.getItem("user"));
 
-      if (productQuantity > productData.countInStock) {
+      if (productQuantity > productData.amountAvailable.find(amount => amount.iso2 === selectedCountry)?.quantity) {
         context.setAlertBox({
             open: true,
             error: true,
@@ -191,6 +199,7 @@ const ProductDetails = () => {
       cartFields.productId = productData?.id;
       cartFields.countInStock = productData?.countInStock;
       cartFields.userId = user?.userId;
+      cartFields.location = selectedCountry;
 
       console.log('Product ID sent from frontend:', cartFields.productId);
       context.addToCart(cartFields);
@@ -304,97 +313,35 @@ const ProductDetails = () => {
                 </ul>
 
                 <div className="d-flex info mb-3">
-                  {productData?.discount > 0 && (<span className="oldPrice">$: {productData?.oldPrice}</span>)}
+                  {/* {productData?.discount > 0 && (<span className="oldPrice">$: {productData?.oldPrice}</span>)}
                   <span className="netPrice text-danger ml-2">
                     $: {productData?.price}
-                  </span>
+                  </span> */}
+                  {latestBatch && latestBatch.price != null && (
+                      <div className="d-flex">
+                          {latestBatch.discount > 0 && (
+                              <span className="oldPrice">${latestBatch.oldPrice}</span>
+                          )}
+                          <span className="netPrice text-danger ml-2">${latestBatch.price}</span>
+                      </div>
+                  )}
                 </div>
 
-                {productData?.countInStock >= 1 ? (
+                {/* {productData?.countInStock >= 1 ? (
                   <span className="badge badge-success">IN STOCK</span>
                 ) : (
                   <span className="badge badge-danger">OUT OF STOCK</span>
-                )}
+                )} */}
+                {
+                    //props?.item?.countInStock>=1 ?  <span className="text-success d-block">In Stock</span>
+                    productData?.amountAvailable.find(amount => amount.iso2 === selectedCountry)?.quantity >=1 ?  <span className="badge badge-success">In Stock</span>
+                    :
+                    <span className="badge badge-danger">Out of Stock</span>
 
-                <p className="mt-3">Description: {productData?.description}</p>
+                }
 
-                {productData?.productRam?.length !== 0 && (
-                  <div className="productSize d-flex align-items-center">
-                    <span>RAM:</span>
-                    <ul
-                      className={`list list-inline mb-0 pl-4 ${
-                        tabError === true && "error"
-                      }`}
-                    >
-                      {productData?.productRam?.map((item, index) => {
-                        return (
-                          <li className="list-inline-item">
-                            <a
-                              className={`tag ${
-                                activeSize === index ? "active" : ""
-                              }`}
-                              onClick={() => isActive(index)}
-                            >
-                              {item}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
+                {/* <p className="mt-3">Description: {productData?.description}</p> */}
 
-                {productData?.size?.length !== 0 && (
-                  <div className="productSize d-flex align-items-center">
-                    <span>Size:</span>
-                    <ul
-                      className={`list list-inline mb-0 pl-4 ${
-                        tabError === true && "error"
-                      }`}
-                    >
-                      {productData?.size?.map((item, index) => {
-                        return (
-                          <li className="list-inline-item">
-                            <a
-                              className={`tag ${
-                                activeSize === index ? "active" : ""
-                              }`}
-                              onClick={() => isActive(index)}
-                            >
-                              {item}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
-
-                {productData?.productWeight?.length !== 0 && (
-                  <div className="productSize d-flex align-items-center">
-                    <span>Weight:</span>
-                    <ul
-                      className={`list list-inline mb-0 pl-4 ${
-                        tabError === true && "error"
-                      }`}
-                    >
-                      {productData?.productWeight?.map((item, index) => {
-                        return (
-                          <li className="list-inline-item">
-                            <a
-                              className={`tag ${
-                                activeSize === index ? "active" : ""
-                              }`}
-                              onClick={() => isActive(index)}
-                            >
-                              {item}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
 
                 <div className="d-flex align-items-center mt-3 actions_">
                   <QuantityBox
