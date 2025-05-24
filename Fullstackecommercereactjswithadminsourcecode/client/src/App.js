@@ -36,6 +36,10 @@ import DetailBlog from "./Pages/DetailBlog";
 
 // Utils
 import { fetchDataFromApi, postData } from "./utils/api";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import IntroduceAndLicense from "./Pages/License";
+import ClientChat from "./Components/Message";
 
 // Context
 const MyContext = createContext();
@@ -216,29 +220,43 @@ function App() {
         {isHeaderFooterShow && <Header />}
 
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products/category/:id" element={<Listing />} />
-          <Route path="/products/subCat/:id" element={<Listing />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/signIn" element={<SignIn />} />
-          <Route path="/signUp" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/verify-email" element={<EmailVerification />} />
-          <Route path="/my-list" element={<MyList />} />
-          <Route path="/memberRank" element={<MemberRank />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/my-account" element={<MyAccount />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/detailblog/:id" element={<DetailBlog />} />
+          <Route path="/" exact={true} element={<Home />} />
+          <Route
+            path="/products/category/:id"
+            exact={true}
+            element={<Listing />}
+          />
+          <Route
+            path="/products/subCat/:id"
+            exact={true}
+            element={<Listing />}
+          />
+          <Route
+            exact={true}
+            path="/product/:id"
+            element={<ProductDetails />}
+          />
+          <Route exact={true} path="/cart" element={<Cart />} />
+          <Route exact={true} path="/signIn" element={<SignIn />} />
+          <Route exact={true} path="/forgot-password" element={<ForgotPassword />} />
+          <Route exact={true} path="/reset-password/:token" element={<ResetPassword />} />
+          <Route exact={true} path="/verify-email" element={<EmailVerification/>} />
+          <Route exact={true} path="/signUp" element={<SignUp />} />
+          <Route exact={true} path="/my-list" element={<MyList />} />
+          <Route exact={true} path="/memberRank" element={<MemberRank />} />
+          <Route exact={true} path="/checkout" element={<Checkout />} />
+          <Route exact={true} path="/orders" element={<Orders />} />
+          <Route exact={true} path="/my-account" element={<MyAccount />} />
+          <Route exact={true} path="/search" element={<SearchPage />} />
+          <Route exact={true} path="/blog" element={<Blog />} />
+          <Route exact={true} path="/map" element={<Map />} />
+          <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
+          <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
         </Routes>
 
-        {isHeaderFooterShow && <Footer />}
-        {isOpenProductModal && <ProductModal data={productData} />}
+        {isOpenProductModal === true && <ProductModal data={productData} />}
+
+        {isLogin && <ClientChat />}
       </MyContext.Provider>
     </BrowserRouter>
   );

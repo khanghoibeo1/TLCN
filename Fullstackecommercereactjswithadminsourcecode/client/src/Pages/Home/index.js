@@ -154,7 +154,7 @@ const Home = () => {
 
   return (
     <>
-      <MyChatBot/>
+      {/* <MyChatBot/> */}
       {homeSlides?.length !== 0 ? (
         <HomeBanner data={homeSlides} />
       ) : (

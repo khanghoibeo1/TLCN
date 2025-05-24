@@ -21,8 +21,38 @@ export const fetchDataFromApi = async (url) => {
     }
 }
 
+/**
+ * Gửi POST, tự động phát hiện JSON hay FormData
+ * @param {string} url 
+ * @param {object|FormData} payload
+ */
+export const postData2 = async (url, payload) => {
+  try {
+    // kiểm tra xem payload có phải FormData không
+    const isForm = payload instanceof FormData;
 
+    const response = await fetch(process.env.REACT_APP_API_URL + url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // chỉ set Content-Type khi payload là JSON
+        ...(isForm ? {} : { 'Content-Type': 'application/json' }),
+      },
+      // body: nếu FormData thì truyền nguyên, JSON thì phải stringify
+      body: isForm ? payload : JSON.stringify(payload),
+    });
 
+    const data = await response.json();
+    return {
+      status: response.status,
+      ok: response.ok,
+      data
+    };
+  } catch (error) {
+    console.error('Error in postData:', error);
+    throw error;
+  }
+};
 
 export const postData = async (url, formData) => {
     try {
@@ -51,7 +81,21 @@ export const postData = async (url, formData) => {
     }
 
 }
-
+export const putData = async (url, payload) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(
+    process.env.REACT_APP_API_URL + url,
+    {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  return response.json();
+}
 
 export const editData = async (url, updatedData ) => {
     const { res } = await axios.put(`${process.env.REACT_APP_API_URL}${url}`,updatedData, params)
