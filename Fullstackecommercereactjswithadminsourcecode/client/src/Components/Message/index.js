@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { io } from 'socket.io-client';
 import EmojiPicker from 'emoji-picker-react'
 import { MyContext } from '../../App';  // Import MyContext từ App.js
-import { fetchDataFromApi, postData, putData } from "../../utils/api"
+import { fetchDataFromApi, postData, postData2, putData } from "../../utils/api"
 import { FaImage, FaPaperPlane, FaArrowLeft, FaSmile} from 'react-icons/fa';  // Dùng icon hình ảnh và icon mũi tên gửi tin nhắn từ thư viện react-icons
 import { TbRuler } from 'react-icons/tb';
 
@@ -49,7 +49,7 @@ function ClientChat() {
     });
 
     socketRef.current.on("transfer_to_admin", () => {
-      alert("Bạn đã hết lượt hỏi AI, chuyển sang chat với Admin");
+      alert("AI đang gặp vấn đề. Bạn được chuyển sang chat với Admin");
       setIsAI(false);
     });
 
@@ -74,11 +74,11 @@ function ClientChat() {
         .catch(console.error);
     } else if (isAI === true) {
       // Chat với AI: có thể lấy history từ /api/messages/ai-id hoặc ko cần
-      fetchDataFromApi(`/api/messages/${user.userId}`)  // tùy backend
+      fetchDataFromApi(`/api/messages/bot-history`)  // tùy backend
         .then(msgs => setMessages(msgs))
         .catch(console.error);
     }
-  }, [isAI, admin, user.userId]);
+  }, [isAI, admin]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -101,36 +101,56 @@ function ClientChat() {
   // Send the message using POST /send/:id
   const handleSendMessage = async () => {
     if (!isLogin) {
-    alert("Bạn phải đăng nhập mới được nhắn tin");
-    return;
-  }
+      alert("Bạn phải đăng nhập mới được nhắn tin");
+      return;
+    }
     if (!message.trim() && !image) return;
 
-      const formData = new FormData();
-      formData.append("text", message);
-      if (image) formData.append("image", image);
+    const formData = new FormData();
+    formData.append("text", message);
+    if (image) formData.append("image", image);
 
-      console.log(Object.fromEntries(formData.entries()));
+    console.log(Object.fromEntries(formData.entries()));
 
-      try {
-        let newMsg;
-        if (isAI) {
-          newMsg = await postData(`/api/messages/sendBot`, formData);
-          
-        } else {
-          newMsg = await postData(`/api/messages/send/${admin._id}`, formData);
-          console.log(newMsg)
+    try {
+      let newMsg;
+      if (isAI) {
+        const res = await postData2(`/api/messages/sendBot`, formData);
+        const { status, ok, data } = res;
+        if (status === 400) {
+          // thiếu nội dung
+          alert(data.error);
+          return;
         }
-        setMessages(prev => [...prev, newMsg]);
-        socketRef.current.emit("sendMessage", newMsg);
-        setMessage('');
-        setImage(null);
-      } catch (err) {
-        console.error("Send error:", err);
-      }
-};
+        if (status === 403) {
+          // hết lượt hỏi AI
+          alert(data.error);
+          setIsAI(false);
+          return;
+        }
+        if (!ok) {
+          // lỗi khác
+          alert(data.error || "Có lỗi xảy ra, thử lại sau.");
+          return;
+        }
 
-const onEmojiClick = (emojiObject) => {
+        newMsg = data;
+        
+      } else {
+        const res = await postData2(`/api/messages/send/${admin._id}`, formData);
+        newMsg = res.data
+        console.log(newMsg)
+      }
+      setMessages(prev => [...prev, newMsg]);
+      socketRef.current.emit("sendMessage", newMsg);
+      setMessage('');
+      setImage(null);
+    } catch (err) {
+      console.error("Send error:", err);
+    }
+  };
+
+  const onEmojiClick = (emojiObject) => {
     setMessage(msg => msg + emojiObject.emoji);
   };
   const handleImageUpload = e => {
@@ -167,6 +187,12 @@ const onEmojiClick = (emojiObject) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const initialAIGreeting = `Xin chào! Mình là trợ lý AI của bạn tại FRUITOPIA. Mình đang phát triển nên không phải lúc nào cũng đúng. 
+  Bạn có thể phản hồi để giúp mình cải thiện tốt hơn.
+
+  Mình sẵn sàng giúp bạn với câu hỏi về chính sách và tìm kiếm sản phẩm. Hôm nay bạn cần mình hỗ trợ gì hông?`;
+
+  const initialAdminGreeting = "Admin sẽ hỗ trợ các yêu cầu của bạn.";
 
   return (
     <div>
@@ -293,6 +319,20 @@ const onEmojiClick = (emojiObject) => {
             <div>
               <div className="chat-box-messages" style={{ height: '300px', overflowY: 'auto', marginBottom: '10px' }} >
                 
+                {messages.length === 0 && (
+                  <div style={{
+                    backgroundColor: isAI ? '#eee' : '#eee',
+                    color: '#333',
+                    padding: '8px 12px',
+                    borderRadius: 16,
+                    maxWidth: '80%',
+                    margin: isAI ? '0 auto 12px' : '0  auto 12px',
+                    fontStyle: 'italic',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {isAI ? initialAIGreeting : initialAdminGreeting}
+                  </div>
+                )}
                 {messages.map((msg, idx) => {
                   const msgDate = new Date(msg.createdAt);
                   const prevMsgDate = idx > 0 ? new Date(messages[idx - 1].createdAt) : null;
@@ -404,7 +444,14 @@ const onEmojiClick = (emojiObject) => {
                       e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                     placeholder="Type a message..."
-                    style={{ flex: 1, padding: 8, borderRadius: 5, border: '1px solid #ccc',resize: 'none',overflow: 'hidden', lineHeight: '1.4', maxHeight: '120px' }}
+                    style={{ flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: 5,
+                      border: '1px solid #ccc',
+                      resize: 'none',
+                      maxHeight: 100,
+                      lineHeight: 1.4,
+                      overflowY: 'auto', }}
                   />
 
                   {/* Nút emoji */}
@@ -415,6 +462,7 @@ const onEmojiClick = (emojiObject) => {
                       border: 'none',
                       cursor: 'pointer',
                       fontSize: '1.2rem',
+                      transform: 'translateY(0px)',
                     }}
                   >
                     <FaSmile color="#6A1B9A" />
@@ -438,8 +486,8 @@ const onEmojiClick = (emojiObject) => {
                   )}
 
                   {/* 2. Nút chọn file */}
-                  <label htmlFor="image-upload" style={{ cursor: 'pointer', padding: '6px 10px', display: 'flex',alignItems: 'center',justifyContent: 'center' }}>
-                    <FaImage size={18} color="#6A1B9A" />
+                  <label htmlFor="image-upload" style={{ cursor: 'pointer', padding: '6px 10px', display: 'flex',alignItems: 'center',justifyContent: 'center' , transform: 'translateY(6px)'}}>
+                    <FaImage size={20} color="#6A1B9A" />
                   </label>
                   <input
                     id="image-upload"
@@ -460,7 +508,8 @@ const onEmojiClick = (emojiObject) => {
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      transform: 'translateY(4px)',
                     }}
                   >
                     <FaPaperPlane size={18} />

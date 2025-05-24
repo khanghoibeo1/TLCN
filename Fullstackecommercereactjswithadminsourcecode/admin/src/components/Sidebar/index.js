@@ -534,7 +534,7 @@ const Sidebar = () => {
           <li>
             <NavLink
               exact
-              to="/message"
+              to="/messages"
               className={({ isActive }) => isActive ? "is-active" : ""}
             >
               <Button

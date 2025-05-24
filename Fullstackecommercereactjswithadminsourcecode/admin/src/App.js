@@ -320,7 +320,7 @@ function App() {
               <Route path="/userAdmin/edit/:id" exact={true} element={<EditUserAdmins />} />
               <Route path="/userAdmin/add" exact={true} element={<AddUserAdmins />} />
               
-              <Route path="/message" exact={true} element={<AdminChat />} />
+              <Route path="/messages" exact={true} element={<AdminChat />} />
 
               <Route path="/batchCodes" exact={true} element={<BatchCodes />} />
               <Route path="/batchCode/edit/:id" exact={true} element={<EditBatchCode />} />

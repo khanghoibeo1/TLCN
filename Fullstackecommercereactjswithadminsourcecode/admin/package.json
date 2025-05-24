@@ -13,6 +13,7 @@
     "axios": "^1.6.8",
     "bootstrap": "^4.6.0",
     "dotenv": "^16.4.5",
+    "emoji-picker-react": "^4.12.2",
     "firebase": "^10.11.1",
     "jodit-react": "^5.2.19",
     "moment": "^2.30.1",
