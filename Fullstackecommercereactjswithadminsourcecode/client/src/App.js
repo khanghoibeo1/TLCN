@@ -251,7 +251,7 @@ function App() {
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
           <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
         </Routes>
-
+        {isHeaderFooterShow === true && <Footer />}
         {isOpenProductModal === true && <ProductModal data={productData} />}
 
         {isLogin && <ClientChat />}
