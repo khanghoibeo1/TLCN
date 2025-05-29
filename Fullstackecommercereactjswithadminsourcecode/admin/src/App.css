@@ -618,7 +618,7 @@ body.dark .form .form-group input,body.dark .form .form-group textarea{backgroun
 .dot{display:block; width: 20px; height: 20px; border-radius: 100%;}
 .editModal .css-1t1j96h-MuiPaper-root-MuiDialog-paper{width: 600px !important;}
 
-body.dark .css-1jy569b-MuiFormLabel-root-MuiInputLabel-root, body.dark .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input{color: rgba(255,255,255,0.8) !important;}
+body.dark .css-1jy569b-MuiFormLabel-root-MuiInputLabel-root, body.dark .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input{color: rgba(66, 64, 64, 0.8) !important;}
 
 form .form-group h6{font-weight: 600;}
 

@@ -44,6 +44,12 @@ const cartSchema = mongoose.Schema({
     batchId:{
         type:String,
     }, 
+    categoryId:{
+        type: String,
+    },
+    categoryName:{
+        type: String,
+    },
 
 })
 

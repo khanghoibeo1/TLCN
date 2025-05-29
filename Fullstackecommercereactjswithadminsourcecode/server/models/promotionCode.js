@@ -9,18 +9,8 @@ const promotionCodeSchema = mongoose.Schema({
   endDate: { type: Date },
   usedCount: { type: Number, default: 0 },
   maxUsage: { type: Number, required: true },
+  type: {type: String, enum: ['product','shipping'], default: 'product'},
   applicableRoles: [{ type: String }],
-  applicableProductIds: [
-    { 
-      id: {
-        type: String, // hoặc mongoose.Schema.Types.ObjectId nếu liên kết tới Product collection
-        default: null,
-      },
-      name: {
-        type: String,
-        default: null,
-      } 
-    }],
   applicableCategoryIds: [
     { 
       id: {

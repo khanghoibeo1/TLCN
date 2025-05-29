@@ -9,7 +9,7 @@ const QuantityBox = (props) => {
     const [inputVal, setInputVal] = useState(1);
 
     const context = useContext(MyContext);
-    const selectedCountry = context.selectedCountry;
+    const selectedCountry = context.selectedCountry.iso2;
 
     useEffect(() => {
         if (props?.value !== undefined && props?.value !== null && props?.value !== "") {

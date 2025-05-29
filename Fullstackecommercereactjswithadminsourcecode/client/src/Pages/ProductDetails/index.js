@@ -34,7 +34,7 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const context = useContext(MyContext);
-  const selectedCountry = context.selectedCountry;
+  const selectedCountry = context.selectedCountry.iso2;
 
   const isActive = (index) => {
     setActiveSize(index);

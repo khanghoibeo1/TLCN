@@ -43,10 +43,12 @@ const EditBatchCode = () => {
     batchName: "",
     productId: "",
     productName: "",
-    amount: "",
+    amount: null,
     importDate: "",
     expiredDate: "",
-    price: "",
+    price: null,
+    oldPrice: null,
+    discount: null,
     locationName: "",
     locationId: "",
     note: "",
@@ -77,6 +79,8 @@ const EditBatchCode = () => {
         importDate: res.importDate ? res.importDate.split("T")[0] : "",
         expiredDate: res.expiredDate ? res.expiredDate.split("T")[0] : "",
         price: res?.price || "",
+        oldPrice: res?.oldPrice || "",
+        discount: res?.discount || "",
         locationName: res?.locationName || "",
         locationId: res?.locationId || "",
         note: res?.note || "",
@@ -116,6 +120,22 @@ const EditBatchCode = () => {
       [e.target.name]: e.target.value,
     });
   };
+  //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
+  useEffect(() => {
+    if(formFields.oldPrice === '' || formFields.discount === ''){
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: '',
+      }));
+    }
+    if (formFields.oldPrice && formFields.discount) {
+      const discountedPrice = formFields.oldPrice - (formFields.oldPrice * (formFields.discount / 100));
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: discountedPrice.toFixed(0),
+      }));
+    }
+  }, [formFields.oldPrice, formFields.discount]); 
 
   const editBatch = (e) => {
     e.preventDefault();
@@ -253,6 +273,16 @@ const EditBatchCode = () => {
               <div className="form-group">
                 <h6>Expired Date</h6>
                 <input type="date" name="expiredDate" value={formFields.expiredDate} onChange={changeInput} />
+              </div>
+  
+              <div className="form-group">
+                <h6>Old Price</h6>
+                <input type="number" name="oldPrice" value={formFields.oldPrice} onChange={changeInput} />
+              </div>
+   
+              <div className="form-group">
+                <h6>Discount</h6>
+                <input type="number" name="discount" value={formFields.discount} onChange={changeInput} />
               </div>
 
               <div className="form-group">

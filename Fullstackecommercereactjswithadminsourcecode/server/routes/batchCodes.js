@@ -6,47 +6,199 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 // Get all batch codes
-router.get(`/`, async (req, res) => {
-    try {
-        const  locationId  = req.query.locationId;
-        const  locationName  = req.query.locationName;
-        console.log(locationId)
-        let query = {};
-        if (locationId != "null") {
-            query = { locationId: locationId, status: "delivered" };
-        }
-        else{
-            query = {locationName: ""};
-        }
-        console.log(query)
+// router.get(`/`, async (req, res) => {
+//     try {
+//         const  locationId  = req.query.locationId;
+//         const  locationName  = req.query.locationName;
+//         console.log(locationId)
+//         let query = {};
+//         if (locationId != "null") {
+//             query = { locationId: locationId, status: "delivered" };
+//         }
+//         else{
+//             query = {locationName: ""};
+//         }
+//         console.log(query)
 
-        const batches = await BatchCode.find(query);
-        res.status(200).json(batches);
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Error fetching batch codes", error });
+//         const batches = await BatchCode.find(query);
+//         res.status(200).json(batches);
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: "Error fetching batch codes", error });
+//     }
+// });
+
+router.get('/', async (req, res) => {
+  try {
+    const {
+      locationId,
+      locationName,
+      q,
+      percentage,
+      expiredDay,
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+
+    let filter = {
+      status: "delivered"
+    };
+
+    // Lọc theo locationId hoặc locationName
+    if (locationId !== "null") {
+      filter.locationId = locationId;
+    } else {
+      filter.locationName = '';
     }
+
+    // Tìm kiếm theo batchName hoặc productName
+    if (q) {
+      filter.$or = [
+        { batchName: { $regex: q, $options: "i" } },
+        { productName: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    // Lọc theo phần trăm tồn kho
+    if (percentage) {
+      const percent = parseFloat(percentage);
+      filter.$expr = {
+        $lte: [
+          { $multiply: [{ $divide: ["$amountRemain", "$amount"] }, 100] },
+          percent
+        ]
+      };
+    }
+
+    // Lọc theo số ngày gần hết hạn
+    if (expiredDay) {
+      const today = new Date();
+      const expiredLimit = new Date();
+      expiredLimit.setDate(today.getDate() + parseInt(expiredDay));
+      filter.expiredDate = { $lte: expiredLimit, $gte: today };
+    }
+
+    const totalBatches = await BatchCode.countDocuments(filter);
+
+    const batchList = await BatchCode.find(filter)
+      .sort({ expiredDate: 1 }) // Ưu tiên gần hết hạn
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    res.status(200).json({
+      batches: batchList,
+      currentPage: pageInt,
+      totalPages: Math.ceil(totalBatches / limitInt),
+      totalBatches
+    });
+  } catch (error) {
+    console.error("Error fetching batch codes:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
 });
+
 
 // Get all batch codes of store location
+// router.get(`/locationBatchCode`, async (req, res) => {
+//     try {
+//         const  locationId  = req.query.locationId;
+//         let query = {
+//             locationId: locationId,
+//             $and: [
+//                 { locationName: { $ne: null } },
+//                 { locationName: { $ne: "" } }
+//             ]
+//         }; // Lọc locationId khác null và ""
+//         if(locationId === "null"){
+//             query = { locationName: { $ne: null, $ne: "" } };
+//         }
+//         const batches = await BatchCode.find(query);
+//         res.status(200).json(batches);
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: "Error fetching batch codes", error });
+//     }
+// });
 router.get(`/locationBatchCode`, async (req, res) => {
-    try {
-        const  locationId  = req.query.locationId;
-        let query = {
-            locationId: locationId,
-            $and: [
-                { locationName: { $ne: null } },
-                { locationName: { $ne: "" } }
-            ]
-        }; // Lọc locationId khác null và ""
-        if(locationId === "null"){
-            query = { locationName: { $ne: null, $ne: "" } };
-        }
-        const batches = await BatchCode.find(query);
-        res.status(200).json(batches);
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Error fetching batch codes", error });
+  try {
+    const {
+      locationId,
+      q,
+      percentage,
+      expiredDay,
+      page = 1,
+      limit = 10
+    } = req.query;
+    console.log(locationId)
+
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+
+    let filter = {
+      $and: [
+        { locationName: { $ne: null } },
+        { locationName: { $ne: "" } }
+      ]
+    };
+
+    // Xử lý locationId
+    if (locationId === "null") {
+      // kho tổng: không có locationId
+      filter = {
+        locationName: { $ne: null, $ne: "" }
+    };
+    } else {
+      filter.locationId = locationId;
     }
+
+    // Tìm kiếm theo batchName hoặc productName
+    if (q) {
+      filter.$or = [
+        { batchName: { $regex: q, $options: "i" } },
+        { productName: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    // Lọc theo phần trăm tồn kho
+    if (percentage) {
+      const percent = parseFloat(percentage);
+      filter.$expr = {
+        $lte: [
+          { $multiply: [{ $divide: ["$amountRemain", "$amount"] }, 100] },
+          percent
+        ]
+      };
+    }
+
+    // Lọc theo số ngày gần hết hạn
+    if (expiredDay) {
+      const today = new Date();
+      const expiredLimit = new Date();
+      expiredLimit.setDate(today.getDate() + parseInt(expiredDay));
+      filter.expiredDate = { $lte: expiredLimit, $gte: today };
+    }
+
+    const totalBatches = await BatchCode.countDocuments(filter);
+
+    const batchList = await BatchCode.find(filter)
+      .sort({ expiredDate: 1 }) // Ưu tiên gần hết hạn
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    res.status(200).json({
+      batches: batchList,
+      currentPage: pageInt,
+      totalPages: Math.ceil(totalBatches / limitInt),
+      totalBatches
+    });
+
+  } catch (error) {
+    console.error("Error fetching batch codes:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
 });
+
 
 // Get the latest delivered batch for a product at a specific location
 router.get('/:id/:location/latest-batch', async (req, res) => {

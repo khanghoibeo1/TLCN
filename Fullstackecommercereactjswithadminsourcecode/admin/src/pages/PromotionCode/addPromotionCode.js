@@ -41,7 +41,7 @@ const AddPromotionCode = () => {
     canCombine: false,
     note: "",
     applicableRoles: [],
-    applicableProductIds: [],
+    type: 'product',
     applicableCategoryIds: [],
   });
 
@@ -146,6 +146,14 @@ const AddPromotionCode = () => {
             </Select>
           </FormControl>
 
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Apply Type</InputLabel>
+            <Select name="type" value={formFields.type} onChange={handleChange}>
+              <MenuItem value="product">Product</MenuItem>
+              <MenuItem value="shipping">Shipping</MenuItem>
+            </Select>
+          </FormControl>
+
           <TextField label="Discount Value" type="number" name="discountValue" value={formFields.discountValue} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Minimum Order Value" type="number" name="minOrderValue" value={formFields.minOrderValue} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Max Usage" type="number" name="maxUsage" value={formFields.maxUsage} onChange={handleChange} fullWidth margin="normal" />
@@ -176,7 +184,7 @@ const AddPromotionCode = () => {
           <TextField label="Applicable Products (IDs, comma-separated)" name="applicableProductIds" value={formFields.applicableProductIds} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Applicable Categories (IDs, comma-separated)" name="applicableCategoryIds" value={formFields.applicableCategoryIds} onChange={handleChange} fullWidth margin="normal" /> */}
          
-          <div className="form-group">
+          {/* <div className="form-group">
             <h6>Applicable Products</h6>
             <Autocomplete
               multiple
@@ -194,7 +202,7 @@ const AddPromotionCode = () => {
                 <TextField {...params} label="Select Products" placeholder="Products" />
               )}
             />
-          </div>
+          </div> */}
           <div className="form-group">
             <h6>Applicable Categories</h6>
             <Autocomplete
