@@ -65,7 +65,7 @@ const DashboardBox = (props) => {
            
 
 
-        </Button >
+        </Button>
     )
 }
 

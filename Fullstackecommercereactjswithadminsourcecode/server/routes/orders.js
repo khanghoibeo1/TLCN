@@ -8,23 +8,39 @@ const paypal = require('@paypal/checkout-server-sdk');
 const  client  = require('../helper/paypal/paypal.config');
 const { User } = require('../models/user');
 
-router.get(`/user`, async (req, res) => {
-
-    try {
-    
-
-        const ordersList = await Orders.find(req.query)
-
-
-        if (!ordersList) {
-            res.status(500).json({ success: false })
-        }
-
-        return res.status(200).json(ordersList);
-
-    } catch (error) {
-        res.status(500).json({ success: false })
+router.get('/user', async (req, res) => {
+  try {
+    const { userid, page = 1, limit = 10 } = req.query;
+    if (!userid) {
+      return res.status(400).json({ success: false, message: 'Missing userid parameter.' });
     }
+
+    const pageInt  = parseInt(page,  10);
+    const limitInt = parseInt(limit, 10);
+
+    // chỉ lọc những đơn của chính user đó
+    const filter = { userid };
+
+    // đếm tổng đơn để client dùng pagination
+    const totalOrders = await Orders.countDocuments(filter);
+
+    // lấy danh sách, sort theo date giảm dần (mới nhất trước)
+    const ordersList = await Orders
+      .find(filter)
+      .sort({ date: -1 })
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    return res.status(200).json({
+      orders: ordersList,
+      currentPage: pageInt,
+      totalPages:  Math.ceil(totalOrders / limitInt),
+      totalOrders,
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
 });
 
 router.get('/', async (req, res) => {
@@ -52,20 +68,20 @@ router.get('/', async (req, res) => {
     }
 
     // Lọc theo khoảng thời gian tạo đơn
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      // Đặt end là cuối ngày (23:59:59)
-      end.setHours(23, 59, 59, 999);
-
-      filter.date = { $gte: start, $lte: end };
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) filter.date.$gte = new Date(startDate);
+      if (endDate) {
+        const e = new Date(endDate);
+        e.setHours(23,59,59,999);
+        filter.date.$lte = e;
+      }
     }
 
     const totalOrders = await Orders.countDocuments(filter);
 
     const ordersList = await Orders.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ date: -1 })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt);
 
@@ -107,7 +123,7 @@ router.get(`/get/count`, async (req, res) =>{
 router.post('/create', async (req, res) => {
 
     try{
-        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
+        const { name, phoneNumber, address, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
 
         if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
@@ -121,7 +137,6 @@ router.post('/create', async (req, res) => {
             name,
             phoneNumber,
             address,
-            pincode,
             amount,
             payment, 
             email,
@@ -192,7 +207,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     try {
-        const { name, phoneNumber, address, pincode, amount, payment, email, userid, products, status, date, note } = req.body;
+        const { name, phoneNumber, address, amount, payment, email, userid, products, status, date, note } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
         if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
@@ -209,7 +224,6 @@ router.put('/:id', async (req, res) => {
         order.name = name || order.name;
         order.phoneNumber = phoneNumber || order.phoneNumber;
         order.address = address || order.address;
-        order.pincode = pincode || order.pincode;
         order.amount = amount || order.amount;
         order.payment = payment || order.payment;
         order.email = email || order.email;
@@ -400,71 +414,149 @@ router.get('/get/data/status-summary', async (req, res) => {
 
 
 router.get("/get/data/stats/sales", async (req, res) => {
+    
+   try {
     const { fromDate, toDate, groupBy } = req.query;
-  
     if (!fromDate || !toDate || !groupBy) {
-      return res.status(400).json({ message: "Missing required parameters." });
+      return res.status(400).json({ message: 'Missing required parameters.' });
     }
-  
-    try {
-      const match = {
-        date: {
-          $gte: new Date(fromDate),
-          $lte: new Date(toDate),
-        },
-      };
-  
-      let groupStage = {};
-      switch (groupBy) {
-        case "day":
-          groupStage = {
-            _id: { day: { $dayOfMonth: "$date" }, month: { $month: "$date" }, year: { $year: "$date" } },
-            totalSales: { $sum: { $toDouble: "$amount" } },
-          };
-          break;
-        case "month":
-          groupStage = {
-            _id: { month: { $month: "$date" }, year: { $year: "$date" } },
-            totalSales: { $sum: { $toDouble: "$amount" } },
-          };
-          break;
-        case "quarter":
-          groupStage = {
-            _id: { quarter: { $ceil: { $divide: [{ $month: "$date" }, 3] } }, year: { $year: "$date" } },
-            totalSales: { $sum: { $toDouble: "$amount" } },
-          };
-          break;
-        case "year":
-          groupStage = {
-            _id: { year: { $year: "$date" } },
-            totalSales: { $sum: { $toDouble: "$amount" } },
-          };
-          break;
-        default:
-          return res.status(400).json({ message: "Invalid groupBy value." });
+
+    // Parse dates and validate
+    const from = new Date(fromDate);
+    const to   = new Date(toDate);
+    if (isNaN(from) || isNaN(to)) {
+      return res.status(400).json({ message: 'Invalid date format. Use YYYY-MM-DD.' });
+    }
+
+    // Build match: date range + only paid orders
+    const matchStage = {
+      $match: {
+        status: 'paid',
+        date: { $gte: from, $lte: to }
       }
-  
-      const salesData = await Orders.aggregate([
-        { $match: match },
-        { $group: groupStage },
-        { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
-      ]);
-  
-      res.json(salesData.map(item => ({
-        label: groupBy === "day" 
-          ? `${item._id.year}-${item._id.month}-${item._id.day}`
-          : groupBy === "month"
-          ? `${item._id.year}-${item._id.month}`
-          : groupBy === "quarter"
-          ? `Q${item._id.quarter} ${item._id.year}`
-          : `${item._id.year}`,
-        sales: item.totalSales,
-      })));
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error fetching sales data", error });
+    };
+
+    // Build grouping and sorting dynamically
+    let groupStage, sortStage;
+    switch (groupBy.toLowerCase()) {
+      case 'day':
+        groupStage = {
+          $group: {
+            _id: {
+              year:  { $year: '$date' },
+              month: { $month: '$date' },
+              day:   { $dayOfMonth: '$date' }
+            },
+            totalSales: { $sum: '$amount' }
+          }
+        };
+        sortStage = { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } };
+        break;
+
+      case 'month':
+        groupStage = {
+          $group: {
+            _id: {
+              year:  { $year: '$date' },
+              month: { $month: '$date' }
+            },
+            totalSales: { $sum: '$amount' }
+          }
+        };
+        sortStage = { $sort: { '_id.year': 1, '_id.month': 1 } };
+        break;
+
+      case 'quarter':
+        groupStage = {
+          $group: {
+            _id: {
+              year:    { $year: '$date' },
+              quarter: { $ceil: { $divide: [{ $month: '$date' }, 3] } }
+            },
+            totalSales: { $sum: '$amount' }
+          }
+        };
+        sortStage = { $sort: { '_id.year': 1, '_id.quarter': 1 } };
+        break;
+
+      case 'year':
+        groupStage = {
+          $group: {
+            _id: { year: { $year: '$date' } },
+            totalSales: { $sum: '$amount' }
+          }
+        };
+        sortStage = { $sort: { '_id.year': 1 } };
+        break;
+
+      default:
+        return res.status(400).json({ message: 'Invalid groupBy value.' });
     }
-  });
+
+    // Project into { label, sales }
+    const projectStage = {
+      $project: {
+        _id: 0,
+        label: {
+          $switch: {
+            branches: [
+              {
+                case: { $eq: [groupBy.toLowerCase(), 'day'] },
+                then: {
+                  $dateToString: {
+                    format: '%Y-%m-%d',
+                    date: {
+                      $dateFromParts: {
+                        year:  '$_id.year',
+                        month: '$_id.month',
+                        day:   '$_id.day'
+                      }
+                    },
+                    timezone: 'Asia/Ho_Chi_Minh'
+                  }
+                }
+              },
+              {
+                case: { $eq: [groupBy.toLowerCase(), 'month'] },
+                then: {
+                  $dateToString: {
+                    format: '%Y-%m',
+                    date: {
+                      $dateFromParts: {
+                        year:  '$_id.year',
+                        month: '$_id.month'
+                      }
+                    },
+                    timezone: 'Asia/Ho_Chi_Minh'
+                  }
+                }
+              },
+              {
+                case: { $eq: [groupBy.toLowerCase(), 'quarter'] },
+                then: {
+                  $concat: [
+                    'Q', { $toString: '$_id.quarter' }, ' ', { $toString: '$_id.year' }
+                  ]
+                }
+              }
+            ],
+            default: { $toString: '$_id.year' }
+          }
+        },
+        sales: '$totalSales'
+      }
+    };
+
+    // Run aggregation
+    const pipeline = [matchStage, groupStage, sortStage, projectStage];
+    const results  = await Orders.aggregate(pipeline, { allowDiskUse: true });
+
+    res.json(results);
+  } catch (error) {
+    console.error('[sales-stats] Error:', error);
+    res.status(500).json({ message: 'Error fetching sales data.' });
+  }
+});
 
   router.put('/client-update/:id', async (req, res) => {
     try {
@@ -540,7 +632,8 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
 router.put('/admin-update/:id', async (req, res) => {
   try {
-      const { status } = req.body; // Admin chỉ cập nhật status
+      const { status } = req.body;
+      console.log(status) // Admin chỉ cập nhật status
       const order = await Orders.findById(req.params.id);
 
       if (!order) {

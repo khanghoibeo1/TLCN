@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useCallback } from "react";
 import { editData, editData2, fetchDataFromApi } from "../../utils/api";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -50,70 +50,84 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [products, setproducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState('all');
-  const [querySearch, setQuerySearch] = useState('');
+  const [querySearch, setQuerySearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
   const [singleOrder, setSingleOrder] = useState();
   const [statusVal, setstatusVal] = useState(null);
 
   const context = useContext(MyContext);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  const fetchOrders = useCallback(() => {
+    const params = new URLSearchParams();
+    if (status && status !== "all") params.append("status", status);
+    if (querySearch)               params.append("q", querySearch);
+    if (startDate)                 params.append("startDate", startDate);
+    if (endDate)                   params.append("endDate", endDate);
+    params.append("page", page);
+    params.append("limit", 10);
 
-    fetchOrders();
-    }, [page,startDate, endDate]);
-
-
-  const fetchOrders = () => {
-    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }${startDate  ? `startDate=${startDate }&` : ""  }${endDate  ? `endDate=${endDate }&` : ""  }page=${page}&limit=10`).then((res) => {
-        setOrders(res.orders);
-        setTotalPages(res.totalPages);
-    })
-    .catch((err) => {
-      console.error("Error fetching orders:", err);
-    });;
-  };
-
-const handlePageChange = (event, value) => {
-  setPage(value);
-};
-
-  const showProducts = (id) => {
-    fetchDataFromApi(`/api/orders/${id}`).then((res) => {
-      setIsOpenModal(true);
-      setproducts(res.products);
-    });
-  };
-
-  const onSearch = (keyword) => {
-    const query = keyword ? `q=${keyword}&` : "";
-    setQuerySearch(query)
-    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10`)
+    fetchDataFromApi(`/api/orders?${params.toString()}`)
       .then((res) => {
         setOrders(res.orders);
         setTotalPages(res.totalPages);
         setPage(res.currentPage);
       })
-      .catch((err) => {
-        console.error("Error during search:", err);
-    });
+      .catch((err) => console.error(err));
+  }, [status, querySearch, startDate, endDate, page]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    fetchOrders();
+    }, [fetchOrders]);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
   };
 
-  const handleChangeStatus = (event) => {
-    setStatus(event.target.value);
-    fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10`).then(
-      (res) => {
-        setOrders(res.orders);
-        context.setProgress(100);
-      }
-    );
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+    setPage(1);
   };
+
+  const onSearch = (keyword) => {
+    setQuerySearch(keyword);
+    setPage(1);
+  };
+
+  const handleDateChange = (setter) => (e) => {
+    setter(e.target.value);
+    setPage(1);
+  };
+
+  const showProducts = (id) => {
+    fetchDataFromApi(`/api/orders/${id}`)
+      .then((res) => {
+        setProducts(res.products);
+        setIsOpenModal(true);
+      })
+      .catch(console.error);
+  };
+
+  const handleChangeStatusAdmin = (newStatus, orderId) => {
+    setIsLoading(true);
+    context.setProgress(40);
+    editData2(`/api/orders/admin-update/${orderId}`, { status: newStatus })
+      .then(() => {
+        fetchOrders();
+        context.setProgress(100);
+        setIsLoading(false);
+      }).catch((err) => {
+        console.error("Error updating order status by admin:", err);
+        context.setProgress(100);
+        setIsLoading(false);
+      });
+    };
 
   return (
     <>
@@ -149,7 +163,7 @@ const handlePageChange = (event, value) => {
                 <FormControl size="small" className="w-100">
                   <Select
                     value={status}
-                    onChange={handleChangeStatus}
+                    onChange={handleStatusChange}
                     displayEmpty
                     inputProps={{ "aria-label": "Without label" }}
                     className="w-100"
@@ -170,7 +184,7 @@ const handlePageChange = (event, value) => {
                   type="date"
                   value={startDate}
                   className="form-control"
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={handleDateChange(setStartDate)}
                 />
               </div>
               <div className="col-md-2">
@@ -179,7 +193,7 @@ const handlePageChange = (event, value) => {
                   type="date"
                   value={endDate}
                   className="form-control"
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={handleDateChange(setEndDate)}
                 />
               </div>
               <div className="col-md-5 d-flex justify-content-end">
@@ -199,7 +213,6 @@ const handlePageChange = (event, value) => {
                 <th>Name</th>
                 <th>Phone Number</th>
                 <th>Address</th>
-                <th>Pincode</th>
                 <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
@@ -239,7 +252,6 @@ const handlePageChange = (event, value) => {
                             <FaPhoneAlt /> {order?.phoneNumber}
                           </td>
                           <td>{order?.address}</td>
-                          <td>{order?.pincode}</td>
                           <td>{order?.orderDiscount}</td>
                           <td>
                              ${order?.amount}
@@ -254,7 +266,7 @@ const handlePageChange = (event, value) => {
                               <Select
                                 disabled={isLoading}
                                 value={order?.status}
-                                onChange={(e) => handleChangeStatus(e, order?._id)}
+                                onChange={(e) =>  handleChangeStatusAdmin(e.target.value, order?._id)}
                                 displayEmpty
                                 size="small"
                                 className="w-100"

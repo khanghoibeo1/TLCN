@@ -13,10 +13,6 @@ const ordersSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    pincode: {
-        type: String,
-        default: ""
-    },
     amount: {
         type: Number,
         required: true
@@ -76,7 +72,7 @@ const ordersSchema = mongoose.Schema({
         default: Date.now
     },
 
-})
+}, { timestamps: true })
 
 ordersSchema.virtual('id').get(function () {
     return this._id.toHexString();
