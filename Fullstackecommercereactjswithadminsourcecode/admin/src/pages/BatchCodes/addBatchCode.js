@@ -10,7 +10,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { fetchDataFromApi, postData } from "../../utils/api";
 import { MyContext } from "../../App";
 import { useNavigate } from "react-router-dom";
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem, TextField, Autocomplete } from "@mui/material";
 import SearchBox from "../../components/SearchBox";
 
 // Breadcrumb style
@@ -203,7 +203,7 @@ const AddBatchCode = () => {
                   ))}
                 </Select>
               </div> */}
-              <div className="mb-3">
+              {/* <div className="mb-3">
                 <h6 style={{fontSize: "13px"}}>Search Product</h6>
                 <SearchBox onSearch={onSearch} />
               </div>
@@ -229,6 +229,15 @@ const AddBatchCode = () => {
                 )}
                 </div>
                 
+              </div> */}
+              <div className="form-group">
+                <h6>Choose Product</h6>
+                <Autocomplete
+                  options={productData}
+                  getOptionLabel={(option) => option.name || ""}
+                  onChange={(event, newValue) => handleSelectProduct(newValue)}
+                  renderInput={(params) => <TextField {...params} label="Select Product" />}
+                />
               </div>
 
               <div className="form-group">

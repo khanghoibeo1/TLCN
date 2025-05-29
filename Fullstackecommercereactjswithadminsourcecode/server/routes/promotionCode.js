@@ -74,6 +74,8 @@ router.get('/getPromotionCodeWithCondition', async (req, res) => {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
     }
+    console.log('abc')
+    console.log(userId)
 
     let categoryIdsFromCart = [];
     if (cart) {
@@ -85,6 +87,10 @@ router.get('/getPromotionCodeWithCondition', async (req, res) => {
     const allPromoCodes = await PromotionCode.find();
 
     const filteredPromoCodes = allPromoCodes.filter(promo => {
+      if(promo.status != "active") return false;
+      if(promo.usedCount >= promo.maxUsage) return false;
+      if(promo.users.some((existingUser) => existingUser.userId.toString() === userId)) return false;
+
       // Kiểm tra applicableRoles
       if (promo.applicableRoles && promo.applicableRoles.length > 0 && user) {
         if (!promo.applicableRoles.includes(user.rank)) {

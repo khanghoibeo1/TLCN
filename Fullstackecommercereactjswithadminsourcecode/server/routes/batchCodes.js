@@ -73,12 +73,21 @@ router.get('/', async (req, res) => {
     }
 
     // Lọc theo số ngày gần hết hạn
-    if (expiredDay) {
+    if (expiredDay !== undefined) {
+      const expiredDayInt = parseInt(expiredDay);
       const today = new Date();
-      const expiredLimit = new Date();
-      expiredLimit.setDate(today.getDate() + parseInt(expiredDay));
-      filter.expiredDate = { $lte: expiredLimit, $gte: today };
+      today.setHours(0, 0, 0, 0); // Đặt về đầu ngày để so sánh chính xác
+
+      if (expiredDayInt === 0) {
+        // Lấy những batch đã hết hạn
+        filter.expiredDate = { $lt: today };
+      } else if (expiredDayInt > 0) {
+        const expiredLimit = new Date();
+        expiredLimit.setDate(today.getDate() + expiredDayInt);
+        filter.expiredDate = { $lte: expiredLimit, $gte: today };
+      }
     }
+
 
     const totalBatches = await BatchCode.countDocuments(filter);
 
@@ -172,12 +181,21 @@ router.get(`/locationBatchCode`, async (req, res) => {
     }
 
     // Lọc theo số ngày gần hết hạn
-    if (expiredDay) {
+    if (expiredDay !== undefined) {
+      const expiredDayInt = parseInt(expiredDay);
       const today = new Date();
-      const expiredLimit = new Date();
-      expiredLimit.setDate(today.getDate() + parseInt(expiredDay));
-      filter.expiredDate = { $lte: expiredLimit, $gte: today };
+      today.setHours(0, 0, 0, 0); // Đặt về đầu ngày để so sánh chính xác
+
+      if (expiredDayInt === 0) {
+        // Lấy những batch đã hết hạn
+        filter.expiredDate = { $lt: today };
+      } else if (expiredDayInt > 0) {
+        const expiredLimit = new Date();
+        expiredLimit.setDate(today.getDate() + expiredDayInt);
+        filter.expiredDate = { $lte: expiredLimit, $gte: today };
+      }
     }
+
 
     const totalBatches = await BatchCode.countDocuments(filter);
 

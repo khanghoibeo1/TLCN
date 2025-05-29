@@ -314,6 +314,7 @@ const Checkout = () => {
         if (productTotal >= (promo.minOrderValue || 0)) {
           let discount = 0;
           if (promo.discountType === 'percent') {
+            console.log(shippingFee)
             discount = shippingFee * (promo.discountValue / 100);
           } else {
             discount = Math.min(shippingFee, promo.discountValue);
@@ -326,7 +327,7 @@ const Checkout = () => {
 
     setDiscount(productDiscount);              // chỉ discount của product
     setShippingFeeDiscount(shippingFeeDiscount); // discount của shipping riêng
-  }, [selectedPromotions, cartData, promotionCodeList, shippingMethod]);
+  }, [selectedPromotions, cartData, promotionCodeList, shippingMethod, shippingFee]);
 
 
 
@@ -477,6 +478,7 @@ const Checkout = () => {
       userid: user.userId,
       products: cartData,
       orderDiscount: discount,
+      shippingFee: shippingFee-shippingFeeDiscount,
       note: formFields.note,
       date:addressInfo?.date,
       // totalSpent: user.totalSpent + parseInt(totalAmount),
