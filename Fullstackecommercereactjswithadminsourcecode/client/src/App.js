@@ -35,7 +35,6 @@ import DetailBlog from "./Pages/DetailBlog";
 
 // Utils
 import { fetchDataFromApi, postData } from "./utils/api";
-import Snackbar from "@mui/material/Snackbar";
 import IntroduceAndLicense from "./Pages/License";
 import ClientChat from "./Components/Message";
 
@@ -253,7 +252,7 @@ function App() {
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
           <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
         </Routes>
-
+        {isHeaderFooterShow === true && <Footer />}
         {isOpenProductModal === true && <ProductModal data={productData} />}
 
         {isLogin && <ClientChat />}
