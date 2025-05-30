@@ -112,14 +112,14 @@ const Listing = () => {
 
 
     if (window_url.includes("subCat")) {
-      api_EndPoint = `/api/products/fiterByPrice?minPrice=${
+      api_EndPoint = `/api/products/filterByPrice?minPrice=${
         price[0]
       }&maxPrice=${price[1]}&subCatId=${id}&location=${localStorage.getItem(
         "location"
       )}&page=1&perPage=12`;
     }
     if (window_url.includes("category")) {
-      api_EndPoint = `/api/products/fiterByPrice?minPrice=${
+      api_EndPoint = `/api/products/filterByPrice?minPrice=${
         price[0]
       }&maxPrice=${price[1]}&catId=${id}&location=${localStorage.getItem(
         "location"

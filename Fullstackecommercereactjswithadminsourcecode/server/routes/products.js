@@ -337,7 +337,7 @@ router.get(`/subCatId`, async (req, res) => {
   }
 });
 
-router.get(`/fiterByPrice`, async (req, res) => {
+router.get(`/filterByPrice`, async (req, res) => {
   try {
     const { minPrice, maxPrice, catId, subCatId, location, page = 1, perPage = 12 } = req.query;
 
