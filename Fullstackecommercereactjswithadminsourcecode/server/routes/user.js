@@ -300,31 +300,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// get user id
-router.get('/:id', async(req,res)=>{
-    const user = await User.findById(req.params.id);
-
-    if(!user) {
-        res.status(500).json({message: 'The user with the given ID was not found.'})
-    } else{
-        res.status(200).send(user);
-    }
-    
-})
-
-//delete user
-router.delete('/:id', (req, res)=>{
-    User.findByIdAndDelete(req.params.id).then(user =>{
-        if(user) {
-            return res.status(200).json({success: true, message: 'the user is deleted!'})
-        } else {
-            return res.status(404).json({success: false , message: "user not found!"})
-        }
-    }).catch(err=>{
-       return res.status(500).json({success: false, error: err}) 
-    })
-})
-
 // Get all user admin with pagination and optional location filter
 router.get('/userAdmin', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -368,6 +343,32 @@ router.get('/userAdmin', async (req, res) => {
         return res.status(500).json({ success: false, error: error.message });
     }
 });
+
+// get user id
+router.get('/:id', async(req,res)=>{
+    const user = await User.findById(req.params.id);
+
+    if(!user) {
+        res.status(500).json({message: 'The user with the given ID was not found.'})
+    } else{
+        res.status(200).send(user);
+    }
+    
+})
+
+
+//delete user
+router.delete('/:id', (req, res)=>{
+    User.findByIdAndDelete(req.params.id).then(user =>{
+        if(user) {
+            return res.status(200).json({success: true, message: 'the user is deleted!'})
+        } else {
+            return res.status(404).json({success: false , message: "user not found!"})
+        }
+    }).catch(err=>{
+       return res.status(500).json({success: false, error: err}) 
+    })
+})
 
 router.post(`/userAdmin/create`, async (req, res) => {
     try {

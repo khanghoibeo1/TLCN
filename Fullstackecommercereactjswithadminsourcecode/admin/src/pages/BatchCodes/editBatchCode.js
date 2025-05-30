@@ -248,7 +248,7 @@ const EditBatchCode = () => {
                 <input value={formFields.productName} disabled />
               </div>
 
-              <div className="form-group">
+              {/* <div className="form-group">
                 <h6>Amount</h6>
                 <input
                   type="number"
@@ -273,7 +273,7 @@ const EditBatchCode = () => {
                     Maximum available: {maxAmount}
                   </small>
                 )}
-              </div>
+              </div> */}
 
               <div className="form-group">
                 <h6>Import Date</h6>

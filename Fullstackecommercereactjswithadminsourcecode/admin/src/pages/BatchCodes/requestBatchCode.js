@@ -75,7 +75,7 @@ const RequestBatchCode = () => {
     const handleChangeStatus = (e, id) => {
         const newStatus = e.target.value;
         postData(`/api/batchCodes/${id}/status`, { status: newStatus }).then(() => {
-            setBatchCodes(batchCodes.map(batch => batch._id === id ? { ...batch, status: newStatus } : batch));
+            setBatchCodes(batchCodes?.map(batch => batch._id === id ? { ...batch, status: newStatus } : batch));
         });
     };
 
@@ -234,7 +234,7 @@ const RequestBatchCode = () => {
                                     </td>
                                     <td>
                                     <div className="actions d-flex align-items-center">
-                                            {user.locationName ? 
+                                            {(user.locationName && batch.status !== 'delivered')? 
                                                 <Link to={`/batchCode/edit/${batch._id}`}>
                                                     <Button className="success" color="success"><FaPencilAlt /></Button>
                                                 </Link>

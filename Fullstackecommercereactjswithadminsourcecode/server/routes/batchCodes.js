@@ -225,11 +225,11 @@ router.get('/:id/:location/latest-batch', async (req, res) => {
         const locationDoc = await StoreLocation.findOne({ iso2: location });
         const locationId = locationDoc?.id;
 
-
         // Nếu location là "null", thì là kho tổng
         const query = {
             productId: id,
             status: "delivered",
+            expiredDate: { $gt: new Date() }, // ✅ Chỉ lấy batch còn hạn
             ...(location !== "null"
                 ? { locationId: locationId }
                 : { locationId: null }
@@ -241,7 +241,7 @@ router.get('/:id/:location/latest-batch', async (req, res) => {
             .limit(1);
 
         if (!latestBatch || latestBatch.length === 0) {
-            return res.status(404).json({ success: false, message: "No batch found" });
+            return res.status(404).json({ success: false, message: "No valid batch found" });
         }
 
         res.status(200).json(latestBatch[0]);
