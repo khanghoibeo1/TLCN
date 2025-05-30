@@ -11,9 +11,9 @@ import markerIconStore from "leaflet/dist/images/marker-icon.png";
 const calculateShippingFee = (distanceMeters) => {
   const distanceKm = distanceMeters / 1000;
   if (distanceKm <= 3) return 0;
-  if (distanceKm <= 10) return 10000;
-  if (distanceKm <= 20) return 20000;
-  return 30000;
+  if (distanceKm <= 10) return 1;
+  if (distanceKm <= 20) return 2;
+  return 3;
 };
 
 // Component điều khiển bản đồ

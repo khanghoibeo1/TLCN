@@ -1,5 +1,6 @@
 const express = require('express');
 const { PromotionCode } = require("../models/promotionCode.js");
+const { User } = require("../models/user.js");
 const router = express.Router();
 
 // Create a new promotion code
@@ -14,8 +15,8 @@ router.post('/create', async (req, res) => {
       startDate,
       endDate,
       maxUsage,
+      type,
       applicableRoles,
-      applicableProductIds,
       applicableCategoryIds,
       canCombine,
       users,
@@ -36,8 +37,8 @@ router.post('/create', async (req, res) => {
       startDate,
       endDate,
       maxUsage,
+      type: type,
       applicableRoles: applicableRoles || [],
-      applicableProductIds: applicableProductIds || [],
       applicableCategoryIds: applicableCategoryIds || [],
       canCombine: canCombine !== undefined ? canCombine : true,
       users: users || [],
@@ -61,6 +62,61 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+router.get('/getPromotionCodeWithCondition', async (req, res) => {
+  try {
+    const { userId, cart } = req.query;
+
+    let user = null;
+    if (userId) {
+      user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+    }
+    console.log('abc')
+    console.log(userId)
+
+    let categoryIdsFromCart = [];
+    if (cart) {
+      const cartItems = JSON.parse(cart); // parse từ chuỗi JSON
+      categoryIdsFromCart = cartItems.map(item => item.categoryId).filter(Boolean);
+    }
+    console.log(categoryIdsFromCart)
+
+    const allPromoCodes = await PromotionCode.find();
+
+    const filteredPromoCodes = allPromoCodes.filter(promo => {
+      if(promo.status != "active") return false;
+      if(promo.usedCount >= promo.maxUsage) return false;
+      if(promo.users.some((existingUser) => existingUser.userId.toString() === userId)) return false;
+
+      // Kiểm tra applicableRoles
+      if (promo.applicableRoles && promo.applicableRoles.length > 0 && user) {
+        if (!promo.applicableRoles.includes(user.rank)) {
+          return false;
+        }
+      }
+
+      // Kiểm tra applicableCategoryIds
+      if (promo.applicableCategoryIds && promo.applicableCategoryIds.length > 0 && categoryIdsFromCart.length > 0) {
+        const hasMatchingCategory = promo.applicableCategoryIds.some(catId =>
+          categoryIdsFromCart.includes(catId)
+        );
+        if (!hasMatchingCategory) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    res.status(200).json({ success: true, data: filteredPromoCodes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 
 // Get a promotion code by ID
 router.get('/:id', async (req, res) => {

@@ -36,11 +36,14 @@ const StorePage = () => {
         <h3>Shipping Fee Guide</h3>
         <ul>
           <li><b>0 – 3 km</b> → <b>Free shipping</b></li>
-          <li><b>3 – 10 km</b> → <b>10,000đ</b></li>
-          <li><b>10 – 20 km</b> → <b>20,000đ</b></li>
-          <li><b>Over 20 km</b> → <b>30,000đ</b></li>
+          <li><b>3 – 10 km</b> → <b>$1</b></li>
+          <li><b>10 – 20 km</b> → <b>$2</b></li>
+          <li><b>Over 20 km</b> → <b>$3</b></li>
         </ul>
+        <p><i>*Express shipping adds 30% to the base delivery fee.</i></p>
       </div>
+
+
     </div>
     
   );

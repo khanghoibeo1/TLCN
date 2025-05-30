@@ -25,7 +25,7 @@ const CountryDropdown = () => {
         setselectedTab(index);
         setisOpenModal(false);
         context.setselectedCountry(country);
-        localStorage.setItem("location", country);
+        localStorage.setItem("location", JSON.stringify(country));
         window.location.reload();
     }
 
@@ -54,7 +54,7 @@ const CountryDropdown = () => {
             }}>
                 <div className='info d-flex flex-column'>
                     <span className='label'>Your Location</span>
-                    <span className='name'>{context.selectedCountry !== "" ? context.selectedCountry.length > 10 ? context.selectedCountry?.substr(0, 10) + '...' : context.selectedCountry : 'Select Location'}</span>
+                    <span className='name'>{context.selectedCountry?.iso2 !== "" ? context.selectedCountry?.iso2.length > 10 ? context.selectedCountry?.iso2.substr(0, 10) + '...' : context.selectedCountry?.iso2 : 'Select Location'}</span>
                 </div>
                 <span className='ml-auto'><FaAngleDown /></span>
             </Button>
@@ -77,7 +77,7 @@ const CountryDropdown = () => {
                         countryList?.length !== 0 && countryList?.map((item, index) => {
                      
                             return (
-                                <li key={index}><Button onClick={() => selectCountry(index, item.iso2)}
+                                <li key={index}><Button onClick={() => selectCountry(index, item)}
                                     className={`${selectedTab === index ? 'active' : ''}`}
                                 >{item.location}</Button></li>
                             )

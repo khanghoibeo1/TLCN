@@ -13,7 +13,7 @@ const SearchBox = (props)=>{
     return(
         <div className="searchBox posotion-relative d-flex align-items-center">
             <IoSearch className="mr-2"/>
-            <input type="text" placeholder="Search here..." ref={searchInput} onChange={onSearch}/>
+            <input type="text" placeholder="Search here (name, etc.)" ref={searchInput} onChange={onSearch}/>
         </div>
     )
 }

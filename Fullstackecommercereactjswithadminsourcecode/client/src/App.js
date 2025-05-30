@@ -6,8 +6,8 @@ import "./responsive.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 
 // Components
 import Header from "./Components/Header";
@@ -44,7 +44,7 @@ const MyContext = createContext();
 
 function App() {
   const [countryList, setCountryList] = useState([]);
-  const [selectedCountry, setselectedCountry] = useState("All");
+  const [selectedCountry, setselectedCountry] = useState(null);
   const [addressList, setAddressList] = useState([]);
   const [selectedAddress, setselectedAddress] = useState(null);
 
@@ -99,10 +99,12 @@ function App() {
 
     const location = localStorage.getItem("location");
     if (location) {
-      setselectedCountry(location);
-    } else {
-      localStorage.setItem("location", "All");
-    }
+      try {
+        setselectedCountry(JSON.parse(location));
+      } catch (e) {
+        console.error("Error parsing address from localStorage:", e);
+      }
+    } 
 
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);

@@ -26,7 +26,7 @@ const ProductModal = (props) => {
 
 
     const context = useContext(MyContext);
-    const selectedCountry = context.selectedCountry;
+    const selectedCountry = context.selectedCountry.iso2;
 
     useEffect(() => {
         if (props?.data?.productRam.length === 0 && props?.data?.productWeight.length === 0 && props?.data?.size.length === 0) {

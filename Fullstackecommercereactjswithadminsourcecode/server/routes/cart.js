@@ -65,6 +65,8 @@ router.post('/add', async (req, res) => {
         quantity: takeQty,
         subTotal: subTotal,
         productId: product.id,
+        categoryId: product.catId,
+        categoryName: product.catName,
         countInStock: batch.amountRemain,
         userId: userId,
         batchId: batch.id,

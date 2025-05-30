@@ -123,7 +123,7 @@ router.get(`/get/count`, async (req, res) =>{
 router.post('/create', async (req, res) => {
 
     try{
-        const { name, phoneNumber, address, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
+        const { name, phoneNumber, address, shippingFee, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
 
         if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.'});
@@ -137,6 +137,7 @@ router.post('/create', async (req, res) => {
             name,
             phoneNumber,
             address,
+            shippingFee,
             amount,
             payment, 
             email,
@@ -207,7 +208,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     try {
-        const { name, phoneNumber, address, amount, payment, email, userid, products, status, date, note } = req.body;
+        const { name, phoneNumber, address, shippingFee, amount, payment, email, userid, products, status, date, note } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
         if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
@@ -225,6 +226,7 @@ router.put('/:id', async (req, res) => {
         order.phoneNumber = phoneNumber || order.phoneNumber;
         order.address = address || order.address;
         order.amount = amount || order.amount;
+        order.shippingFee = shippingFee || order.shippingFee;
         order.payment = payment || order.payment;
         order.email = email || order.email;
         order.userid = userid || order.userid;

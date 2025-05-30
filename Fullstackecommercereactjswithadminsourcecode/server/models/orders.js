@@ -13,6 +13,10 @@ const ordersSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    shippingFee:{
+        type: Number,
+        required: true,
+    },
     amount: {
         type: Number,
         required: true

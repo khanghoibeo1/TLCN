@@ -21,7 +21,7 @@ const ProductItem = (props) => {
     const [latestBatch, setLatestBatch] = useState(null);
 
     const context = useContext(MyContext);
-    const selectedCountry = context.selectedCountry;
+    const selectedCountry = context.selectedCountry?.iso2;
 
     const sliderRef = useRef();
 

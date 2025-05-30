@@ -1,8 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import { IoBagCheckOutline } from "react-icons/io5";
+import { getDistance } from "geolib";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Chip,
+  IconButton,
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+  Stack,
+  Paper
+} from "@mui/material";
 
+import CloseIcon from "@mui/icons-material/Close";
 import { MyContext } from "../../App";
 import { fetchDataFromApi, postData, deleteData, editData } from "../../utils/api";
 
@@ -28,11 +44,17 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [shippingMethod, setShippingMethod] = useState('');
   const [cartData, setCartData] = useState([]);
-  const [totalAmount, setTotalAmount] = useState();
+  const [totalAmount, setTotalAmount] = useState(0);
   const [orderId, setOrderId] = useState(null);
-  const [usedCode, setUsedCode] = useState(false);
-  const [promotionCode, setPromotionCode] = useState("");
+  // const [usedCode, setUsedCode] = useState(false);
+  const [promotionCodeList, setPromotionCodeList] = useState([]);
+  // const [promotionCode, setPromotionCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [shippingFeeDiscount, setShippingFeeDiscount] = useState(0);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [selectedPromotions, setSelectedPromotions] = useState([]);
+  const [tempSelection, setTempSelection] = useState([]);
   const [currentPromotion, setCurrentPromotion] = useState({
     _id: "",
     code: "",
@@ -48,10 +70,50 @@ const Checkout = () => {
     users: [],
     id: "",
   });
+  
+  const context = useContext(MyContext);
+  const userContext = context.user;
+  const userAddress = context.selectedAddress;
+  const country = context.selectedCountry;
+
+  useEffect(() => {
+    if (
+      !userAddress?.lat || !userAddress?.lng ||
+      !country?.lat || !country?.lng
+    ) {
+      return; // nếu thiếu dữ liệu thì thoát không tính phí
+    }
+    const distanceMeters = getDistance(
+      { latitude: userAddress?.lat, longitude: userAddress?.lng },
+      { latitude: country?.lat, longitude: country?.lng }
+    );
+    const distanceKm = distanceMeters / 1000;
+ 
+    let fee = 0;
+    if (distanceKm <= 3) fee = 0;
+    else if (distanceKm <= 10) fee = 1;
+    else if (distanceKm <= 20) fee = 2;
+    else fee = 3;
+
+    if (shippingMethod === "express") {
+      fee = parseFloat((fee * 1.3).toFixed(2)); // tăng 30%
+    }
+    setShippingFee(fee)
+  },[shippingMethod, userAddress, country]);
+
+  useEffect(() => {
+    setFormFields(prev => ({
+      ...prev,
+      fullName: userContext.name || prev.fullName,
+      phoneNumber: userAddress?.phoneNumber || prev.phoneNumber,
+      email: userAddress?.email || prev.email,
+      streetAddress: userAddress?.address,
+    }));
+  }, [userContext, userAddress]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+    setShippingMethod('standard')
     context.setEnableFilterTab(false);
     const user = JSON.parse(localStorage.getItem("user"));
     fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
@@ -76,70 +138,223 @@ const Checkout = () => {
     });
   }, []);
 
+  const toggleDialog = () => {
+    setTempSelection(selectedPromotions);
+    setOpen(!open);
+  };
+
+  const handleTogglePromo = (promo) => {
+    const exists = tempSelection.some((p) => p.code === promo.code);
+    let currentSelection = [...tempSelection];
+
+    // Nếu đã có => bỏ chọn
+    if (exists) {
+      currentSelection = currentSelection.filter((p) => p.code !== promo.code);
+      setTempSelection(currentSelection);
+      return;
+    }
+    
+    if (
+      promo.status === "hide" ||
+      promo.usedCount >= promo.maxUsage ||
+      promo.users.some((existingUser) => existingUser.userId === useContext.userId)
+    ) {
+      return;
+    }
+
+
+    // Kiểm tra logic chọn trước khi thêm
+    const hasShipping = currentSelection.some((p) => p.type === "shipping");
+    const hasNonCombinable = currentSelection.some((p) => !p.canCombine && p.type !== "shipping");
+
+    // Nếu đã có non-combinable (không phải shipping), không cho chọn thêm non-combinable khác
+    if (hasNonCombinable && promo.type !== "shipping" && !promo.canCombine) return;
+
+    // Nếu đã có shipping, không cho thêm shipping nữa
+    if (promo.type === "shipping" && hasShipping) return;
+
+    // Nếu hợp lệ => thêm vào
+    setTempSelection([...currentSelection, promo]);
+  };
+
+  const handleApply = () => {
+    console.log(tempSelection)
+    setSelectedPromotions(tempSelection);
+    setOpen(false);
+  };
+
+  // useEffect(() => {
+  //   if (!cartData || !selectedPromotions) return;
+
+  //   let productTotal = 0;
+  //   let currentShippingFee = shippingFee; // lấy từ state đã fetch
+  //   const appliedDiscounts = [];
+
+  //   const cartItems = Array.isArray(cartData) ? cartData : [cartData];
+
+  //   // Tổng giá sản phẩm ban đầu
+  //   productTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  //   // const sortedPromotions = [...selectedPromotions].sort((a, b) => {
+  //   //   if (a.discountType === 'percent' && b.discountType === 'amount') return -1;
+  //   //   if (a.discountType === 'amount' && b.discountType === 'percent') return 1;
+  //   //   return 0;
+  //   // });
+  //   const sortedPromotions = [...selectedPromotions].sort((a, b) => {
+  //   // Ưu tiên mã product trước shipping
+  //   if (a.type === 'product' && b.type === 'shipping') return -1;
+  //   if (a.type === 'shipping' && b.type === 'product') return 1;
+
+  //   // Nếu cả hai đều là product, xét tiếp applicableCategoryIds
+  //   if (a.type === 'product' && b.type === 'product') {
+  //     const aHasCat = Array.isArray(a.applicableCategoryIds) && a.applicableCategoryIds.length > 0;
+  //     const bHasCat = Array.isArray(b.applicableCategoryIds) && b.applicableCategoryIds.length > 0;
+  //     if (aHasCat && !bHasCat) return -1;
+  //     if (!aHasCat && bHasCat) return 1;
+  //   }
+
+  //   // Còn lại thì giữ nguyên
+  //   return 0;
+  // });
+
+  //   sortedPromotions.forEach(promo => {
+  //     if (promo.status !== 'active') return;
+
+  //     // Áp dụng khuyến mãi sản phẩm
+  //     if (promo.type === 'product') {
+  //       const applicableItems =
+  //         promo.applicableCategoryIds.length > 0
+  //           ? cartItems.filter(item => promo.applicableCategoryIds.includes(item.categoryId))
+  //           : cartItems;
+
+  //       const applicableTotal = applicableItems.reduce(
+  //         (sum, item) => sum + item.price * item.quantity,
+  //         0
+  //       );
+
+  //       if (applicableTotal >= promo.minOrderValue) {
+  //         let discount = 0;
+  //         if (promo.discountType === 'percent') {
+  //           discount = applicableTotal * (promo.discountValue / 100);
+  //         } else {
+  //           discount = Math.min(applicableTotal, promo.discountValue);
+  //         }
+  //         productTotal -= discount;
+  //         appliedDiscounts.push({ code: promo.code, amount: discount });
+  //       }
+  //     }
+
+  //     // Áp dụng khuyến mãi shipping
+  //     if (promo.type === 'shipping') {
+  //       if (productTotal >= promo.minOrderValue) {
+  //         let discount = 0;
+  //         if (promo.discountType === 'percent') {
+  //           discount = currentShippingFee * (promo.discountValue / 100);
+  //         } else {
+  //           discount = Math.min(currentShippingFee, promo.discountValue);
+  //         }
+  //         currentShippingFee -= discount;
+  //         appliedDiscounts.push({ code: promo.code, amount: discount });
+  //       }
+  //     }
+  //   });
+
+  //   setTotalAmount(productTotal + currentShippingFee);
+  //   setShippingFee(currentShippingFee); // update nếu shipping được giảm
+  // }, [selectedPromotions, cartData, promotionCodeList]);
+  useEffect(() => {
+    if (!cartData || !selectedPromotions) return;
+
+    const cartItems = Array.isArray(cartData) ? cartData : [cartData];
+    let productTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let productDiscount = 0;
+    let shippingFeeDiscount = 0;
+
+    const sortedPromotions = [...selectedPromotions].sort((a, b) => {
+      if (a.type === 'product' && b.type === 'shipping') return -1;
+      if (a.type === 'shipping' && b.type === 'product') return 1;
+
+      if (a.type === 'product' && b.type === 'product') {
+        const aHasCat = Array.isArray(a.applicableCategoryIds) && a.applicableCategoryIds.length > 0;
+        const bHasCat = Array.isArray(b.applicableCategoryIds) && b.applicableCategoryIds.length > 0;
+        if (aHasCat && !bHasCat) return -1;
+        if (!aHasCat && bHasCat) return 1;
+      }
+
+      return 0;
+    });
+
+    sortedPromotions.forEach(promo => {
+      if (promo.status !== 'active') return;
+
+      if (promo.type === 'product') {
+        const applicableItems =
+          promo.applicableCategoryIds.length > 0
+            ? cartItems.filter(item => promo.applicableCategoryIds.includes(item.categoryId))
+            : cartItems;
+
+        const applicableTotal = applicableItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+
+        if (applicableTotal >= (promo.minOrderValue || 0)) {
+          let discount = 0;
+          if (promo.discountType === 'percent') {
+            discount = applicableTotal * (promo.discountValue / 100);
+          } else {
+            discount = Math.min(applicableTotal, promo.discountValue);
+          }
+          productTotal -= discount;
+          productDiscount += discount;
+        }
+      }
+
+      if (promo.type === 'shipping') {
+        if (productTotal >= (promo.minOrderValue || 0)) {
+          let discount = 0;
+          if (promo.discountType === 'percent') {
+            console.log(shippingFee)
+            discount = shippingFee * (promo.discountValue / 100);
+          } else {
+            discount = Math.min(shippingFee, promo.discountValue);
+          }
+          shippingFeeDiscount += discount;
+        }
+      }
+    });
+            console.log(shippingFeeDiscount)
+
+    setDiscount(productDiscount);              // chỉ discount của product
+    setShippingFeeDiscount(shippingFeeDiscount); // discount của shipping riêng
+  }, [selectedPromotions, cartData, promotionCodeList, shippingMethod, shippingFee]);
+
+
+
+
+  const handleDelete = (code) => {
+    setTempSelection((prev) => prev.filter((p) => p.code !== code));
+    setSelectedPromotions((prev) => prev.filter((p) => p.code !== code));
+  };
+
   useEffect(() => {
     console.log(totalAmount);
   },[totalAmount])
 
-  //Chỉnh lại để khi  nào nhấn checkout thì mới thêm vào promotioncode, đồng thời chỉnh sửa chỗ kiểm tra đã có user chưa, 
-  const handlePromotionCode = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if(promotionCode !== ""){
-      fetchDataFromApi(`/api/search/promotionCode?q=${promotionCode}`).then((res) => {
-        if (res.data.length > 0 &&
-            res.data[0].code === promotionCode &&
-            res.data[0].status === "active" &&
-            res.data[0].usedCount < res.data[0].maxUsage &&
-            !res.data[0].users.some((existingUser) => existingUser.userId === user.userId)) {
-          setCurrentPromotion(res.data[0]);
-          
-          setDiscount(res.data[0].discountPercent); // Áp dụng discount
-          context.setAlertBox({
-            open: true,
-            error: false,
-            msg: "Promotion code applied successfully!",
-          });
-          if (usedCode === false){
-            setTotalAmount(totalAmount - (totalAmount * (res.data[0].discountPercent) / 100));
-            setUsedCode(true);
-          }
-          console.log(totalAmount);
-        } else {
-          setDiscount(0);
-          console.log(discount);
-          setUsedCode(false);
-          setTotalAmount(
-            cartData?.length !== 0 ? 
-            cartData?.map((item) => parseInt(item.price) * item.quantity)
-            .reduce((total, value) => total + value, 0) : 0
-          );
-          context.setAlertBox({
-            open: true,
-            error: true,
-            msg: "Invalid or already used promotion code.",
-          });
-        }
-      });
-    }
-    else{
-      setDiscount(0);
-      setUsedCode(false);
-      setTotalAmount(
-        cartData?.length !== 0 ? 
-        cartData?.map((item) => parseInt(item.price) * item.quantity)
-        .reduce((total, value) => total + value, 0) : 0
-      );
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Invalid or already used promotion code.",
-      });
-    }
-  };
-  useEffect(()=>{
-    console.log(discount);
-  },[discount])
-  
+  useEffect(() => {
+    if (!userContext?.userId || !cartData?.length) return;
+    const query = `?userId=${userContext?.userId}&cart=${encodeURIComponent(JSON.stringify(cartData))}`;
 
+    fetchDataFromApi(`/api/promotionCode/getPromotionCodeWithCondition${query}`)
+    .then((res) => {
+      console.log("Promotion response:", res);
+      setPromotionCodeList(res.data)
+    })
+    .catch((err) => {
+      console.error("Error fetching promotion:", err);
+    });
+  },[cartData])
+  
   const onChangeInput = (e) => {
     setFormFields(() => ({
       ...formFields,
@@ -151,21 +366,11 @@ const Checkout = () => {
       setPaymentMethod(value)
       // console.log(value);
     };
-    if (name === "shippingMethod") setShippingMethod(value);
+    if (name === "shippingMethod"){
+      setShippingMethod(value);
+    }
   };
 
-  const context = useContext(MyContext);
-  const userContext = context.user;
-  const userAddress = context.selectedAddress;
-  useEffect(() => {
-    setFormFields(prev => ({
-      ...prev,
-      fullName: userContext.name || prev.fullName,
-      phoneNumber: userAddress?.phoneNumber || prev.phoneNumber,
-      email: userAddress?.email || prev.email,
-      streetAddress: userAddress?.address,
-    }));
-  }, [userContext, userAddress]);
 
   const history = useNavigate();
 
@@ -187,8 +392,6 @@ const Checkout = () => {
         });
         return;
       }
-    // const user = JSON.parse(localStorage.getItem("user"));
-    // if(user.status === 'active'){
       e.preventDefault();
       if (!cartData || cartData.length === 0) {
         context.setAlertBox({
@@ -198,9 +401,6 @@ const Checkout = () => {
         });
         return;
       }
-      console.log(cartData);
-
-      console.log(formFields);
       if (formFields.fullName === "") {
         context.setAlertBox({
           open: true,
@@ -210,16 +410,7 @@ const Checkout = () => {
         return false;
       }
 
-      // if (formFields.country === "") {
-      //   context.setAlertBox({
-      //     open: true,
-      //     error: true,
-      //     msg: "Please fill country ",
-      //   });
-      //   return false;
-      // }
-
-      if (formFields.streetAddressLine1 === "") {
+      if (formFields.streetAddress === "") {
         context.setAlertBox({
           open: true,
           error: true,
@@ -227,42 +418,6 @@ const Checkout = () => {
         });
         return false;
       }
-
-      // if (formFields.streetAddressLine2 === "") {
-      //   context.setAlertBox({
-      //     open: true,
-      //     error: true,
-      //     msg: "Please fill  Street address",
-      //   });
-      //   return false;
-      // }
-
-      // if (formFields.city === "") {
-      //   context.setAlertBox({
-      //     open: true,
-      //     error: true,
-      //     msg: "Please fill city ",
-      //   });
-      //   return false;
-      // }
-
-      // if (formFields.state === "") {
-      //   context.setAlertBox({
-      //     open: true,
-      //     error: true,
-      //     msg: "Please fill state ",
-      //   });
-      //   return false;
-      // }
-
-      // if (formFields.zipCode === "") {
-      //   context.setAlertBox({
-      //     open: true,
-      //     error: true,
-      //     msg: "Please fill zipCode ",
-      //   });
-      //   return false;
-      // }
 
       if (formFields.phoneNumber === "") {
         context.setAlertBox({
@@ -312,8 +467,6 @@ const Checkout = () => {
       };
 
 
-    // const user = JSON.parse(localStorage.getItem("user"));
-
     const payLoad = {
       name: addressInfo.name,
       phoneNumber: formFields.phoneNumber,
@@ -325,6 +478,7 @@ const Checkout = () => {
       userid: user.userId,
       products: cartData,
       orderDiscount: discount,
+      shippingFee: shippingFee-shippingFeeDiscount,
       note: formFields.note,
       date:addressInfo?.date,
       // totalSpent: user.totalSpent + parseInt(totalAmount),
@@ -336,7 +490,15 @@ const Checkout = () => {
       
     try {
       const createdOrder = await postData('/api/orders/create', payLoad);
-      editData(`/api/promotionCode/${currentPromotion.id}`, updatedPromotion).then((res) => { });
+      // Nếu selectedPromotion là một mảng các promotion
+      for (const promo of selectedPromotions) {
+        const updatedPromo = {
+          ...promo,
+          users: [...(promo.users || []), { userId: user.userId, username: user.name }],
+          usedCount: (promo.usedCount || 0) + 1,
+        };
+        await editData(`/api/promotionCode/${promo.id}`, updatedPromo);
+      }
       console.log('Created Order:', createdOrder);
       
       setOrderId(createdOrder._id);
@@ -409,7 +571,6 @@ const Checkout = () => {
         });
     }
   };
-
   return (
     <section className="section">
       <div className="container">
@@ -432,19 +593,6 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
-
-                {/* <div className="col-md-6">
-                  <div className="form-group">
-                    <TextField
-                      label="Country *"
-                      variant="outlined"
-                      className="w-100"
-                      size="small"
-                      name="country"
-                      onChange={onChangeInput}
-                    />
-                  </div>
-                </div> */}
               </div>
 
               <h6>Street address *</h6>
@@ -476,57 +624,6 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* <h6>Town / City *</h6>
-
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="form-group">
-                    <TextField
-                      label="City"
-                      variant="outlined"
-                      className="w-100"
-                      size="small"
-                      name="city"
-                      onChange={onChangeInput}
-                    />
-                  </div>
-                </div>
-              </div> */}
-
-              {/* <h6>State / County *</h6>
-
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="form-group">
-                    <TextField
-                      label="State"
-                      variant="outlined"
-                      className="w-100"
-                      size="small"
-                      name="state"
-                      onChange={onChangeInput}
-                    />
-                  </div>
-                </div>
-              </div> */}
-
-              {/* <h6>Postcode / ZIP *</h6>
-
-              <div className="row">
-                <div className="col-md-12">
-                  <div className="form-group">
-                    <TextField
-                      label="ZIP Code"
-                      variant="outlined"
-                      className="w-100"
-                      size="small"
-                      name="zipCode"
-                      onChange={onChangeInput}
-                    />
-                  </div>
-                </div>
-              </div> */}
-
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
@@ -557,25 +654,91 @@ const Checkout = () => {
                 </div>
               </div>
               <div className="row d-flex mb-2">
-                <div className="col-md-9">
-                  <div className="form-group">
-                    <TextField
-                      label="Promotion Code (Optional)"
-                      variant="outlined"
-                      size="small"
-                      name="promotionCode"
-                      value={promotionCode}
-                      onChange={(e) => setPromotionCode(e.target.value)}
-                      fullWidth
-                    />
-                  </div>
-                </div>
-                <Button onClick={handlePromotionCode} variant="contained" color="primary">
-                  Apply Promotion
-                </Button>
+                <Box className="mb-3">
+                  <Typography variant="subtitle1" gutterBottom>
+                    Applied Promotions
+                  </Typography>
+                  <Box display="flex" flexWrap="wrap" gap={1}>
+                    {selectedPromotions.map((promo) => (
+                      <Chip
+                        key={promo.code}
+                        label={promo.code}
+                        onDelete={() => handleDelete(promo.code)}
+                        color="primary"
+                      />
+                    ))}
+                    <Button variant="outlined" onClick={toggleDialog}>
+                      Select Promotions
+                    </Button>
+                  </Box>
+
+                  <Dialog open={open} onClose={toggleDialog} fullWidth maxWidth="sm">
+                    <DialogTitle>
+                      Choose Promotions
+                      <IconButton
+                        aria-label="close"
+                        onClick={toggleDialog}
+                        sx={{ position: "absolute", right: 8, top: 8 }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </DialogTitle>
+                    <DialogContent dividers>
+                      <Stack spacing={2}>
+                        {promotionCodeList.map((promo) => {
+                          const checked = tempSelection.some((p) => p.code === promo.code);
+                          const disabled =
+                            (!checked &&
+                              selectedPromotions.some((p) => !p.canCombine && p.type !== "shipping") &&
+                              promo.type !== "shipping" &&
+                              !promo.canCombine) ||
+                            (!checked &&
+                              promo.type === "shipping" &&
+                              selectedPromotions.some((p) => p.type === "shipping"));
+
+                          return (
+                            <Paper
+                              key={promo.code}
+                              variant="outlined"
+                              sx={{ padding: 2, display: 'flex', alignItems: 'flex-start', gap: 2 }}
+                            >
+                              <Checkbox
+                                checked={checked}
+                                onChange={() => handleTogglePromo(promo)}
+                                disabled={disabled}
+                                sx={{ mt: 0.5 }}
+                              />
+                              <Box>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                  {promo.code} ({promo.type === 'shipping' ? 'Shipping' : 'Product'})
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {promo.description || 'No description'}
+                                </Typography>
+                                {promo.canCombine && (
+                                  <Chip
+                                    label="Can Combine"
+                                    size="small"
+                                    color="success"
+                                    sx={{ mt: 0.5 }}
+                                  />
+                                )}
+                              </Box>
+                            </Paper>
+                          );
+                        })}
+                      </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={toggleDialog}>Cancel</Button>
+                      <Button onClick={handleApply} variant="contained">
+                        Apply
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </Box>
               </div>
             </div>
-            
             <div className="row mt-4">
               <div className="col-md-6">
                 <div className="form-group">
@@ -599,15 +762,12 @@ const Checkout = () => {
                     className="form-control"
                     onChange={onChangeInput}
                   >
-                    <option value="">Select Shipping Method</option>
                     <option value="standard">Standard Shipping</option>
                     <option value="express">Express Shipping</option>
                   </select>
                 </div>
               </div>
             </div>
-            
-
             <div className="col-md-4">
               <div className="card orderInfo">
                 <h4 className="hd">YOUR ORDER</h4>
@@ -639,19 +799,11 @@ const Checkout = () => {
                             </tr>
                           );
                         })}
-
+                      <tr style={{ borderTop: '2px solid #ccc' }}></tr>
                       <tr>
                         <td>Subtotal </td>
-
                         <td>
-                          {(cartData?.length !== 0
-                            ? cartData
-                                ?.map(
-                                  (item) => parseInt(item.price) * item.quantity
-                                )
-                                .reduce((total, value) => total + value, 0)
-                            : 0
-                          )?.toLocaleString("en-US", {
+                          {totalAmount.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
                           })}
@@ -660,33 +812,44 @@ const Checkout = () => {
                       <tr>
                         <td>Discount</td>
                         <td>
-                          {discount}%
+                          {discount.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          })}
                         </td>
                       </tr>
                       <tr>
-                        <td>Total</td>
+                        <td>Shipping Fee</td>
                         <td>
+                          {(shippingFee - shippingFeeDiscount).toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
+                          {shippingFeeDiscount > 0 && (
+                            <span style={{ color: "green", marginLeft: "8px" }}>
+                              ( -{shippingFeeDiscount.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              })})
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{color: "red"}}>Total</td>
+                        <td style={{color: "red"}}>
                           {(
-                            (cartData?.length !== 0
-                              ? cartData
-                                  ?.map(
-                                    (item) => parseInt(item.price) * item.quantity
-                                  )
-                                  .reduce((total, value) => total + value, 0)
-                              : 0) - 
+                            totalAmount - 
                             // Trừ đi phần discount
                             (discount > 0
-                              ? (
-                                  (cartData?.length !== 0
-                                    ? cartData
-                                        ?.map(
-                                          (item) => parseInt(item.price) * item.quantity
-                                        )
-                                        .reduce((total, value) => total + value, 0)
-                                    : 0
-                                  ) * (discount / 100)
-                                )
-                              : 0)
+                              ? discount
+                              : 0) + 
+                              (shippingFee > 0
+                              ? shippingFee
+                              : 0) - 
+                                (shippingFeeDiscount > 0
+                                ? shippingFeeDiscount
+                                : 0)
                           )?.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
@@ -696,7 +859,6 @@ const Checkout = () => {
                     </tbody>
                   </table>
                 </div>
-                
                 {paymentMethod === "Paypal" && orderId ? (
                   <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
                       <PayPalButtons
@@ -731,6 +893,4 @@ const Checkout = () => {
     </section>
   );
 };
-
-
 export default Checkout;

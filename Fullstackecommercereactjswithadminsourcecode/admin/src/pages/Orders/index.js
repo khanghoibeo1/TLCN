@@ -17,6 +17,8 @@ import { MdOutlineEmail } from "react-icons/md";
 import { FaPhoneAlt } from "react-icons/fa";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { MdOutlineDateRange } from "react-icons/md";
+import { IconButton, Tooltip } from '@mui/material';
+import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import FormControl from "@mui/material/FormControl";
 
 import MenuItem from "@mui/material/MenuItem";
@@ -196,10 +198,17 @@ const Orders = () => {
                   onChange={handleDateChange(setEndDate)}
                 />
               </div>
-              <div className="col-md-5 d-flex justify-content-end">
+              <div className="col-md-4 d-flex">
                 <div className="searchWrap d-flex ">
                   <SearchBox onSearch={onSearch} />
                 </div>
+              </div>
+              <div>
+                <Tooltip title={isReversed ? 'New' : 'Old'}>
+                  <IconButton onClick={handleToggleSort} color="primary">
+                    {<SortByAlphaIcon />}
+                  </IconButton>
+                </Tooltip>
               </div>
             </div>
             
@@ -224,8 +233,8 @@ const Orders = () => {
               </thead>
 
               <tbody>
-                {orders?.length !== 0 &&
-                  orders?.map((order, index) => {
+                {displayedOrders?.length !== 0 &&
+                  displayedOrders?.map((order, index) => {
                     return (
                       <>
                         <tr key={index}>

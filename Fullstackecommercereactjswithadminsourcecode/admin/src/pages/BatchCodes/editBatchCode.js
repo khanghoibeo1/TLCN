@@ -10,7 +10,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { MyContext } from "../../App";
 import { fetchDataFromApi, editData } from "../../utils/api";
 import { useNavigate, useParams } from "react-router-dom";
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem, TextField, Autocomplete } from "@mui/material";
 import SearchBox from "../../components/SearchBox";
 
 // Breadcrumb style
@@ -43,10 +43,12 @@ const EditBatchCode = () => {
     batchName: "",
     productId: "",
     productName: "",
-    amount: "",
+    amount: null,
     importDate: "",
     expiredDate: "",
-    price: "",
+    price: null,
+    oldPrice: null,
+    discount: null,
     locationName: "",
     locationId: "",
     note: "",
@@ -77,6 +79,8 @@ const EditBatchCode = () => {
         importDate: res.importDate ? res.importDate.split("T")[0] : "",
         expiredDate: res.expiredDate ? res.expiredDate.split("T")[0] : "",
         price: res?.price || "",
+        oldPrice: res?.oldPrice || "",
+        discount: res?.discount || "",
         locationName: res?.locationName || "",
         locationId: res?.locationId || "",
         note: res?.note || "",
@@ -116,6 +120,22 @@ const EditBatchCode = () => {
       [e.target.name]: e.target.value,
     });
   };
+  //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
+  useEffect(() => {
+    if(formFields.oldPrice === '' || formFields.discount === ''){
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: '',
+      }));
+    }
+    if (formFields.oldPrice && formFields.discount) {
+      const discountedPrice = formFields.oldPrice - (formFields.oldPrice * (formFields.discount / 100));
+      setFormFields((prevFields) => ({
+        ...prevFields,
+        price: discountedPrice.toFixed(0),
+      }));
+    }
+  }, [formFields.oldPrice, formFields.discount]); 
 
   const editBatch = (e) => {
     e.preventDefault();
@@ -185,7 +205,7 @@ const EditBatchCode = () => {
                 <input type="text" name="productName" value={formFields.productName} onChange={changeInput} />
               </div> */}
 
-              <div className="mb-3">
+              {/* <div className="mb-3">
                 <h6 style={{fontSize: "13px"}}>Search Product</h6>
                 <SearchBox onSearch={onSearch} />
               </div>
@@ -211,6 +231,16 @@ const EditBatchCode = () => {
                 )}
                 </div>
                 
+              </div> */}
+              <div className="form-group">
+                <h6>Choose Product</h6>
+                <Autocomplete
+                  options={productData}
+                  getOptionLabel={(option) => option.name || ""}
+                  onChange={(event, newValue) => handleSelectProduct(newValue)}
+                  value={productData.find((p) => p.id === formFields.productId) || null}
+                  renderInput={(params) => <TextField {...params} label="Select Product" />}
+                />
               </div>
 
               <div className="form-group">
@@ -253,6 +283,16 @@ const EditBatchCode = () => {
               <div className="form-group">
                 <h6>Expired Date</h6>
                 <input type="date" name="expiredDate" value={formFields.expiredDate} onChange={changeInput} />
+              </div>
+  
+              <div className="form-group">
+                <h6>Old Price</h6>
+                <input type="number" name="oldPrice" value={formFields.oldPrice} onChange={changeInput} />
+              </div>
+   
+              <div className="form-group">
+                <h6>Discount</h6>
+                <input type="number" name="discount" value={formFields.discount} onChange={changeInput} />
               </div>
 
               <div className="form-group">

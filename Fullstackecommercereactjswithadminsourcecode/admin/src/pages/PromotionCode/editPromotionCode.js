@@ -41,8 +41,8 @@ const EditPromotionCode = () => {
     status: "active",
     canCombine: false,
     note: "",
+    type: 'product',
     applicableRoles: [],
-    applicableProductIds: [],
     applicableCategoryIds: [],
   });
 
@@ -79,7 +79,7 @@ const EditPromotionCode = () => {
         canCombine: data?.canCombine || false,
         note: data?.note || "",
         applicableRoles: data?.applicableRoles || [],
-        applicableProductIds: data?.applicableProductIds,
+        type: data?.type,
         applicableCategoryIds: data?.applicableCategoryIds
       });
     });
@@ -176,6 +176,14 @@ const EditPromotionCode = () => {
             </Select>
           </FormControl>
 
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Apply Type</InputLabel>
+            <Select name="type" value={formFields.type} onChange={handleChange}>
+              <MenuItem value="product">Product</MenuItem>
+              <MenuItem value="shipping">Shipping</MenuItem>
+            </Select>
+          </FormControl>
+
           <TextField label="Discount Value" type="number" name="discountValue" value={formFields.discountValue} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Minimum Order Value" type="number" name="minOrderValue" value={formFields.minOrderValue} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Max Usage" type="number" name="maxUsage" value={formFields.maxUsage} onChange={handleChange} fullWidth margin="normal" />
@@ -203,7 +211,7 @@ const EditPromotionCode = () => {
           </FormControl>
 
           
-          <div className="form-group">
+          {/* <div className="form-group">
             <h6>Applicable Products</h6>
             <Autocomplete
               multiple
@@ -221,7 +229,7 @@ const EditPromotionCode = () => {
                 <TextField {...params} label="Select Products" placeholder="Products" />
               )}
             />
-          </div>
+          </div> */}
           <div className="form-group">
             <h6>Applicable Categories</h6>
             <Autocomplete

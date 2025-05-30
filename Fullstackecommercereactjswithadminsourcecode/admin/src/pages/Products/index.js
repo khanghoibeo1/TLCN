@@ -1,11 +1,10 @@
 import { IoMdCart } from "react-icons/io";
-import { MdShoppingBag } from "react-icons/md";
-import MenuItem from "@mui/material/MenuItem";
 import { useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import { MdCategory } from "react-icons/md";
 
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
@@ -25,6 +24,7 @@ import Chip from "@mui/material/Chip";
 import HomeIcon from "@mui/icons-material/Home";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardBox from "../Dashboard/components/dashboardBox";
+import { MdShoppingBag } from "react-icons/md";
 import SearchBox from "../../components/SearchBox";
 import Checkbox from "@mui/material/Checkbox";
 import { deleteData, fetchDataFromApi } from "../../utils/api";
@@ -59,15 +59,16 @@ const Products = () => {
   const [showBy, setshowBy] = useState(10);
   const [categoryVal, setcategoryVal] = useState("all");
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [totalProducts, setTotalProducts] = useState();
   const [totalCategory, setTotalCategory] = useState();
   const [totalSubCategory, setTotalSubCategory] = useState();
   const [isLoadingBar, setIsLoadingBar] = useState(false);
-  const [perPage, setPerPage] = useState(10);
   const open = Boolean(anchorEl);
 
   const context = useContext(MyContext);
   const userContext = context.user;
+  console.log(userContext)
 
   const history = useNavigate();
 
@@ -141,12 +142,12 @@ const Products = () => {
         context.setProgress(100);
       });
     }
-else{
-  fetchDataFromApi(`/api/products?page=${value}&perPage=${perPage}`).then((res) => {
-    setProductList(res);
-    context.setProgress(100);
-  });
-}
+  else{
+    fetchDataFromApi(`/api/products?page=${value}&perPage=${perPage}`).then((res) => {
+      setProductList(res);
+      context.setProgress(100);
+    });
+  }
   };
 
   const showPerPage = (e) => {
@@ -333,7 +334,8 @@ else{
                   <th>CATEGORY</th>
                   <th>SUB CATEGORY</th>
                   <th>BRAND</th>
-                  <th>PRICE</th>
+                  <th>AMOUNT</th>
+                  {/* <th>PRICE</th> */}
                   <th>RATING</th>
                   <th>SEASON</th>
                   <th>NOTE</th>
@@ -369,14 +371,18 @@ else{
                         <td>{item?.subCatName}</td>
                         <td>{item?.brand}</td>
                         <td>
+                          {userContext.locationId
+                            ? item.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0
+                            : item.amountAvailable.reduce((sum, amount) => sum + amount.quantity, 0)}
+                        </td>
+                        {/* <td>
                           <div style={{ width: "70px" }}>
                             <del className="old">${item?.oldPrice}</del>
                             <span className="new text-danger">
                                ${item?.price}
                             </span>
                           </div>
-                        </td>
-                        {/* <td>{item?.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0}</td> */}
+                        </td> */}
                         <td>
                           <Rating
                             name="read-only"

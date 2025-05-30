@@ -11,7 +11,7 @@ const QuantityBox = (props) => {
     const [batchData, setBatchData] = useState(null);
 
     const context = useContext(MyContext);
-    const selectedCountry = context.selectedCountry;
+    const selectedCountry = context.selectedCountry.iso2;
 
     useEffect(() => {
         fetchDataFromApi(`/api/batchCodes/${props.item.batchId}`).then((res) => {

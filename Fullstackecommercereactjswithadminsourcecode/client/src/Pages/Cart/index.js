@@ -188,12 +188,12 @@ const Cart = () => {
                                             </span>
                                         </div>
 
-                                        <div className="d-flex align-items-center mb-3">
+                                        {/* <div className="d-flex align-items-center mb-3">
                                             <span>Shipping</span>
                                             <span className="ml-auto"><b>Free</b></span>
-                                        </div>
+                                        </div> */}
 
-                                        <div className="d-flex align-items-center">
+                                        {/* <div className="d-flex align-items-center">
                                             <span>Total</span>
                                             <span className="ml-auto text-red font-weight-bold">
                                             {
@@ -201,7 +201,7 @@ const Cart = () => {
                                                     context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                                             }
                                             </span>
-                                        </div>
+                                        </div> */}
 
 
                                         <br />
