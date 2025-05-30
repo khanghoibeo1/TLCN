@@ -203,13 +203,6 @@ const Orders = () => {
                   <SearchBox onSearch={onSearch} />
                 </div>
               </div>
-              <div>
-                <Tooltip title={isReversed ? 'New' : 'Old'}>
-                  <IconButton onClick={handleToggleSort} color="primary">
-                    {<SortByAlphaIcon />}
-                  </IconButton>
-                </Tooltip>
-              </div>
             </div>
             
             
