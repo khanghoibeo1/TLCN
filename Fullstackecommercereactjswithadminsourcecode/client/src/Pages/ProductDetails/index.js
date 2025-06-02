@@ -278,7 +278,7 @@ const ProductDetails = () => {
               <div className="col-md-4 pl-5 part1">
                 <ProductZoom
                   images={productData?.images}
-                  discount={productData?.discount}
+                  discount={latestBatch?.discount}
                 />
               </div>
 

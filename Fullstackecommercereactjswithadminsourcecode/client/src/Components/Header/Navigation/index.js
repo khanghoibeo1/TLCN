@@ -3,7 +3,7 @@ import { IoIosMenu } from "react-icons/io";
 import { FaAngleDown } from "react-icons/fa6";
 import {Typography, Box} from '@mui/material';
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { FaAngleRight } from "react-icons/fa6";
 import { MyContext } from "../../../App";
 import CountryDropdown from "../../CountryDropdown";
@@ -13,7 +13,6 @@ import { RiLogoutCircleRFill } from "react-icons/ri";
 import MenuIcon from '@mui/icons-material/Menu';
 import { FaBlog } from "react-icons/fa";
 import { Select, MenuItem } from '@mui/material';
-
 import HomeImage from "../../../assets/images/homeimage.png";
 import BlogImage from "../../../assets/images/blogimage.png";
 import MapImage from "../../../assets/images/mapimage.jpg";
@@ -24,6 +23,7 @@ const Navigation = (props) => {
   const [isOpenNav, setIsOpenNav] = useState(false);
   const [isOpenSubMenuIndex, setIsOpenSubMenuIndex] = useState(null);
   const [isOpenSubMenu_, setIsOpenSubMenu_] = useState(false);
+  const sidebarRef = useRef();
 
   const context = useContext(MyContext);
   const userContext = context.user;
@@ -32,6 +32,19 @@ const Navigation = (props) => {
   useEffect(() => {
     setIsOpenNav(props.isOpenNav);
   }, [props.isOpenNav]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setisopenSidebarVal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const IsOpenSubMenu = (index) => {
     setIsOpenSubMenuIndex(index);
@@ -77,10 +90,10 @@ const Navigation = (props) => {
               </Button>
 
               <div
-                className={`sidebarNav ${
-                  isopenSidebarVal === true ? "open" : ""
-                }`}
+                ref={sidebarRef}
+                className={`sidebarNav ${isopenSidebarVal === true ? "open" : ""}`}
               >
+
                 <ul>
                 
                   {props.navData?.map((item, index) => {

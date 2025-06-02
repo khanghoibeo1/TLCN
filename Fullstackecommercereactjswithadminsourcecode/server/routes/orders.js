@@ -46,7 +46,7 @@ router.get('/user', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { status, q, page = 1, limit = 10, startDate, endDate } = req.query;
+    const { status, q, page = 1, limit = 10, startDate, endDate, locationId } = req.query;
 
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
@@ -78,6 +78,13 @@ router.get('/', async (req, res) => {
         filter.date.$lte = e;
       }
     }
+
+    // Lọc theo locationId
+    if (locationId && locationId !== 'null') {
+        filter.locationId = locationId;
+    }
+
+    
 
     const totalOrders = await Orders.countDocuments(filter);
 
@@ -134,22 +141,24 @@ router.post('/create', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid amount.' });
     }
 
-    const newOrder = new Orders({
-      name,
-      phoneNumber,
-      address,
-      shippingMethod,
-      shippingFee,
-      amount,
-      payment,
-      email,
-      userid,
-      products,
-      date,
-      orderDiscount,
-      note,
-      status: 'pending' 
-    });
+        const newOrder = new Orders({
+            name,
+            phoneNumber,
+            address,
+            shippingMethod,
+            shippingFee,
+            amount,
+            payment, 
+            email,
+            userid,
+            products,
+            date,
+            orderDiscount,
+            note,
+            locationId,
+            locationName,
+            status: 'pending' 
+        });
 
     const savedOrder = await newOrder.save();
     for (const item of products) {
@@ -248,7 +257,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     try {
-        const { name, phoneNumber, address, shippingFee, amount, payment, email, userid, products, status, date, note } = req.body;
+        const { name, phoneNumber, address, shippingMethod, shippingFee, amount, payment, email, userid, products, status, date, note, locationId, locationName } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
         if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
@@ -265,6 +274,7 @@ router.put('/:id', async (req, res) => {
         order.name = name || order.name;
         order.phoneNumber = phoneNumber || order.phoneNumber;
         order.address = address || order.address;
+        order.shippingMethod = shippingMethod || order.shippingMethod;
         order.amount = amount || order.amount;
         order.shippingFee = shippingFee || order.shippingFee;
         order.payment = payment || order.payment;
@@ -274,7 +284,8 @@ router.put('/:id', async (req, res) => {
         order.status = status || order.status;
         order.date = date || order.date;
         order.note = note || order.note;
-
+        order.locationId = locationId || order.locationId;
+        order.locationName = locationName || order.locationName;
         const updatedOrder = await order.save();
         return res.status(200).json(updatedOrder);
     } catch (error) {

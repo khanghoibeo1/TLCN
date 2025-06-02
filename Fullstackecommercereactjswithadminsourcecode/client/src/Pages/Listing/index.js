@@ -28,6 +28,8 @@ const Listing = () => {
   const [productData, setProductData] = useState([]);
   const [isLoading, setisLoading] = useState(false);
   const [filterId, setFilterId] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [subCategoryName, setSubCategoryName] = useState("");
 
   
   const history = useNavigate();
@@ -44,16 +46,21 @@ const Listing = () => {
 
     let url = window.location.href;
     let apiEndPoint = "";
+    let catApi = "";
 
     if (url.includes("subCat")) {
       apiEndPoint = `/api/products/subCatId?subCatId=${id}&location=${localStorage.getItem(
         "location"
       )}&page=1&perPage=12`;
+
+      catApi = `/api/category/bySubCat/${id}`;
     }
     if (url.includes("category")) {
       apiEndPoint = `/api/products/catId?catId=${id}&location=${localStorage.getItem(
         "location"
       )}&page=1&perPage=12`;
+
+      catApi = `/api/category/${id}`;
     }
 
     setisLoading(true);
@@ -63,10 +70,26 @@ const Listing = () => {
       setisLoading(false);
     });
 
+    fetchDataFromApi(catApi).then((res) => {
+      if (res?.parent?.name) {
+        setCategoryName(res.parent.name);
+      } else if (res?.categoryData[0]?.name) {
+        setCategoryName(res.categoryData[0].name);
+      } else {
+        setCategoryName("");  // reset nếu không có category
+      }
+
+      if (res?.children && res.children.length > 0) {
+        setSubCategoryName(res.children[0].name);
+      } else {
+        setSubCategoryName("");  // reset nếu không có subcategory
+      }
+    });
+
+
     context.setEnableFilterTab(true);
 
   }, [id]);
-
 
   const handleChangePage = (event, value) => {
     window.scrollTo({
@@ -173,6 +196,56 @@ const Listing = () => {
             />
 
             <div className="content_right">
+              <div
+                style={{
+                  marginBottom: "1rem",
+                  borderBottom: "1px solid #ddd",
+                  paddingBottom: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontFamily: "Arial, sans-serif",
+                }}
+              >
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "1.6rem",
+                    fontWeight: "700",
+                    color: "#5C88C4",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  {categoryName}
+                </h2>
+
+                {subCategoryName && (
+                  <>
+                    <span
+                      style={{
+                        fontSize: "1.2rem",
+                        color: "#999",
+                        userSelect: "none",
+                      }}
+                    >
+                      →
+                    </span>
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: "1.2rem",
+                        fontWeight: "500",
+                        color: "#555",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {subCategoryName}
+                    </h4>
+                  </>
+                )}
+              </div>
+
               <div className="showBy mt-0 mb-3 d-flex align-items-center">
                 <div className="d-flex align-items-center btnWrapper">
                   <Button

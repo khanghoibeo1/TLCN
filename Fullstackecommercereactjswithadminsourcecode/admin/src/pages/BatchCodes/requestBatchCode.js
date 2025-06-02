@@ -58,7 +58,7 @@ const RequestBatchCode = () => {
             setBatchCodes(res);
             context.setProgress(100);
         });
-    }, [percentRemain, dayRemain, perPage]);
+    }, [percentRemain, dayRemain, perPage, user, batchCodes]);
 
     const deleteBatchCode = (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -74,8 +74,14 @@ const RequestBatchCode = () => {
 
     const handleChangeStatus = (e, id) => {
         const newStatus = e.target.value;
-        postData(`/api/batchCodes/${id}/status`, { status: newStatus }).then(() => {
-            setBatchCodes(batchCodes.map(batch => batch._id === id ? { ...batch, status: newStatus } : batch));
+        postData(`/api/batchCodes/${id}/status`, { status: newStatus }).then((res) => {
+            setBatchCodes(prev =>
+                Array.isArray(prev)
+                    ? prev.map(batch =>
+                        batch._id === id ? { ...batch, status: newStatus } : batch
+                    )
+                    : []
+                );
         });
     };
 
@@ -234,7 +240,7 @@ const RequestBatchCode = () => {
                                     </td>
                                     <td>
                                     <div className="actions d-flex align-items-center">
-                                            {user.locationName ? 
+                                            {(user.locationName && batch.status !== 'delivered')? 
                                                 <Link to={`/batchCode/edit/${batch._id}`}>
                                                     <Button className="success" color="success"><FaPencilAlt /></Button>
                                                 </Link>

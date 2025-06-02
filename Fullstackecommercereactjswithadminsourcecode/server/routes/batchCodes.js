@@ -225,11 +225,11 @@ router.get('/:id/:location/latest-batch', async (req, res) => {
         const locationDoc = await StoreLocation.findOne({ iso2: location });
         const locationId = locationDoc?.id;
 
-
         // Nếu location là "null", thì là kho tổng
         const query = {
             productId: id,
             status: "delivered",
+            expiredDate: { $gt: new Date() }, // ✅ Chỉ lấy batch còn hạn
             ...(location !== "null"
                 ? { locationId: locationId }
                 : { locationId: null }
@@ -241,7 +241,7 @@ router.get('/:id/:location/latest-batch', async (req, res) => {
             .limit(1);
 
         if (!latestBatch || latestBatch.length === 0) {
-            return res.status(404).json({ success: false, message: "No batch found" });
+            return res.status(404).json({ success: false, message: "No valid batch found" });
         }
 
         res.status(200).json(latestBatch[0]);
@@ -387,6 +387,7 @@ router.post("/:id/status", async (req, res) => {
             productId,
             locationId: null,
             amountRemain: { $gt: 0 },
+            expiredDate: { $gt: new Date() },
         }).sort({ importDate: 1 });
 
         const deliveredBatches = [];
@@ -500,17 +501,19 @@ router.patch('/updateRemain/:batchId', async (req, res) => {
 router.get('/amountRemainTotal/getSum', async (req, res) => {
     try {
         const { productId } = req.query;
-        console.log(productId)
         if (!productId) {
             return res.status(400).json({ success: false, message: "Missing productId" });
         }
+
+        const now = new Date();
 
         const totalRemain = await BatchCode.aggregate([
             {
                 $match: {
                     productId: new mongoose.Types.ObjectId(productId),
                     locationId: null,
-                    amountRemain: { $gt: 0 }
+                    amountRemain: { $gt: 0 },
+                    expiredDate: { $gt: now }  // Thêm điều kiện kiểm tra hạn sử dụng
                 }
             },
             {
@@ -529,6 +532,7 @@ router.get('/amountRemainTotal/getSum', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 });
+
 
   
 

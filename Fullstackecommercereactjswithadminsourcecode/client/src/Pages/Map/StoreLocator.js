@@ -214,7 +214,11 @@ const StoreLocator = ({ userLocation, stores }) => {
               <span style={{ fontWeight: "500" }}>{store.name}</span>
               <span style={{ color: "#555", textAlign: "right" }}>
                 {(store.distance / 1000).toFixed(2)} km<br />
-                {calculateShippingFee(store.distance).toLocaleString()} 
+                {calculateShippingFee(store.distance)
+                .toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                })} 
               </span>
             </li>
           ))}

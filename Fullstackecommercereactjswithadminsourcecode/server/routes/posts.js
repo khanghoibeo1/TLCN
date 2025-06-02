@@ -5,6 +5,7 @@ const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
 const { ImageUpload } = require("../models/imageUpload.js");
+const { PostType } = require("../models/postType");
 const mongoose = require("mongoose");
 
 const cloudinary = require("cloudinary").v2;
@@ -339,25 +340,58 @@ router.delete("/deleteImage", async (req, res) => {
   });
 
 // API để lấy số lượng bài viết theo category
+// router.get('/get/data/category-stats', async (req, res) => {
+//   try {
+//     // Sử dụng aggregate để nhóm các bài viết theo category và đếm số lượng
+//     const result = await Post.aggregate([
+//       {
+//         $group: {
+//           _id: "$category",  // Nhóm theo category
+//           count: { $sum: 1 }, // Đếm số lượng bài viết trong mỗi category
+//         },
+//       },
+//       {
+//         $sort: { count: -1 }  // Sắp xếp theo số lượng bài viết, giảm dần
+//       }
+//     ]);
+
+//     const formattedData = result.map((item) => ({
+//       name: item._id, // Tên trạng thái (Pending, Shipped, Delivered)
+//       amount: item.count, // Tổng số lượng
+//     }));
+
+//     res.status(200).json(formattedData);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching category stats", error });
+//   }
+// });
+
 router.get('/get/data/category-stats', async (req, res) => {
   try {
-    // Sử dụng aggregate để nhóm các bài viết theo category và đếm số lượng
-    const result = await Post.aggregate([
+    // Lấy tất cả posttype (category)
+    const categories = await PostType.find(); // posttype model
+
+    // Đếm số lượng bài viết theo category từ Post
+    const counts = await Post.aggregate([
       {
         $group: {
-          _id: "$category",  // Nhóm theo category
-          count: { $sum: 1 }, // Đếm số lượng bài viết trong mỗi category
+          _id: "$category",
+          count: { $sum: 1 },
         },
       },
-      {
-        $sort: { count: -1 }  // Sắp xếp theo số lượng bài viết, giảm dần
-      }
     ]);
+    console.log(counts)
 
-    const formattedData = result.map((item) => ({
-      name: item._id, // Tên trạng thái (Pending, Shipped, Delivered)
-      amount: item.count, // Tổng số lượng
-    }));
+    // Map lại dữ liệu: gắn số lượng vào từng category
+    const formattedData = categories
+    .filter((category) => category.name !== 'All')
+    .map((category) => {
+      const match = counts.find((c) => c._id === category.name);
+      return {
+        name: category.name,
+        amount: match ? match.count : 0,
+      };
+    });
 
     res.status(200).json(formattedData);
   } catch (error) {

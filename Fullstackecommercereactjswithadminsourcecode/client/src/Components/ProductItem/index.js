@@ -177,8 +177,8 @@ const ProductItem = (props) => {
 
                     </Link>
 
-                    {props.item?.discount > 0 && (
-                        <span className='badge badge-primary'>{props.item?.discount}%</span>
+                    {latestBatch?.discount > 0 && (
+                        <span className='badge badge-primary'>{latestBatch?.discount}%</span>
                   )}
                     <div className="actions">
                         <Button onClick={() => viewProductDetails(props?.itemView === 'recentlyView' ? props.item?.prodId : props.item?.id)}><TfiFullscreen /></Button>

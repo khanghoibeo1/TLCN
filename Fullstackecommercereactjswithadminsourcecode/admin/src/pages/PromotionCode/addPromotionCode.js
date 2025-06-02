@@ -42,6 +42,7 @@ const AddPromotionCode = () => {
     note: "",
     applicableRoles: [],
     type: 'product',
+    reuse: 'limit',
     applicableCategoryIds: [],
   });
 
@@ -151,6 +152,14 @@ const AddPromotionCode = () => {
             <Select name="type" value={formFields.type} onChange={handleChange}>
               <MenuItem value="product">Product</MenuItem>
               <MenuItem value="shipping">Shipping</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Reuse</InputLabel>
+            <Select name="reuse" value={formFields.reuse} onChange={handleChange}>
+              <MenuItem value="limit">Limit</MenuItem>
+              <MenuItem value="unlimit">Unlimit</MenuItem>
             </Select>
           </FormControl>
 

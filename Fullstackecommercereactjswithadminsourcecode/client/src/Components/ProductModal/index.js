@@ -141,7 +141,7 @@ const ProductModal = (props) => {
 
                 <div className='row mt-2 productDetaileModal'>
                     <div className='col-md-5'>
-                        <ProductZoom images={props?.data?.images} discount={props?.data?.discount} />
+                        <ProductZoom images={props?.data?.images} discount={latestBatch?.discount} />
                     </div>
 
                     <div className='col-md-7'>

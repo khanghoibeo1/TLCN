@@ -62,6 +62,7 @@ const Orders = () => {
   const [statusVal, setstatusVal] = useState(null);
 
   const context = useContext(MyContext);
+  const userContext = context.user;
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchOrders = useCallback(() => {
@@ -98,17 +99,9 @@ const Orders = () => {
   };
 
   const onSearch = (keyword) => {
-    setQuerySearch(keyword);
-    setPage(1);
-  };
-
-  const handleDateChange = (setter) => (e) => {
-    setter(e.target.value);
-    setPage(1);
-  };
-
-  const showProducts = (id) => {
-    fetchDataFromApi(`/api/orders/${id}`)
+    const query = keyword ? `q=${keyword}&` : "";
+    setQuerySearch(query)
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`)
       .then((res) => {
         setProducts(res.products);
         setIsOpenModal(true);
@@ -116,16 +109,11 @@ const Orders = () => {
       .catch(console.error);
   };
 
-  const handleChangeStatusAdmin = (newStatus, orderId) => {
-    setIsLoading(true);
-    context.setProgress(40);
-    editData2(`/api/orders/admin-update/${orderId}`, { status: newStatus })
-      .then(() => {
-        fetchOrders();
-        context.setProgress(100);
-        setIsLoading(false);
-      }).catch((err) => {
-        console.error("Error updating order status by admin:", err);
+  const handleChangeStatus = (event) => {
+    setStatus(event.target.value);
+    fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`).then(
+      (res) => {
+        setOrders(res.orders);
         context.setProgress(100);
         setIsLoading(false);
       });
@@ -218,6 +206,8 @@ const Orders = () => {
                 <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
+
+                <th>Location</th>
                 <th>Shipping Method</th>
                 <th>Order Status</th>
                 <th>Date</th>
@@ -262,6 +252,7 @@ const Orders = () => {
                             <MdOutlineEmail /> {order?.email}
                           </td>
                           <td>{order?.shippingMethod}</td>
+                          <td>{order?.locationName}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
                             {order?.status === 'pending' ? (
