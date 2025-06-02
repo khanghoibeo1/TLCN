@@ -23,10 +23,8 @@ const localizer = momentLocalizer(moment);
 const PIE_COLORS = ['#29B6F6', '#AB47BC', '#66BB6A', '#FFCA28', '#EF5350'];
 const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showBy, setshowBy] = useState(10);
-  const [showBysetCatBy, setCatBy] = useState("");
-  const [productList, setProductList] = useState([]);
-  const [categoryVal, setcategoryVal] = useState("all");
+  const [showBy, setShowBy] = useState(10);
+  const [catBy, setCatBy] = useState("");
   const [storeLocationList, setStoreLocationList] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
 
@@ -38,22 +36,21 @@ const Dashboard = () => {
   const [perPage, setPerPage] = useState(10);
 
   const [orderStatusData, setOrderStatusData] = useState([]);
-  const [blogStats, setBlogStats] = useState([]);
-  const [mostSelling, setMostSelling] = useState([]);
+  const [blogCountCatgoryData, setBlogCountCatgoryData] = useState([]);
   const [userSpentData, setUserSpentData] = useState([]);
   const [userRankData, setUserRankData] = useState([]);
   const [productLittleData, setProductLittleData] = useState([]);
   const [reviewStatsData, setreviewStatsData] = useState([]);
-  const [mostSellingProductsData, setMostSellingProductsData] = useState([]);
   const [reviewStatsDataWithStars, setReviewStatsDataWithStars] = useState([]);
+  const [mostSellingProductsData, setMostSellingProductsData] = useState([]);
   const [salesData, setSalesData] = useState([]);
   const userChartHeight = Math.max(userSpentData.length * 40, 300)
 
   const maxNameLen = Math.max(...userSpentData.map(u => u.name.length), 0);
   const yAxisLabelWidth = Math.min(Math.max(maxNameLen * 8, 80), 160); 
-  const productChartHeight = Math.max(reviewStats.length * 40 + 60, 200);
+  const productChartHeight = Math.max(reviewStatsData.length * 40 + 60, 200);
   // nhân với 8px trên mỗi ký tự, giới hạn trong [80, 160]
-
+  const ITEM_HEIGHT = 48;
   const yAxisMarginLeft = yAxisLabelWidth + 20;
   const [filter, setFilter] = useState({
     fromDate: "2024-01-01",
@@ -159,41 +156,42 @@ const Dashboard = () => {
 
 
   return (
-    <div className="right-content w-100">
-
-      {/* === 1. TOP CARDS === */}
-      <div className="dashboard-top-cards px-4 pt-4">
-        <div className="d-flex flex-wrap justify-content-between">
-          <DashboardBox
-            color={["#1da256","#48d483"]}
-            icon={<FaUserCircle />}
-            title="Total Users"
-            count={totalUsers}
-            onClick={()=>navigate("/users")}
-          />
-          <DashboardBox
-            color={["#c012e2","#eb64fe"]}
-            icon={<IoMdCart />}
-            title="Total Orders"
-            count={totalOrders}
-            onClick={()=>navigate("/orders")}
-          />
-          <DashboardBox
-            color={["#2c78e5","#60aff5"]}
-            icon={<MdShoppingBag />}
-            title="Total Products"
-            count={totalProducts}
-            onClick={()=>navigate("/products")}
-          />
-          <DashboardBox
-            color={["#e1950e","#f3cd29"]}
-            icon={<GiStarsStack />}
-            title="Total Reviews"
-            count={totalReviews}
-            onClick={()=>navigate("/")}
-          />
-        </div>
-      </div>
+    <>
+      <div className="right-content w-100">
+        <div className="row dashboardBoxWrapperRow dashboard_Box dashboardBoxWrapperRowV2">
+          <div className="col-md-12 ml-4">
+            <div className="dashboardBoxWrapper d-flex">
+              <DashboardBox
+                color={["#1da256", "#48d483"]}
+                icon={<FaUserCircle />}
+                grow={true}
+                title="Total Users"
+                count={totalUsers}
+                onClick={() => history('/users')}
+              />
+              <DashboardBox
+                color={["#c012e2", "#eb64fe"]}
+                icon={<IoMdCart />}
+                title="Total Orders"
+                count={totalOrders}
+                onClick={() => history('/orders')}
+              />
+              <DashboardBox
+                color={["#2c78e5", "#60aff5"]}
+                icon={<MdShoppingBag />}
+                title="Total Products"
+                count={totalProducts}
+                onClick={() => history('/products')}
+              />
+              <DashboardBox
+                color={["#e1950e", "#f3cd29"]}
+                icon={<GiStarsStack />}
+                title="Total Reviews"
+                count={totalProductsReviews}
+                onClick={() => history('/')}
+              />
+            </div>
+          </div>
 
           <div className="container-fluid text-white m-1">
             {/* Row 1 */}
@@ -229,7 +227,7 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {storeLocationList.map((location, index) => (
+        {storeLocationList.map((location, index) => (
                           <tr key={location._id}>
                             <td>{index + 1}</td>
                             <td>{location.location}</td>
@@ -304,6 +302,9 @@ const Dashboard = () => {
               <div className="col-md-4">
                 <div className="box bg-dark p-3">
                   <h6 className="text-white mb-3">Product Ratings Stats</h6>
+                  <div className="col-md-4">
+                    <div className="box bg-dark p-3">
+                  <h6 className="text-white mb-3">Product Ratings Stats</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Tooltip />
@@ -331,6 +332,7 @@ const Dashboard = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
+            </div>
             </div>
 
             {/* Row 3 */}
@@ -367,7 +369,7 @@ const Dashboard = () => {
                         {userSpentData.map((user, index) => (
                           <tr>
                             <td>{index + 1}</td>
-                            <td>{user.name}</td>
+                              <td>{user.name}</td>
                             <td>{user.totalSpent.toLocaleString()}</td>
                           </tr>
                         ))}
@@ -470,15 +472,14 @@ const Dashboard = () => {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-              </div>
+                  </div>
             </div>
-            
-            {/* Row 5 */}
+               {/* Row 5 */}
             <div className="row mt-3 d-flex justify-content-between">
               
               <div className="col-md-12 ">
                 <div className="box p-3 bg-dark">
-                    <h6 className="text-white mb-3">Stats Products Follow Category</h6>
+                <h6 className="text-white mb-3">Stats Products Follow Category</h6>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={subCatData}>
                         <YAxis />
@@ -498,14 +499,11 @@ const Dashboard = () => {
                   </div>
               </div>
             </div>
-
-            
-            
-            
-          </div>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
+    </>
   );
 };
 

@@ -60,53 +60,56 @@ const Orders = () => {
   const [endDate, setEndDate] = useState("");
   const [singleOrder, setSingleOrder] = useState();
   const [statusVal, setstatusVal] = useState(null);
-
+  const [isReversed, setIsReversed] = useState(false);
   const context = useContext(MyContext);
   const userContext = context.user;
   const [isLoading, setIsLoading] = useState(false);
-
-  const fetchOrders = useCallback(() => {
-    const params = new URLSearchParams();
-    if (status && status !== "all") params.append("status", status);
-    if (querySearch)               params.append("q", querySearch);
-    if (startDate)                 params.append("startDate", startDate);
-    if (endDate)                   params.append("endDate", endDate);
-    params.append("page", page);
-    params.append("limit", 10);
-
-    fetchDataFromApi(`/api/orders?${params.toString()}`)
-      .then((res) => {
-        setOrders(res.orders);
-        setTotalPages(res.totalPages);
-        setPage(res.currentPage);
-      })
-      .catch((err) => console.error(err));
-  }, [status, querySearch, startDate, endDate, page]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
     fetchOrders();
-    }, [fetchOrders]);
+    }, [page,startDate, endDate, userContext, status, querySearch, startDate, endDate]);
 
-  const handlePageChange = (event, value) => {
-    setPage(value);
+
+  const fetchOrders = () => {
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }${startDate  ? `startDate=${startDate }&` : ""  }${endDate  ? `endDate=${endDate }&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`).then((res) => {
+        setOrders(res.orders);
+        setTotalPages(res.totalPages);
+    })
+    .catch((err) => {
+      console.error("Error fetching orders:", err);
+    });;
   };
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value);
-    setPage(1);
-  };
+
 
   const onSearch = (keyword) => {
     const query = keyword ? `q=${keyword}&` : "";
-    setQuerySearch(query)
+    setQuerySearch(keyword);
     fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`)
       .then((res) => {
-        setProducts(res.products);
-        setIsOpenModal(true);
+        setOrders(res.orders);
+        setTotalPages(res.totalPages);
+        setPage(res.currentPage)
       })
       .catch(console.error);
+    setPage(1);
+  };
+  const handlePageChange = (event, value) => {
+  setPage(value);
+};
+
+  const handleDateChange = (setter) => (e) => {
+    setter(e.target.value);
+    setPage(1);
+  };
+
+  const showProducts = (id) => {
+    fetchDataFromApi(`/api/orders/${id}`).then((res) => {
+    setIsOpenModal(true);
+    setProducts(res.products) 
+    })
   };
 
   const handleChangeStatus = (event) => {
@@ -115,9 +118,14 @@ const Orders = () => {
       (res) => {
         setOrders(res.orders);
         context.setProgress(100);
-        setIsLoading(false);
+
       });
     };
+    const handleToggleSort = () => {
+    setIsReversed((prev) => !prev);
+  };
+
+  const displayedOrders = isReversed ? [...orders].reverse() : orders;
 
   return (
     <>
@@ -153,7 +161,7 @@ const Orders = () => {
                 <FormControl size="small" className="w-100">
                   <Select
                     value={status}
-                    onChange={handleStatusChange}
+                    onChange={handleChangeStatus}
                     displayEmpty
                     inputProps={{ "aria-label": "Without label" }}
                     className="w-100"
@@ -174,7 +182,7 @@ const Orders = () => {
                   type="date"
                   value={startDate}
                   className="form-control"
-                  onChange={handleDateChange(setStartDate)}
+                  onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
               <div className="col-md-2">
@@ -183,13 +191,20 @@ const Orders = () => {
                   type="date"
                   value={endDate}
                   className="form-control"
-                  onChange={handleDateChange(setEndDate)}
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
               <div className="col-md-4 d-flex">
                 <div className="searchWrap d-flex ">
                   <SearchBox onSearch={onSearch} />
                 </div>
+              </div>
+              <div>
+                <Tooltip title={isReversed ? 'New' : 'Old'}>
+                  <IconButton onClick={handleToggleSort} color="primary">
+                    {<SortByAlphaIcon />}
+                  </IconButton>
+                </Tooltip>
               </div>
             </div>
             
@@ -259,7 +274,7 @@ const Orders = () => {
                               <Select
                                 disabled={isLoading}
                                 value={order?.status}
-                                onChange={(e) =>  handleChangeStatusAdmin(e.target.value, order?._id)}
+                                onChange={(e) =>  handleChangeStatus(e, order?._id)}
                                 displayEmpty
                                 size="small"
                                 className="w-100"
