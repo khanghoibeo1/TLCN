@@ -387,6 +387,7 @@ router.post("/:id/status", async (req, res) => {
             productId,
             locationId: null,
             amountRemain: { $gt: 0 },
+            expiredDate: { $gt: new Date() },
         }).sort({ importDate: 1 });
 
         const deliveredBatches = [];
@@ -500,17 +501,19 @@ router.patch('/updateRemain/:batchId', async (req, res) => {
 router.get('/amountRemainTotal/getSum', async (req, res) => {
     try {
         const { productId } = req.query;
-        console.log(productId)
         if (!productId) {
             return res.status(400).json({ success: false, message: "Missing productId" });
         }
+
+        const now = new Date();
 
         const totalRemain = await BatchCode.aggregate([
             {
                 $match: {
                     productId: new mongoose.Types.ObjectId(productId),
                     locationId: null,
-                    amountRemain: { $gt: 0 }
+                    amountRemain: { $gt: 0 },
+                    expiredDate: { $gt: now }  // Thêm điều kiện kiểm tra hạn sử dụng
                 }
             },
             {
@@ -529,6 +532,7 @@ router.get('/amountRemainTotal/getSum', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 });
+
 
   
 

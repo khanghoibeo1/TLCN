@@ -1,5 +1,6 @@
 const { Category } = require("../models/category.js");
 const { Product } = require("../models/products.js");
+const { BatchCode } = require("../models/batchCode");
 const { MyList } = require("../models/myList");
 const { Cart } = require("../models/cart");
 const { RecentlyViewd } = require("../models/recentlyViewd.js");
@@ -238,7 +239,7 @@ router.get(`/catId`, async (req, res) => {
 
   const page = parseInt(req.query.page) || 1;
   const perPage = parseInt(req.query.perPage);
-  const totalPosts = await Product.countDocuments();
+  const totalPosts = await Product.countDocuments({ catId: req.query.catId });
   const totalPages = Math.ceil(totalPosts / perPage);
 
   if (page > totalPages) {
@@ -290,7 +291,7 @@ router.get(`/subCatId`, async (req, res) => {
 
   const page = parseInt(req.query.page) || 1;
   const perPage = parseInt(req.query.perPage);
-  const totalPosts = await Product.countDocuments();
+  const totalPosts = await Product.countDocuments({ subCatId: req.query.subCatId });
   const totalPages = Math.ceil(totalPosts / perPage);
 
   if (page > totalPages) {
@@ -444,9 +445,7 @@ router.get(`/rating`, async (req, res) => {
     let filter = { rating: rating };
     if (catId) filter.catId = catId;
     if (subCatId) filter.subCatId = subCatId;
-    if (location && location !== "All") {
-      filter["location.value"] = location;
-    }
+    
 
     // Đếm tổng số sản phẩm phù hợp
     const totalPosts = await Product.countDocuments(filter);
@@ -865,6 +864,110 @@ router.patch('/updateAmount/:productId/amount/:locationId', async (req, res) => 
     res.status(500).json({ message: "Server error", error });
   }
 });
+
+// get product amount remain low to high
+router.get('/get/data/littleProduct', async (req, res) => {
+  try {
+    const { locationId } = req.query;
+    const now = new Date();
+
+    // Lấy toàn bộ sản phẩm
+    const products = await Product.find({}, 'name amountAvailable');
+
+    let result = [];
+
+    if (locationId && locationId !== 'null') {
+      // 🔹 Trường hợp chi nhánh con
+      result = products.map((product) => {
+        const found = product.amountAvailable.find(
+          (item) => item.locationId?.toString() === locationId
+        );
+        const quantity = found ? found.quantity : 0;
+        return {
+          name: product.name,
+          value: quantity,
+        };
+      });
+
+    } else {
+      // 🔹 Trường hợp kho tổng
+      // Tính tổng tồn kho từ batchCode
+      const batchTotals = await BatchCode.aggregate([
+        {
+          $match: {
+            locationId: null,
+            amountRemain: { $gt: 0 },
+            expiredDate: { $gt: now },
+          },
+        },
+        {
+          $group: {
+            _id: "$productId",
+            totalRemain: { $sum: "$amountRemain" },
+          },
+        },
+      ]);
+
+      // Tạo map để tra nhanh
+      const batchMap = {};
+      batchTotals.forEach((b) => {
+        batchMap[b._id.toString()] = b.totalRemain;
+      });
+
+      result = products.map((product) => {
+        const productIdStr = product._id.toString();
+        const quantity = batchMap[productIdStr] || 0;
+        return {
+          name: product.name,
+          value: quantity,
+        };
+      });
+    }
+
+    // 🔽 Sắp xếp theo số lượng tăng dần
+    result.sort((a, b) => a.value - b.value);
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error("Error in /get/data/littleProduct:", err.message);
+    res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+  }
+});
+
+
+
+// router.get('/get/data/category-products-stats', async (req, res) => {
+//   try {
+//     // Lấy tất cả posttype (category)
+//     const categories = await PostType.find(); // posttype model
+
+//     // Đếm số lượng bài viết theo category từ Post
+//     const counts = await Post.aggregate([
+//       {
+//         $group: {
+//           _id: "$category",
+//           count: { $sum: 1 },
+//         },
+//       },
+//     ]);
+//     console.log(counts)
+
+//     // Map lại dữ liệu: gắn số lượng vào từng category
+//     const formattedData = categories
+//     .filter((category) => category.name !== 'All')
+//     .map((category) => {
+//       const match = counts.find((c) => c._id === category.name);
+//       return {
+//         name: category.name,
+//         amount: match ? match.count : 0,
+//       };
+//     });
+
+//     res.status(200).json(formattedData);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching category stats", error });
+//   }
+// });
 
 
 module.exports = router;

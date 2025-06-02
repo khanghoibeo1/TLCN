@@ -58,7 +58,7 @@ const BatchCodeList = () => {
             setBatchCodes(res);
             context.setProgress(100);
         });
-    }, [percentRemain, dayRemain, perPage]);
+    }, [percentRemain, dayRemain, perPage, user]);
 
     const deleteBatchCode = (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");

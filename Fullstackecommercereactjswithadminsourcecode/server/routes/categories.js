@@ -1,4 +1,5 @@
 const { Category } = require("../models/category");
+const { Product } = require("../models/products.js");
 const { ImageUpload } = require("../models/imageUpload");
 const express = require("express");
 const router = express.Router();
@@ -143,6 +144,7 @@ router.get(`/subCat/get/count`, async (req, res) => {
 
   res.send({
     categoryCount: subCatList.length,
+    categoryList: subCatList
   });
  }
 });
@@ -201,8 +203,40 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false });
   }
 
+});
 
 
+router.get("/bySubCat/:id", async (req, res) => {
+
+  try {
+    const id = req.params.id;
+
+    // Tìm con có id = id gửi lên
+    const child = await Category.findById(id);
+    if (!child) {
+      return res.status(404).json({ message: "Không tìm thấy category con" });
+    }
+
+    // Kiểm tra đây có phải là con (có parentId)
+    if (!child.parentId) {
+      return res.status(400).json({ message: "ID này không phải category con" });
+    }
+
+    // Tìm cha của con này
+    const parent = await Category.findById(child.parentId);
+    if (!parent) {
+      return res.status(404).json({ message: "Không tìm thấy category cha" });
+    }
+
+    // Trả về cha và con
+    return res.status(200).json({
+      parent,
+      children: [child],
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
 });
 
 router.post("/create", async (req, res) => {
@@ -322,5 +356,53 @@ router.put("/:id", async (req, res) => {
 
   res.send(category);
 });
+
+// Route lấy dữ liệu cây categories + product counts
+router.get('/get/data/categories-with-product-counts', async (req, res) => {
+  try {
+    const result = [];
+
+    // 1. Lấy danh sách category cha (parentId = null hoặc undefined)
+    const parentCategories = await Category.find({
+      $or: [{ parentId: null }, { parentId: { $exists: false } }]
+    }).lean();
+
+    // 2. Duyệt từng category cha
+    await Promise.all(parentCategories.map(async (cat, index) => {
+      const parentId = `parent-${index}`;
+      const directProductCount = await Product.countDocuments({ category: cat._id });
+
+      // Đẩy category cha vào danh sách
+      result.push({
+        id: parentId,
+        name: `${cat.name}-p-${index}`,
+        value: directProductCount,
+      });
+
+      // 3. Tìm subcategories
+      const subcategories = await Category.find({ parentId: cat._id.toString() }).lean();
+
+      // 4. Duyệt từng subcategory con
+      await Promise.all(subcategories.map(async (sub, subIndex) => {
+        const subProductCount = await Product.countDocuments({ subCatId: sub._id });
+
+        result.push({
+          id: `sub-${index}-${subIndex}`,
+          name: `${sub.name}-s-${index}`,
+          parent: parentId,
+          value: subProductCount,
+        });
+      }));
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching categories with product counts:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+
+
 
 module.exports = router;

@@ -79,6 +79,16 @@ const ordersSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    locationName: {
+        type: String,
+        default: null,
+    },
+    locationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StoreLocation",
+        required: false,
+        default: null,
+    },
 
 })
 

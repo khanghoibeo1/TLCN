@@ -344,6 +344,38 @@ router.get('/userAdmin', async (req, res) => {
     }
 });
 
+
+router.get('/user-rank-stats', async (req, res) => {
+    try {
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'Missing userId' });
+        }
+
+        // Lấy thông tin user
+        const user = await User.findById(userId).select('rank');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Lấy danh sách đơn hàng của user
+        const orders = await Orders.find({ userid: userId, status: { $in: ['paid'] } });
+
+        const totalOrders = orders.length;
+        const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
+
+        return res.status(200).json({
+            rank: user.rank || 'un',
+            totalOrders,
+            totalSpent
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // get user id
 router.get('/:id', async(req,res)=>{
     const user = await User.findById(req.params.id);
@@ -776,36 +808,6 @@ router.put('/upgrade-rank/:rank', async (req, res) => {
   });
   
 
-router.get('/user-rank-stats', async (req, res) => {
-    try {
-        const { userId } = req.query;
-
-        if (!userId) {
-            return res.status(400).json({ message: 'Missing userId' });
-        }
-
-        // Lấy thông tin user
-        const user = await User.findById(userId).select('rank');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Lấy danh sách đơn hàng của user
-        const orders = await Orders.find({ userid: userId, status: { $in: ['paid', 'verify'] } });
-
-        const totalOrders = orders.length;
-        const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
-
-        return res.status(200).json({
-            rank: user.rank || 'un',
-            totalOrders,
-            totalSpent
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
-    }
-});
 
 //xử lý cho tháng trước chứ ko phải toàn bộ:
 // router.get('/user-rank-stats', async (req, res) => {
@@ -850,6 +852,48 @@ router.get('/user-rank-stats', async (req, res) => {
 //     }
 //   });
   
+// get user amount follow rank
+router.get('/get/data/user-rank-summary', async (req, res) => {
+  try {
+    const allRanks = ["bronze", "silver", "gold", "platinum"];
+
+    const rankSummary = await User.aggregate([
+      {
+        $match: {
+          isAdmin: false, // chỉ lấy người dùng thông thường
+        },
+      },
+      {
+        $group: {
+          _id: "$rank",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Tạo một object từ kết quả MongoDB để tra nhanh
+    const countMap = {};
+    rankSummary.forEach((item) => {
+      countMap[item._id] = item.count;
+    });
+
+    // Duyệt qua allRanks để đảm bảo đủ giá trị
+    const formattedData = allRanks.map((rank) => ({
+      name: rank,
+      value: countMap[rank] || 0,
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error("Error fetching user rank summary:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+});
+
+
 router.get('/:id', async(req,res)=>{
     const user = await User.findById(req.params.id);
 

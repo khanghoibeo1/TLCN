@@ -472,7 +472,7 @@ const Checkout = () => {
       phoneNumber: formFields.phoneNumber,
       address: addressInfo.address,
       pincode: addressInfo.pincode,
-      amount: parseInt(totalAmount),
+      amount: parseInt(totalAmount - discount + shippingFee - shippingFeeDiscount),
       payment: paymentMethod,
       email: formFields.email,
       userid: user.userId,
@@ -481,6 +481,8 @@ const Checkout = () => {
       shippingFee: shippingFee-shippingFeeDiscount,
       note: formFields.note,
       date:addressInfo?.date,
+      locationId:country?.id,
+      locationName:country?.location,
       // totalSpent: user.totalSpent + parseInt(totalAmount),
     };
     // localStorage.setItem("user", JSON.stringify(user));

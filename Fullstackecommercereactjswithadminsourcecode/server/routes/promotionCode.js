@@ -16,6 +16,7 @@ router.post('/create', async (req, res) => {
       endDate,
       maxUsage,
       type,
+      reuse,
       applicableRoles,
       applicableCategoryIds,
       canCombine,
@@ -38,6 +39,7 @@ router.post('/create', async (req, res) => {
       endDate,
       maxUsage,
       type: type,
+      reuse: reuse,
       applicableRoles: applicableRoles || [],
       applicableCategoryIds: applicableCategoryIds || [],
       canCombine: canCombine !== undefined ? canCombine : true,
@@ -89,8 +91,9 @@ router.get('/getPromotionCodeWithCondition', async (req, res) => {
     const filteredPromoCodes = allPromoCodes.filter(promo => {
       if(promo.status != "active") return false;
       if(promo.usedCount >= promo.maxUsage) return false;
-      if(promo.users.some((existingUser) => existingUser.userId.toString() === userId)) return false;
-
+      if(promo.reuse === 'limit'){
+        if(promo.users.some((existingUser) => existingUser.userId.toString() === userId)) return false;
+      }
       // Kiểm tra applicableRoles
       if (promo.applicableRoles && promo.applicableRoles.length > 0 && user) {
         if (!promo.applicableRoles.includes(user.rank)) {

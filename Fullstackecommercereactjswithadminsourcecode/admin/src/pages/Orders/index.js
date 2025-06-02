@@ -64,17 +64,18 @@ const Orders = () => {
   const [statusVal, setstatusVal] = useState(null);
 
   const context = useContext(MyContext);
+  const userContext = context.user;
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
     fetchOrders();
-    }, [page,startDate, endDate]);
+    }, [page,startDate, endDate, userContext, status, querySearch, startDate, endDate]);
 
 
   const fetchOrders = () => {
-    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }${startDate  ? `startDate=${startDate }&` : ""  }${endDate  ? `endDate=${endDate }&` : ""  }page=${page}&limit=10`).then((res) => {
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }${startDate  ? `startDate=${startDate }&` : ""  }${endDate  ? `endDate=${endDate }&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`).then((res) => {
         setOrders(res.orders);
         setTotalPages(res.totalPages);
     })
@@ -97,7 +98,7 @@ const handlePageChange = (event, value) => {
   const onSearch = (keyword) => {
     const query = keyword ? `q=${keyword}&` : "";
     setQuerySearch(query)
-    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10`)
+    fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`)
       .then((res) => {
         setOrders(res.orders);
         setTotalPages(res.totalPages);
@@ -110,7 +111,7 @@ const handlePageChange = (event, value) => {
 
   const handleChangeStatus = (event) => {
     setStatus(event.target.value);
-    fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10`).then(
+    fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`).then(
       (res) => {
         setOrders(res.orders);
         context.setProgress(100);
@@ -219,6 +220,7 @@ const handlePageChange = (event, value) => {
                 <th>Total Amount</th>
                 <th>Email</th>
                 <th>User Id</th>
+                <th>Location</th>
                 <th>Order Status</th>
                 <th>Date</th>
                 <th>Note</th>
@@ -263,6 +265,7 @@ const handlePageChange = (event, value) => {
                             <MdOutlineEmail /> {order?.email}
                           </td>
                           <td>{order?.userid}</td>
+                          <td>{order?.locationName}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
                             {order?.status === 'pending' ? (

@@ -42,6 +42,7 @@ const EditPromotionCode = () => {
     canCombine: false,
     note: "",
     type: 'product',
+    reuse: 'limit',
     applicableRoles: [],
     applicableCategoryIds: [],
   });
@@ -80,6 +81,7 @@ const EditPromotionCode = () => {
         note: data?.note || "",
         applicableRoles: data?.applicableRoles || [],
         type: data?.type,
+        reuse: data?.reuse,
         applicableCategoryIds: data?.applicableCategoryIds
       });
     });
@@ -181,6 +183,14 @@ const EditPromotionCode = () => {
             <Select name="type" value={formFields.type} onChange={handleChange}>
               <MenuItem value="product">Product</MenuItem>
               <MenuItem value="shipping">Shipping</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Reuse</InputLabel>
+            <Select name="reuse" value={formFields.reuse} onChange={handleChange}>
+              <MenuItem value="limit">Limit</MenuItem>
+              <MenuItem value="unlimit">Unlimit</MenuItem>
             </Select>
           </FormControl>
 

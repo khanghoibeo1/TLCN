@@ -64,6 +64,7 @@ const Products = () => {
   const [totalCategory, setTotalCategory] = useState();
   const [totalSubCategory, setTotalSubCategory] = useState();
   const [isLoadingBar, setIsLoadingBar] = useState(false);
+  const [remainMap, setRemainMap] = useState({});
   const open = Boolean(anchorEl);
 
   const context = useContext(MyContext);
@@ -192,6 +193,30 @@ const Products = () => {
       })
     } 
 }
+
+  const countRemainInMainStore =  async(productId) => {
+    const res = await fetchDataFromApi(`/api/batchCodes/amountRemainTotal/getSum?productId=${productId}`);
+    return res.total;
+  }
+
+  useEffect(() => {
+    if (!productList?.products) return;
+
+    // Lọc những product cần gọi API (nếu không có locationId)
+    if (!userContext.locationId) {
+      productList.products.forEach(async (item) => {
+        // tránh gọi lại nếu đã có giá trị trong remainMap
+        if (!remainMap[item.id]) {
+          const total = await countRemainInMainStore(item.id);
+          setRemainMap((prev) => ({
+            ...prev,
+            [item.id]: total,
+          }));
+        }
+      });
+    }
+  }, [productList, userContext.locationId]);
+
 
 
   return (
@@ -373,7 +398,7 @@ const Products = () => {
                         <td>
                           {userContext.locationId
                             ? item.amountAvailable.find(amount => amount.locationId === userContext.locationId)?.quantity ?? 0
-                            : item.amountAvailable.reduce((sum, amount) => sum + amount.quantity, 0)}
+                            : remainMap[item.id] ?? 0}
                         </td>
                         {/* <td>
                           <div style={{ width: "70px" }}>
@@ -386,11 +411,12 @@ const Products = () => {
                         <td>
                           <Rating
                             name="read-only"
-                            defaultValue={item?.rating}
+                            value={item.rating}
                             precision={0.5}
                             size="small"
                             readOnly
                           />
+                          {item.rating}
                         </td>
                         
                         <td>{item?.season.join(",")}</td>
