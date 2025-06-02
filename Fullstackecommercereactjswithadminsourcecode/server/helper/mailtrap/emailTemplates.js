@@ -94,8 +94,63 @@ const PASSWORD_RESET_REQUEST_TEMPLATE = `
 </html>
 `;
 
+const ORDER_CONFIRMATION_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height:1.6; color:#333; max-width:600px; margin:0 auto; padding:20px;">
+  <!-- Header -->
+  <div style="background: linear-gradient(to right, #4CAF50, #45a049); padding:20px; text-align:center;">
+    <h1 style="color:white; margin:0;">Thank You for Your Order!</h1>
+  </div>
+
+  <!-- Body -->
+  <div style="background-color:#f9f9f9; padding:20px; border-radius:0 0 5px 5px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello <strong>{customerName}</strong>,</p>
+
+    <p>We are pleased to inform you that your order has been successfully received. Your order ID is:</p>
+    <div style="text-align:center; margin:20px 0;">
+      <span style="font-size:24px; font-weight:bold; color:#4CAF50;">{orderId}</span>
+    </div>
+
+    <p><strong>Order Total:</strong> {totalAmount}</p>
+    <p><strong>Payment Method:</strong> {paymentMethod}</p>
+    <p><strong>Shipping Method:</strong> {shippingMethod}</p>
+
+    <h3>Order Details:</h3>
+    <table width="100%" cellpadding="5" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background-color:#e0e0e0;">
+          <th align="left">Product</th>
+          <th align="center">Quantity</th>
+          <th align="right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orderItems}
+      </tbody>
+    </table>
+
+    <p style="margin-top:20px;">You can track your order status in the “My Orders” section on our website.</p>
+    <p>If you have any questions, please contact us at <a href="mailto:support@yourdomain.com">support@yourdomain.com</a> or call +1 (123) 456-7890.</p>
+    <p>Best regards,<br/>Your Farm Fresh Team</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center; margin-top:20px; color:#888; font-size:0.8em;">
+    <p>This is an automated message, please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;
+
 module.exports = {
     VERIFICATION_EMAIL_TEMPLATE,
     PASSWORD_RESET_SUCCESS_TEMPLATE,
     PASSWORD_RESET_REQUEST_TEMPLATE,
+    ORDER_CONFIRMATION_TEMPLATE,
   };

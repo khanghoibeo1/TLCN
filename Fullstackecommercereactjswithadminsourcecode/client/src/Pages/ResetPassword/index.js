@@ -3,7 +3,7 @@ import { MyContext } from "../../App";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { postData } from "../../utils/api";
 import { TextField, Button, CircularProgress } from "@mui/material";
-import Logo from "../../assets/images/logo.jpg";
+import Logo from "../../assets/images/logo2.png";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const ResetPassword = () => {

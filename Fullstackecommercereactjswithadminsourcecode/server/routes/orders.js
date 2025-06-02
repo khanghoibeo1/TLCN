@@ -7,6 +7,7 @@ const router = express.Router();
 const paypal = require('@paypal/checkout-server-sdk');
 const  client  = require('../helper/paypal/paypal.config');
 const { User } = require('../models/user');
+const { sendOrderConfirmationEmail } = require('../helper/mailtrap/emails');
 
 router.get('/user', async (req, res) => {
   try {
@@ -122,68 +123,107 @@ router.get(`/get/count`, async (req, res) =>{
 
 router.post('/create', async (req, res) => {
 
-    try{
-        const { name, phoneNumber, address, shippingFee, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
+  try{
+    const { name, phoneNumber, address, shippingFee, shippingMethod, amount, payment, email, userid, products, date, orderDiscount, note } = req.body;
 
-        if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
-            return res.status(400).json({ success: false, message: 'Invalid payment method.'});
-        }
-
-        if (!amount || typeof amount !== 'number' || amount <= 0) {
-            return res.status(400).json({ success: false, message: 'Invalid amount.' });
-          }
-
-        const newOrder = new Orders({
-            name,
-            phoneNumber,
-            address,
-            shippingFee,
-            amount,
-            payment, 
-            email,
-            userid,
-            products,
-            date,
-            orderDiscount,
-            note,
-            status: 'pending' 
-        });
-
-        const savedOrder = await newOrder.save();
-        for (const item of products) {
-            const batch = await BatchCode.findById(item.batchId);
-            if (!batch) continue;
-
-            // Trừ trong batchCode
-            batch.amountRemain -= item.quantity;
-            if (batch.amountRemain < 0) {
-                return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
-            }
-            await batch.save();
-
-            // Trừ trong product.amountAvailable theo locationId từ batch
-            const product = await Product.findById(item.productId);
-            if (!product) continue;
-
-            const locationIndex = product.amountAvailable.findIndex(
-                a => a.locationId?.toString() === batch.locationId?.toString()
-            );
-            console.log(locationIndex)
-
-            if (locationIndex >= 0) {
-                product.amountAvailable[locationIndex].quantity -= item.quantity;
-                if (product.amountAvailable[locationIndex].quantity < 0) {
-                return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
-                }
-            }
-
-            await product.save();
-            }
-        return res.status(201).json(savedOrder);
-    }catch(error){
-        console.error('Error while creating order:', error);
-        return res.status(500).json({ success: false, message: 'Server error.' });
+    if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment method.'});
     }
+
+    if (!amount || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid amount.' });
+    }
+
+    const newOrder = new Orders({
+      name,
+      phoneNumber,
+      address,
+      shippingMethod,
+      shippingFee,
+      amount,
+      payment,
+      email,
+      userid,
+      products,
+      date,
+      orderDiscount,
+      note,
+      status: 'pending' 
+    });
+
+    const savedOrder = await newOrder.save();
+    for (const item of products) {
+      const batch = await BatchCode.findById(item.batchId);
+      if (!batch) continue;
+
+      // Trừ trong batchCode
+      batch.amountRemain -= item.quantity;
+      if (batch.amountRemain < 0) {
+          return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
+      }
+      await batch.save();
+
+      // Trừ trong product.amountAvailable theo locationId từ batch
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
+
+      const locationIndex = product.amountAvailable.findIndex(
+          a => a.locationId?.toString() === batch.locationId?.toString()
+      );
+      console.log(locationIndex)
+
+      if (locationIndex >= 0) {
+          product.amountAvailable[locationIndex].quantity -= item.quantity;
+          if (product.amountAvailable[locationIndex].quantity < 0) {
+          return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
+          }
+      }
+
+      await product.save();
+    }
+    const customerName = name;
+
+    // Mã đơn hàng là ID vừa lưu (có thể savedOrder._id)
+    const orderId = savedOrder._id.toString();
+
+    // Tổng tiền (format ra currency string)
+    const totalAmountFormatted = amount.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    // Lấy danh sách sản phẩm để làm chi tiết
+    const orderItems = products.map((item) => ({
+      productName: item.productTitle || "Unknown Product",
+      quantity: item.quantity,
+      subTotalFormatted: (item.price * item.quantity).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      }),
+    }));
+
+    // Gọi hàm gửi mail (không bắt buộc phải await, nhưng nên await để catch error)
+    try {
+      await sendOrderConfirmationEmail(
+        email,
+        customerName,
+        orderId,
+        amount,
+        payment,
+        shippingMethod,
+        orderItems
+      );
+      console.log("Order confirmation email sent to:", email);
+    } catch (mailError) {
+      console.error("Lỗi khi gửi email xác nhận đơn hàng:", mailError);
+      // Nếu muốn rollback order, bạn có thể xóa savedOrder ở đây (tùy yêu cầu)
+      // Hoặc chỉ log và trả về response bình thường, không throw tiếp
+    }
+    return res.status(201).json(savedOrder);
+  }catch(error){
+    console.error('Error while creating order:', error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
 });
 
 

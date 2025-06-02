@@ -1,44 +1,39 @@
+// src/pages/MyAccount.jsx
+
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { IoMdCloudUpload } from "react-icons/io";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
-import {
-  deleteData,
-  deleteImages,
-  editData,
-  editData2,
-  fetchDataFromApi,
-  postData,
-  uploadImage,
-} from "../../utils/api";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { IoMdCloudUpload } from "react-icons/io";
 
 import { MyContext } from "../../App";
-
 import NoUserImg from "../../assets/images/no-user.jpg";
-import CircularProgress from "@mui/material/CircularProgress";
+
+import {
+  fetchDataFromApi,
+  editData2,
+  uploadImage,
+  postData2,
+} from "../../utils/api";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
-
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`myaccount-tabpanel-${index}`}
+      aria-labelledby={`myaccount-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -51,298 +46,285 @@ CustomTabPanel.propTypes = {
 
 function a11yProps(index) {
   return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
+    id: `myaccount-tab-${index}`,
+    "aria-controls": `myaccount-tabpanel-${index}`,
   };
 }
 
 const MyAccount = () => {
-  const [isLogin, setIsLogin] = useState(false);
-
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const history = useNavigate();
-
+  const navigate = useNavigate();
   const context = useContext(MyContext);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
-  const [previews, setPreviews] = useState([]);
-  const [userData, setUserData] = useState([]);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const formdata = new FormData();
+  const [userData, setUserData] = useState(null);
+  const [profilePreviews, setProfilePreviews] = useState([]); // array of image URLs
 
-  const [formFields, setFormFields] = useState({
+  const [profileFields, setProfileFields] = useState({
     name: "",
     email: "",
     phone: "",
     images: [],
-    isAdmin: false,
-    password: "",
   });
 
-  const [fields, setFields] = useState({
+  const [passwordFields, setPasswordFields] = useState({
     oldPassword: "",
-    password: "",
+    newPassword: "",
     confirmPassword: "",
   });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // On component mount, verify token and fetch user
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const token = localStorage.getItem("token");
-    if (token !== "" && token !== undefined && token !== null) {
-      setIsLogin(true);
-    } else {
-      history("/signIn");
+    if (!token) {
+      navigate("/signIn");
+      return;
     }
 
-    deleteData("/api/imageUpload/deleteAllImages");
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
-      console.log(res.data)
-      setUserData(res.data);
-      setPreviews(res.data.images);
-
-      setFormFields({
-        name: res.name,
-        email: res.email,
-        phone: res.phone,
-      });
-    });
-
-    
-    context.setEnableFilterTab(false);
-  }, []);
-
-  const changeInput = (e) => {
-    setFormFields(() => ({
-      ...formFields,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const changeInput2 = (e) => {
-    setFields(() => ({
-      ...fields,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  let img_arr = [];
-  let uniqueArray = [];
-  let selectedImages = [];
-
-  const onChangeFile = async (e, apiEndPoint) => {
-    try {
-      setPreviews([]);
-
-      const files = e.target.files;
-
-      setUploading(true);
-
-      //const fd = new FormData();
-      for (var i = 0; i < files.length; i++) {
-        // Validate file type
-        if (
-          files[i] &&
-          (files[i].type === "image/jpeg" ||
-            files[i].type === "image/jpg" ||
-            files[i].type === "image/png" ||
-            files[i].type === "image/webp")
-        ) {
-          const file = files[i];
-          selectedImages.push(file);
-          formdata.append(`images`, file);
-        } else {
-          context.setAlertBox({
-            open: true,
-            error: true,
-            msg: "Please select a valid JPG or PNG image file.",
-          });
-
-          return false;
-        }
-      }
-
-      formFields.images = selectedImages;
-      selectedImages.push(selectedImages);
-    } catch (error) {
-      console.log(error);
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser?.userId) {
+      navigate("/signIn");
+      return;
     }
 
-    uploadImage(apiEndPoint, formdata).then((res) => {
-      fetchDataFromApi("/api/imageUpload").then((response) => {
-        if (
-          response !== undefined &&
-          response !== null &&
-          response !== "" &&
-          response.length !== 0
-        ) {
-          response.length !== 0 &&
-            response.map((item) => {
-              item?.images.length !== 0 &&
-                item?.images?.map((img) => {
-                  img_arr.push(img);
-                  //console.log(img)
-                });
-            });
-
-          uniqueArray = img_arr.filter(
-            (item, index) => img_arr.indexOf(item) === index
-          );
-
-          setPreviews([]);
-
-          const appendedArray = [...previews, ...uniqueArray];
-
-          setPreviews(uniqueArray);
-
-          const user = JSON.parse(localStorage.getItem("user"));
-
-          fetchDataFromApi(`/api/user/${user?.userId}`).then((res) => {
-
-            const data = {
-              name: res.data?.name,
-              email: res.data?.email,
-              phone: res.data?.phone,
-              images: uniqueArray,
-              isAdmin: res.data?.isAdmin
-            };
-
-
-            editData2(`/api/user/${user?.userId}`, data).then((res) => {
-              setTimeout(() => {
-                setUploading(false);
-                img_arr = [];
-                context.setAlertBox({
-                  open: true,
-                  error: false,
-                  msg: "Images Uploaded!",
-                });
-                setUploading(false);
-              }, 200);
-            });
-          });
-        }
-      });
-    });
-  };
-
-  const edituser = (e) => {
-    e.preventDefault();
-
-    const appendedArray = [...previews, ...uniqueArray];
-
-    img_arr = [];
-    formdata.append("name", formFields.name);
-    formdata.append("email", formFields.email);
-    formdata.append("phone", formFields.phone);
-
-    formdata.append("images", appendedArray);
-    console.log(formdata);
-
-    formFields.images = appendedArray;
-
-    if (
-      formFields.name !== "" &&
-      formFields.email !== "" &&
-      formFields.phone !== "" &&
-      previews.length !== 0
-    ) {
-      setIsLoading(true);
-      const user = JSON.parse(localStorage.getItem("user"));
-      const data = {
-        name: formFields.name,
-        email: formFields.email,
-        phone: formFields.phone,
-        images: formFields.images,
-        isAdmin: false,
-      };
-      // console.log(data);
-      editData2(`/api/user/${user?.userId}`, data).then((res) => {
-        console.log(res?.status);
-        setIsLoading(false);
-
-        deleteData("/api/imageUpload/deleteAllImages");
-        if(res?.status === "SUCCESS"){
-          context.setAlertBox({
-            open: true,
-            error: false,
-            msg: "User updated",
-        })}else {
-          context.setAlertBox({
-            open: true,
-            error: true,
-            msg: res?.msg,
-        })}
-      });
-    } else {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Please fill all the details",
-      });
-      return false;
-    }
-  };
-
-  const changePassword = (e) => {
-    setValue(1)
-    e.preventDefault();
-    formdata.append("password", fields.password);
-
-    if (
-      fields.oldPassword !== "" &&
-      fields.password !== "" &&
-      fields.confirmPassword !== ""
-    ) {
-      if (fields.password !== fields.confirmPassword) {
+    // Fetch user data from API
+    fetchDataFromApi(`/api/user/${storedUser.userId}`)
+      .then((resp) => {
+        // resp is the user object
+        setUserData(resp);
+        setProfilePreviews(resp.images || []);
+        setProfileFields({
+          name: resp.name || "",
+          email: resp.email || "",
+          phone: resp.phone || "",
+          images: resp.images || [],
+        });
+      })
+      .catch((err) => {
+        console.error("Error fetching user:", err);
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "Password and confirm password not match",
+          msg: "Unable to load user information",
         });
-      }else {
-        const user = JSON.parse(localStorage.getItem("user"));
+      });
 
-        const data = {
-          email: user?.email,
-          password: fields.oldPassword,
-          newPass: fields.password,
-        };
-        console.log(data);
-        editData2(`/api/user/changePassword/${user?.userId}`, data).then(
-          (res) => {
-            console.log(res?.error);
-            console.log(res?.status);
-            if(res?.status === "SUCCESS"){
-                context.setAlertBox({
-                  open: true,
-                  error: false,
-                  msg: res?.msg || "Password is changed"
-              })
-            }else {
-              context.setAlertBox({
-                open: true,
-                error: true,
-                msg: res?.msg || "Change password failed"
-              })
-            } 
-      })}}
-      else {
+    context.setEnableFilterTab(false);
+  }, []);
+
+  // Handle profile input change
+  const handleProfileInput = (e) => {
+    setProfileFields((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  // Handle file selection & upload
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Validate file types
+    for (let file of files) {
+      if (
+        !(
+          file.type === "image/jpeg" ||
+          file.type === "image/jpg" ||
+          file.type === "image/png" ||
+          file.type === "image/webp"
+        )
+      ) {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "Only JPEG/PNG/WebP images are accepted.",
+        });
+        return;
+      }
+    }
+
+    const formData = new FormData();
+    files.forEach((f) => formData.append("images", f));
+
+    try {
+      setIsUploading(true);
+      // Call upload API
+      const result = await postData2("/api/user/upload", formData);
+      console.log("Upload result:", result);
+      // result = { status:"SUCCESS", images:[ "https://…", … ] }
+      if (result.data.status !== "SUCCESS") {
+        throw new Error(result.msg || "Upload failed");
+      }
+      const newImages = result.data.images;
+
+      // Update previews & profileFields
+      setProfilePreviews(newImages);
+      setProfileFields((prev) => ({
+        ...prev,
+        images: newImages,
+      }));
+
+      context.setAlertBox({
+        open: true,
+        error: false,
+        msg: "Image uploaded successfully!",
+      });
+    } catch (err) {
+      console.error("Upload error:", err);
       context.setAlertBox({
         open: true,
         error: true,
-        msg: "Please fill all the details",
+        msg: err.message || "An error occurred during image upload",
       });
-      return false;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle profile save
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+    if (
+      !profileFields.name.trim() ||
+      !profileFields.email.trim() ||
+      !profileFields.phone.trim()
+    ) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please fill out all profile fields.",
+      });
+      return;
+    }
+
+    setIsLoadingProfile(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const payload = {
+        name: profileFields.name,
+        email: profileFields.email,
+        phone: profileFields.phone,
+        images: profileFields.images,
+        isAdmin: false,
+      };
+      const res = await editData2(`/api/user/${storedUser.userId}`, payload);
+      if (res.status === "SUCCESS") {
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: "Update User Successfully!",
+        });
+        // Optionally refresh userData
+        const updatedUser = { ...userData, ...payload };
+        setUserData(updatedUser);
+      } else {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: res.msg || "Profile update failed",
+        });
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "An error occurred while updating the profile",
+      });
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  // Handle password input change
+  const handlePasswordInput = (e) => {
+    setPasswordFields((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  // Handle password change
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setTabValue(1); // ensure on password tab
+
+    const { oldPassword, newPassword, confirmPassword } = passwordFields;
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Please fill out all password fields.",
+      });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "New password and confirmation password do not match.",
+      });
+      return;
+    }
+    if (newPassword.length < 6) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "New password must be at least 6 characters long.",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const payload = {
+        email: userData.email,
+        password: oldPassword,
+        newPass: newPassword,
+      };
+      const res = await editData2(
+        `/api/user/changePassword/${storedUser.userId}`,
+        payload
+      );
+      if (res.status === "SUCCESS") {
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: res.msg || "Password changed successfully.",
+        });
+        // Clear password fields
+        setPasswordFields({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: res.msg || "Password change failed",
+        });
+      }
+    } catch (err) {
+      console.error("Error changing password:", err);
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "An error occurred while changing password",
+      });
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -354,39 +336,77 @@ const MyAccount = () => {
         <Box sx={{ width: "100%" }} className="myAccBox card border-0">
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
+              value={tabValue}
+              onChange={handleTabChange}
+              aria-label="My Account Tabs"
             >
               <Tab label="Edit Profile" {...a11yProps(0)} />
               <Tab label="Change Password" {...a11yProps(1)} />
             </Tabs>
           </Box>
-          <CustomTabPanel value={value} index={0}>
-            <form onSubmit={edituser}>
+
+          {/* ── Tab Panel: Edit Profile ───────────────────────────── */}
+          <CustomTabPanel value={tabValue} index={0}>
+            <form onSubmit={handleProfileSave}>
               <div className="row">
                 <div className="col-md-4">
-                  <div className="userImage d-flex align-items-center justify-content-center">
-                    {uploading === true ? (
+                  <div className="userImage d-flex align-items-center justify-content-center position-relative">
+                    {isUploading ? (
                       <CircularProgress />
                     ) : (
                       <>
-                        {previews?.length !== 0 ? (
-                          previews?.map((img, index) => {
-                            return <img src={img} key={index} />;
-                          })
+                        {profilePreviews && profilePreviews.length > 0 ? (
+                          profilePreviews.map((imgUrl, idx) => (
+                            <img
+                              key={idx}
+                              src={imgUrl}
+                              alt={`avatar-${idx}`}
+                              style={{
+                                width: 150,
+                                height: 150,
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ))
                         ) : (
-                          <img src={NoUserImg} />
+                          <img
+                            src={NoUserImg}
+                            alt="No avatar"
+                            style={{
+                              width: 150,
+                              height: 150,
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                            }}
+                          />
                         )}
-                        <div className="overlay d-flex align-items-center justify-content-center">
-                          <IoMdCloudUpload />
+                        <div
+                          className="overlay d-flex align-items-center justify-content-center"
+                          style={{
+                            position: "absolute",
+                            width: 150,
+                            height: 150,
+                            cursor: "pointer",
+                            top: 0,
+                            left: 0,
+                          }}
+                        >
+                          <IoMdCloudUpload size={24} color="#fff" />
                           <input
                             type="file"
                             multiple
-                            onChange={(e) =>
-                              onChangeFile(e, "/api/user/upload")
-                            }
+                            onChange={handleFileChange}
                             name="images"
+                            style={{
+                              opacity: 0,
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              cursor: "pointer",
+                            }}
                           />
                         </div>
                       </>
@@ -395,116 +415,106 @@ const MyAccount = () => {
                 </div>
 
                 <div className="col-md-8">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <TextField
-                          label="Name"
-                          variant="outlined"
-                          className="w-100"
-                          name="name"
-                          onChange={changeInput}
-                          value={formFields.name}
-                        />
-                      </div>
+                  <div className="row mb-3">
+                    <div className="col-md-6 mb-3">
+                      <TextField
+                        label="Name"
+                        variant="outlined"
+                        fullWidth
+                        name="name"
+                        onChange={handleProfileInput}
+                        value={profileFields.name}
+                      />
                     </div>
-
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <TextField
-                          label="Email"
-                          disabled
-                          variant="outlined"
-                          className="w-100"
-                          name="email"
-                          onChange={changeInput}
-                          value={formFields.email}
-                        />
-                      </div>
+                    <div className="col-md-6 mb-3">
+                      <TextField
+                        label="Email"
+                        variant="outlined"
+                        fullWidth
+                        disabled
+                        name="email"
+                        value={profileFields.email}
+                      />
                     </div>
-
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <TextField
-                          label="Phone"
-                          variant="outlined"
-                          className="w-100"
-                          name="phone"
-                          onChange={changeInput}
-                          value={formFields.phone}
-                        />
-                      </div>
+                    <div className="col-md-6 mb-3">
+                      <TextField
+                        label="Phone"
+                        variant="outlined"
+                        fullWidth
+                        name="phone"
+                        onChange={handleProfileInput}
+                        value={profileFields.phone}
+                      />
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <Button
-                      type="submit"
-                      className="btn-blue bg-red btn-lg btn-big"
-                    >
-                      {isLoading === true ? <CircularProgress /> : "Save"}
-                    </Button>
-                  </div>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isLoadingProfile}
+                  >
+                    {isLoadingProfile ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      "Save"
+                    )}
+                  </Button>
                 </div>
               </div>
             </form>
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
-            <form onSubmit={changePassword}>
+
+          {/* ── Tab Panel: Change Password ────────────────────────── */}
+          <CustomTabPanel value={tabValue} index={1}>
+            <form onSubmit={handleChangePassword}>
               <div className="row">
-                <div className="col-md-12">
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div className="form-group">
-                        <TextField
-                          label="Old Password"
-                          variant="outlined"
-                          className="w-100"
-                          type="password"
-                          name="oldPassword"
-                          onChange={changeInput2}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <div className="form-group">
-                        <TextField
-                          label="New password"
-                          variant="outlined"
-                          className="w-100"
-                          type="password"
-                          name="password"
-                          onChange={changeInput2}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <div className="form-group">
-                        <TextField
-                          label="Confirm Password"
-                          variant="outlined"
-                          className="w-100"
-                          type="password"
-                          name="confirmPassword"
-                          onChange={changeInput2}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <Button
-                      type="submit"
-                      className="btn-blue bg-red btn-lg btn-big"
-                    >
-                      {" "}
-                      Save
-                    </Button>
-                  </div>
+                <div className="col-md-4 mb-3">
+                  <TextField
+                    label="Old Password"
+                    variant="outlined"
+                    fullWidth
+                    type="password"
+                    name="oldPassword"
+                    onChange={handlePasswordInput}
+                    value={passwordFields.oldPassword}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <TextField
+                    label="New Password"
+                    variant="outlined"
+                    fullWidth
+                    type="password"
+                    name="newPassword"
+                    onChange={handlePasswordInput}
+                    value={passwordFields.newPassword}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <TextField
+                    label="Confirm Password"
+                    variant="outlined"
+                    fullWidth
+                    type="password"
+                    name="confirmPassword"
+                    onChange={handlePasswordInput}
+                    value={passwordFields.confirmPassword}
+                  />
                 </div>
               </div>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isChangingPassword}
+              >
+                {isChangingPassword ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  "Save"
+                )}
+              </Button>
             </form>
           </CustomTabPanel>
         </Box>

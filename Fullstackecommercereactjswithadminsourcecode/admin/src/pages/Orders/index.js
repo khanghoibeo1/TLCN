@@ -218,7 +218,7 @@ const Orders = () => {
                 <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
-                <th>User Id</th>
+                <th>Shipping Method</th>
                 <th>Order Status</th>
                 <th>Date</th>
                 <th>Note</th>
@@ -226,8 +226,8 @@ const Orders = () => {
               </thead>
 
               <tbody>
-                {displayedOrders?.length !== 0 &&
-                  displayedOrders?.map((order, index) => {
+                {orders?.length !== 0 &&
+                  orders?.map((order, index) => {
                     return (
                       <>
                         <tr key={index}>
@@ -261,7 +261,7 @@ const Orders = () => {
                           <td>
                             <MdOutlineEmail /> {order?.email}
                           </td>
-                          <td>{order?.userid}</td>
+                          <td>{order?.shippingMethod}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
                             {order?.status === 'pending' ? (

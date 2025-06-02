@@ -13,63 +13,101 @@ const fs = require("fs");
 const { sendVerficationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } = require('../helper/mailtrap/emails');
 const { triggerAsyncId } = require('async_hooks');
 
-const cloudinary = require('cloudinary').v2;
+const cloudinary = require('../helper/cloudinary.js'); 
+const {authenticateToken} = require('../middleware/authenticateToken.js');
 
-cloudinary.config({
-    cloud_name: process.env.cloudinary_Config_Cloud_Name,
-    api_key: process.env.cloudinary_Config_api_key,
-    api_secret: process.env.cloudinary_Config_api_secret,
-    secure: true
-});
 
 var imagesArr = [];
 
 const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    // Ví dụ: "userId-timestamp.jpg"
+    const ext = file.originalname.split('.').pop();
+    const nameWithoutExt = file.originalname.replace(/\.[^/.]+$/, "");
+    cb(null, `${req.user.id|| 'nouser'}-${Date.now()}-${nameWithoutExt}.${ext}`);
+  },
+});
+const upload = multer({ storage });
 
-    destination: function (req, file, cb) {
-        cb(null, "uploads");
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${Date.now()}_${file.originalname}`);
-        //imagesArr.push(`${Date.now()}_${file.originalname}`)
 
-    },
-})
+// POST /api/user/upload
+// - upload.array("images"): upload nhiều file, form field name = "images"
+router.post(
+  "/upload",
+  authenticateToken,
+  upload.array("images"),
+  async (req, res) => {
+    // Reset mảng URL mỗi khi có request mới
+    try {
+        console.log(req.user)
+        console.log(req.files)
+      
+      if (req.user._id) {
+        return res.status(401).json({ status: "ERROR", msg: "Chưa xác thực user" });
+      }
 
-const upload = multer({ storage: storage })
-// Upload image
-router.post(`/upload`, upload.array("images"), async (req, res) => {
-    imagesArr=[];
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ status: "ERROR", msg: "Chưa chọn file nào" });
+      }
 
-    try{
-    
-        for (let i = 0; i < req?.files?.length; i++) {
-
-            const options = {
-                use_filename: true,
-                unique_filename: false,
-                overwrite: false,
-            };
-    
-            const img = await cloudinary.uploader.upload(req.files[i].path, options,
-                function (error, result) {
-                    imagesArr.push(result.secure_url);
-                    fs.unlinkSync(`uploads/${req.files[i].filename}`);
-                });
+      const imageUrls = [];
+      // 1) Upload lần lượt từng file lên Cloudinary (dùng promise, không dùng callback)
+      for (const file of req.files) {
+        try {
+          // Khi dùng await, cloudinary trả promise resolve với object chứa .secure_url
+          const result = await cloudinary.uploader.upload(file.path, {
+            use_filename:      true,
+            unique_filename:   false,
+            overwrite:         false,
+          });
+          // Đẩy URL secure vào mảng
+          imageUrls.push(result.secure_url);
+        } catch (uploadErr) {
+          // Nếu upload 1 file bị lỗi, xóa luôn các file tạm còn lại
+          console.error("Upload lỗi file lên Cloudinary:", uploadErr);
+          // Xóa hết file tạm
+          req.files.forEach(f => {
+            if (fs.existsSync(f.path)) {
+              fs.unlinkSync(f.path);
+            }
+          });
+          return res.status(500).json({ status: "ERROR", msg: "Upload ảnh lên Cloudinary thất bại" });
         }
 
+        // 2) Xóa file tạm sau khi đã upload thành công
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      }
 
-        let imagesUploaded = new ImageUpload({
-            images: imagesArr,
-        });
+      // 3) Lấy user từ DB, gán images = imageUrls và save
+      const user = await User.findOne({email: req.user.email});
+      console.log(user)
+      if (!user) {
+        return res.status(404).json({ status: "ERROR", msg: "User không tồn tại" });
+      }
 
-        imagesUploaded = await imagesUploaded.save();
-        return res.status(200).json(imagesArr);
+      // Nếu bạn muốn **thêm** ảnh mới vào mảng cũ, có thể làm:
+      // user.images = [...(user.images || []), ...imageUrls];
+      // Hoặc nếu chỉ giữ mỗi lần upload mới, làm:
+      user.images = imageUrls;
 
-    }catch(error){
-        console.log(error);
+      await user.save();
+
+      // 4) Trả về JSON thành công, kèm mảng imageUrls để client set state ngay
+      return res.status(200).json({
+        status: "SUCCESS",
+        images: imageUrls,
+      });
+    } catch (err) {
+      console.error("Lỗi chung trong /api/user/upload:", err);
+      return res.status(500).json({ status: "ERROR", msg: err.message });
     }
-});
+  }
+);
 
 // Sign up for user client
 router.post(`/signup`, async (req, res) => {

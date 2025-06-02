@@ -1,5 +1,5 @@
 const { mailtrapClient, sender } = require("./mailtrap.config");
-const { VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE } = require("./emailTemplates");
+const { VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE,ORDER_CONFIRMATION_TEMPLATE, } = require("./emailTemplates");
 
 const sendVerficationEmail = async (email, verificationToken) => {
     const recipient = [{email}]
@@ -77,4 +77,63 @@ const sendResetSuccessEmail = async(email) => {
         throw new Error (`Error sending password reset email: ${error}`);
     }
 }
-module.exports = {sendVerficationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail};
+
+const sendOrderConfirmationEmail = async (
+  email,
+  customerName,
+  orderId,
+  totalAmount,
+  paymentMethod,
+  shippingMethod,
+  orderItems
+) => {
+  const recipient = [{ email }];
+
+  // Tạo chuỗi HTML cho phần chi tiết sản phẩm
+  const itemsHtml = orderItems
+    .map(
+      (item) => `
+      <tr>
+        <td>${item.productName}</td>
+        <td align="center">${item.quantity}</td>
+        <td align="right">${item.subTotalFormatted}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  // Thay thế các placeholder
+  let htmlBody = ORDER_CONFIRMATION_TEMPLATE
+    .replace("{customerName}", customerName)
+    .replace("{orderId}", orderId)
+    .replace(
+      "{totalAmount}",
+      totalAmount.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      })
+    )
+    .replace("{paymentMethod}", paymentMethod)
+    .replace(
+      "{shippingMethod}",
+      shippingMethod === "express" ? "Express Shipping" : "Standard Shipping"
+    )
+    .replace("{orderItems}", itemsHtml);
+
+  try {
+    const response = await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: `Order #${orderId} Confirmation`,
+      html: htmlBody,
+      category: "Order Confirmation",
+    });
+    console.log("Order confirmation email sent:", response);
+  } catch (error) {
+    console.error("Error sending order confirmation email", error);
+    // Nếu bạn không muốn rollback order khi mail lỗi, chỉ cần log và không throw
+    throw new Error(`Error sending order confirmation email: ${error}`);
+  }
+};
+
+module.exports = {sendVerficationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail, sendOrderConfirmationEmail,};

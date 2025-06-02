@@ -8,7 +8,7 @@ const multer = require('../helper/multer.js')
 const streamifier = require('streamifier');
 
 const openAI = require("../helper/openai/openAI.js")
-const authenticateToken = require("../middleware/authenticateToken");  // Đảm bảo openAi.js được require đúng
+const {authenticateToken } = require("../middleware/authenticateToken");  // Đảm bảo openAi.js được require đúng
 
 const AI_USER_ID = process.env.AI_USER_ID; //AI_USER_ID=000000000000000000000000
 const MAX_AI_QUESTIONS = Number(process.env.MAX_AI_QUESTIONS) || 5;

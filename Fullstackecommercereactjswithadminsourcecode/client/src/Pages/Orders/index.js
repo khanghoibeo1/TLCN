@@ -83,6 +83,7 @@ const Orders = () => {
                                     <th>Phone Number</th>
                                     <th>Products</th>
                                     <th>Payment Method</th>
+                                    <th>Shipping Method</th>
                                     <th>Address</th>
                                     <th>Total Amount</th>
                                     <th>Order Status</th>
@@ -116,6 +117,7 @@ const Orders = () => {
                                                         {order.payment}
                                                     </span>
                                                 </td>
+                                                <td>{order.shippingMethod}</td>
                                                 <td>{order.address}</td>
                                                 <td>${order.amount}</td>
                                                 <td>
