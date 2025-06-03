@@ -55,7 +55,7 @@ const Dashboard = () => {
   const [filter, setFilter] = useState({
     fromDate: "2024-01-01",
     toDate: "2025-12-31",
-    groupBy: "month"
+    groupBy: "day"
   });
 
   const context = useContext(MyContext);
@@ -314,12 +314,8 @@ const Dashboard = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
-              
               <div className="col-md-4">
                 <div className="box bg-dark p-3">
-                  <h6 className="text-white mb-3">Product Ratings Stats</h6>
-                  <div className="col-md-4">
-                    <div className="box bg-dark p-3">
                   <h6 className="text-white mb-3">Product Ratings Stats</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
@@ -348,7 +344,6 @@ const Dashboard = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
-            </div>
             </div>
 
             {/* Row 3 */}
@@ -488,9 +483,9 @@ const Dashboard = () => {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  </div>
+              </div>
             </div>
-               {/* Row 5 */}
+            {/* Row 5 */}
             <div className="row mt-3 d-flex justify-content-between">
               
               <div className="col-md-12 ">
@@ -514,7 +509,6 @@ const Dashboard = () => {
 
                   </div>
               </div>
-            </div>
             </div>
         </div>
         </div>
