@@ -233,6 +233,7 @@ const Orders = () => {
                 <th>Order Id</th> 
                 <th>Payment Method</th>
                 <th>Products</th>
+                <th>Id</th>
                 <th>Name</th>
                 <th>Phone Number</th>
                 <th>Address</th>
@@ -272,6 +273,7 @@ const Orders = () => {
                               Click here to view
                             </span>
                           </td>
+                          <td>{order?.userid}</td>
                           <td>{order?.name}</td>
                           <td>
                             <FaPhoneAlt /> {order?.phoneNumber}
