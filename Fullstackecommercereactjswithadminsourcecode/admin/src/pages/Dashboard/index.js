@@ -31,7 +31,7 @@ const Dashboard = () => {
   const [totalProducts, setTotalProducts] = useState();
   const [totalProductsReviews, setTotalProductsReviews] = useState();
   const [totalSales, setTotalSales] = useState();
-  const [perPage, setPerPage] = useState(10);
+  const [locationSelected, setLocationSelected] = useState('');
 
   const [orderStatusData, setOrderStatusData] = useState([]);
   const [blogCountCatgoryData, setBlogCountCatgoryData] = useState([]);
@@ -45,7 +45,7 @@ const Dashboard = () => {
   const [filter, setFilter] = useState({
     fromDate: "2024-01-01",
     toDate: "2024-12-31",
-    groupBy: "month", // hoặc "day", "quarter", "year"
+    groupBy: "day", // hoặc "day", "quarter", "year"
   });
 
   const open = Boolean(anchorEl);
@@ -54,15 +54,20 @@ const Dashboard = () => {
 
   const context = useContext(MyContext);
   const user = context.user;
-  console.log(user)
   const history = useNavigate();
+
+  useEffect(() => {
+    setLocationSelected(user.locationId ?? null);
+  },[user])
 
   useEffect(() => {
     context.setisHideSidebarAndHeader(false);
     window.scrollTo(0, 0);
     context.setProgress(40);
 
-    fetchDataFromApi('/api/orders/get/data/status-summary').then((res) => {
+    console.log(locationSelected)
+
+    fetchDataFromApi(`/api/orders/get/data/status-summary?locationId=${locationSelected}`).then((res) => {
       setOrderStatusData(res);
     });
 
@@ -70,7 +75,7 @@ const Dashboard = () => {
       setUserRankData(res);
     });
 
-    fetchDataFromApi(`/api/products/get/data/littleProduct?locationId=${user.locationId}`).then((res) => {
+    fetchDataFromApi(`/api/products/get/data/littleProduct?locationId=${locationSelected}`).then((res) => {
       setProductLittleData(res.data);
     });
 
@@ -90,11 +95,11 @@ const Dashboard = () => {
       setreviewStatsData(res);
     });
 
-    fetchDataFromApi('/api/orders/get/data/most-sold-products').then((res) => {
+    fetchDataFromApi(`/api/orders/get/data/most-sold-products?locationId=${locationSelected}`).then((res) => {
       setMostSellingProductsData(res);
     });
 
-    fetchDataFromApi(`/api/orders/get/data/stats/sales?fromDate=${filter.fromDate}&toDate=${filter.toDate}&groupBy=${filter.groupBy}`).then((res) => {
+    fetchDataFromApi(`/api/orders/get/data/stats/sales?fromDate=${filter.fromDate}&toDate=${filter.toDate}&groupBy=${filter.groupBy}&locationId=${locationSelected}`).then((res) => {
       setSalesData(res);
     })
 
@@ -132,7 +137,7 @@ const Dashboard = () => {
     fetchDataFromApi("/api/productReviews/get/count").then((res) => {
       setTotalProductsReviews(res.productsReviews);
     });
-  }, []);
+  }, [locationSelected]);
 
   const handleFilter = async (filter) => {
     try {
@@ -217,6 +222,13 @@ const Dashboard = () => {
               <div className="col-md-4">
                 <div className="box p-3 bg-dark">
                   <h6 className="text-white mb-3">All Store Location</h6>
+                  <button 
+                    className="btn btn-warning btn-sm"
+                    onClick={() => setLocationSelected(null)}
+                    disabled={user.locationId !== null} 
+                  >
+                    Main Store
+                  </button>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     <table className="table table-dark table-striped">
                       <thead>
@@ -228,7 +240,11 @@ const Dashboard = () => {
                       </thead>
                       <tbody>
                         {storeLocationList.map((location, index) => (
-                          <tr key={location._id}>
+                          <tr 
+                            key={location.id}
+                            onClick={() => user.locationId === null && setLocationSelected(location.id)} // ✅ sự kiện click
+                            style={{ cursor: 'pointer' }}
+                          >
                             <td>{index + 1}</td>
                             <td>{location.location}</td>
                             <td>{location.detailAddress}</td>
@@ -260,7 +276,7 @@ const Dashboard = () => {
                         fill="#c012e2"
                         label
                       >
-                        {orderStatusData.map((entry, index) => (
+                        {orderStatusData?.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={index === 0 ? "#FFCFEF" : (index === 1 ? "#0A97B0" : "#0A5EB0")} />
                         ))}
                       </Pie>
@@ -412,7 +428,7 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {mostSellingProductsData.map((product, index) => (
+                        {mostSellingProductsData?.map((product, index) => (
                           <tr key={product._id}>
                             <td>{index + 1}</td>
                             <td>{product.productTitle}</td>

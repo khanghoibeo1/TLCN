@@ -96,7 +96,7 @@ const handlePageChange = (event, value) => {
   };
 
   const onSearch = (keyword) => {
-    const query = keyword ? `q=${keyword}&` : "";
+    const query = keyword ? `${keyword}&` : "";
     setQuerySearch(query)
     fetchDataFromApi(`/api/orders?${status ? `status=${status}&` : ""  }${query ? `${query}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`)
       .then((res) => {

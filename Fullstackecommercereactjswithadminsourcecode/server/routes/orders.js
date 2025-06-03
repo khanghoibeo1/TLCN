@@ -3,6 +3,8 @@ const { BatchCode } = require('../models/batchCode');
 const { Product } = require('../models/products');
 
 const express = require('express');
+const mongoose = require('mongoose');
+
 const router = express.Router();
 const paypal = require('@paypal/checkout-server-sdk');
 const  client  = require('../helper/paypal/paypal.config');
@@ -43,6 +45,7 @@ router.get('/', async (req, res) => {
         { email: { $regex: q, $options: "i" } },
         { phoneNumber: { $regex: q, $options: "i" } },
         { address: { $regex: q, $options: "i" } },
+        { locationName: { $regex: q, $options: "i" } },
       ];
     }
 
@@ -314,41 +317,49 @@ router.post('/capture-paypal-order', async (req, res) => {
         console.error('Error capture PayPal:', error);
         return res.status(500).json({ success: false, message: 'Sever error.' });
     }
-});
-// Đếm số lượng đơn hàng theo trạng thái
-router.get('/get/data/status-summary', async (req, res) => {
-    try {
-      const statusSummary = await Orders.aggregate([
-        {
-          $group: {
-            _id: "$status",
-            count: { $sum: 1 }, // Đếm số lượng các trạng thái
-          },
-        },
-      ]);
-  
-      console.log("Status Summary:", statusSummary);
-  
-      const formattedData = statusSummary.map((item) => ({
-        name: item._id, // Tên trạng thái (Pending, Shipped, Delivered)
-        value: item.count, // Tổng số lượng
-      }));
-  
-      console.log("Formatted Data:", formattedData);
-  
-      res.status(200).json(formattedData);
-    } catch (error) {
-      console.error("Error fetching order status summary:", error.message);
-      res.status(500).json({ success: false, message: "Internal Server Error." });
+});router.get('/get/data/status-summary', async (req, res) => {
+  try {
+    const locationId = req.query.locationId;
+    console.log(locationId)
+
+    const matchStage = {};
+    if (locationId && locationId !== "null") {
+      matchStage.locationId = new mongoose.Types.ObjectId(locationId);
     }
-  });
+
+    const statusSummary = await Orders.aggregate([
+      { $match: matchStage }, // Lọc theo locationId nếu có
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const formattedData = statusSummary.map((item) => ({
+      name: item._id,
+      value: item.count,
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error("Error fetching order status summary:", error.message);
+    res.status(500).json({ success: false, message: "Internal Server Error." });
+  }
+});
+
   
   router.get('/get/data/most-sold-products', async (req, res) => {
     try {
+        const locationId = req.query.locationId;
+        const matchStage = {};
+        if (locationId && locationId !== "null") {
+            matchStage.locationId = new mongoose.Types.ObjectId(locationId);
+        }
         const mostSoldProducts = await Orders.aggregate([
-            { 
-                $unwind: "$products"  // Mở rộng mảng products để xử lý từng sản phẩm
-            },
+            { $match: matchStage },
+            { $unwind: "$products" },
             {
                 $group: {
                     _id: "$products.productId",  // Nhóm theo productId
@@ -410,19 +421,22 @@ router.get('/get/data/status-summary', async (req, res) => {
 
 
 router.get("/get/data/stats/sales", async (req, res) => {
-    const { fromDate, toDate, groupBy } = req.query;
+    const { fromDate, toDate, groupBy, locationId } = req.query;
   
     if (!fromDate || !toDate || !groupBy) {
       return res.status(400).json({ message: "Missing required parameters." });
     }
   
     try {
-      const match = {
+      const matchStage = {
         date: {
           $gte: new Date(fromDate),
-          $lte: new Date(toDate),
+          $lte: new Date(),
         },
       };
+      if (locationId && locationId !== "null") {
+        matchStage.locationId = new mongoose.Types.ObjectId(locationId);
+    }
   
       let groupStage = {};
       switch (groupBy) {
@@ -455,7 +469,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
       }
   
       const salesData = await Orders.aggregate([
-        { $match: match },
+        { $match: matchStage },
         { $group: groupStage },
         { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
       ]);
