@@ -6,7 +6,8 @@ import Chip from "@mui/material/Chip";
 
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Link } from 'react-router-dom';
 import Rating from "@mui/material/Rating";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import Button from "@mui/material/Button";
@@ -64,505 +65,127 @@ const MenuProps = {
 };
 
 const ProductUpload = () => {
-  const [categoryVal, setcategoryVal] = useState("");
+  const [categoryVal, setCategoryVal] = useState("");
   const [subCatVal, setSubCatVal] = useState("");
-
-  const [productRams, setProductRAMS] = useState([]);
-  const [productWeight, setProductWeight] = useState([]);
-  const [productSize, setProductSize] = useState([]);
-
-  const [productRAMSData, setProductRAMSData] = useState([]);
-  const [productWEIGHTData, setProductWEIGHTData] = useState([]);
-  const [productSIZEData, setProductSIZEData] = useState([]);
-
-  const [ratingsValue, setRatingValue] = useState(5);
-  const [isFeaturedValue, setisFeaturedValue] = useState("");
-
+  const [isFeaturedValue, setIsFeaturedValue] = useState("");
   const [catData, setCatData] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
-
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-
   const [previews, setPreviews] = useState([]);
 
-  const [isDisable, setIsDisable] = useState(true);
 
   const [selectedLocation, setSelectedLocation] = useState([]);
-  const [countryList, setCountryList] = useState([]);
+
 
   const history = useNavigate();
 
   const [formFields, setFormFields] = useState({
     name: "",
-    subCat: "",
-    subCatName: "",
     description: "",
     brand: "",
-    price: null,
-    oldPrice: null,
-    subCatId: "",
-    catName: "",
-    catId: "",
     category: "",
-    countInStock: null,
-    rating: 5,
+    catId: "",
+    catName: "",
+    subCat: "",
+    subCatId: "",
+    subCatName: "",
     isFeatured: null,
-    discount: null,
-    productRam: [],
-    size: [],
-    productWeight: [],
     season: [],
-    location: [],
     note: "",
   });
 
-  const productImages = useRef();
+  
+  const fileInputRef = useRef();
 
   const context = useContext(MyContext);
 
-  const formdata = new FormData();
 
   useEffect(() => {
-    const newData = {
-      value:'All',
-      label:'All'
-    };
-    const updatedArray = [...context?.countryList]; // Clone the array to avoid direct mutation
-    updatedArray.unshift(newData); // Prepend data
-    setCountryList(updatedArray);
-  }, [context?.countryList]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setCatData(context.catData);
-
-    fetchDataFromApi("/api/imageUpload").then((res) => {
-      res?.map((item) => {
-        item?.images?.map((img) => {
-          deleteImages(`/api/category/deleteImage?img=${img}`).then((res) => {
-            deleteData("/api/imageUpload/deleteAllImages");
-          });
-        });
-      });
-    });
-
-    fetchDataFromApi("/api/productWeight").then((res) => {
-      setProductWEIGHTData(res);
-    });
-    fetchDataFromApi("/api/productRAMS").then((res) => {
-      setProductRAMSData(res);
-    });
-    fetchDataFromApi("/api/productSIZE").then((res) => {
-      setProductSIZEData(res);
-    });
-  }, []);
-
-  useEffect(() => {
-    formFields.location = context.selectedCountry;
-  }, [context.selectedCountry]);
-
-  useEffect(() => {
-    const subCatArr = [];
-
-    context.catData?.categoryList?.length !== 0 &&
-      context.catData?.categoryList?.map((cat, index) => {
-        if (cat?.children.length !== 0) {
-          cat?.children?.map((subCat) => {
-            subCatArr.push(subCat);
-          });
-        }
-      });
-
-    setSubCatData(subCatArr);
+    setCatData(context.catData?.categoryList || []);
   }, [context.catData]);
-
-  //COUNT FOR PRICE BY OLD PRICE AND DISCOUNT
   useEffect(() => {
-    if(formFields.oldPrice === '' || formFields.discount === ''){
-      setFormFields((prevFields) => ({
-        ...prevFields,
-        price: '',
-      }));
-    }
-    if (formFields.oldPrice && formFields.discount) {
-      const discountedPrice = formFields.oldPrice - (formFields.oldPrice * (formFields.discount / 100));
-      setFormFields((prevFields) => ({
-        ...prevFields,
-        price: discountedPrice.toFixed(0),
-      }));
-    }
-  }, [formFields.oldPrice, formFields.discount]); 
+    const subs = catData.flatMap(cat => cat.children || []);
+    setSubCatData(subs);
+  }, [catData]);
 
-  const handleChangeCategory = (event) => {
-    setcategoryVal(event.target.value);
-    setFormFields(() => ({
-      ...formFields,
-      category: event.target.value,
-    }));
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setFormFields(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleChangeSubCategory = (event) => {
-    setSubCatVal(event.target.value);
+  const handleChangeCategory = event => {
+    const catId = event.target.value;
+    const cat = catData.find(c => c._id === catId);
+    setCategoryVal(catId);
+    setFormFields(prev => ({ ...prev, category: catId, catId, catName: cat?.name || '' }));
   };
 
-  const checkSubCatName = (subCatName) => {
-    formFields.subCatName = subCatName;
+  const handleChangeSubCategory = event => {
+    const subId = event.target.value;
+    const sub = subCatData.find(s => s._id === subId);
+    setSubCatVal(subId);
+    setFormFields(prev => ({ ...prev, subCatId: subId, subCat: sub?.name || '', subCatName: sub?.name || '' }));
   };
 
-  const seasonChange = (selectedOptions) => {
-    setFormFields(() => ({
-      ...formFields,
-      season: selectedOptions ? selectedOptions.map(option => option.value) : [],
-    }));
-  }
-
-  const handleChangeProductRams = (event) => {
-    // setProductRAMS(event.target.value);
-    // setFormFields(() => ({
-    //     ...formFields,
-    //     productRam: event.target.value
-    // }))
-
-    const {
-      target: { value },
-    } = event;
-    setProductRAMS(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
-
-    formFields.productRam = value;
+  const handleSeasonChange = options => {
+    setFormFields(prev => ({ ...prev, season: options ? options.map(o => o.value) : [] }));
   };
 
-  const handleChangeProductWeight = (event) => {
-    // setProductWeight(event.target.value);
-    // setFormFields(() => ({
-    //     ...formFields,
-    //     productWeight: event.target.value
-    // }))
-
-    const {
-      target: { value },
-    } = event;
-    setProductWeight(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
-
-    formFields.productWeight = value;
+  const handleChangeisFeaturedValue = event => {
+    const value = event.target.value;
+    setIsFeaturedValue(value);
+    setFormFields(prev => ({ ...prev, isFeatured: value }));
   };
-
-  const handleChangeProductSize = (event) => {
-    // setProductSize(event.target.value);
-    // setFormFields(() => ({
-    //     ...formFields,
-    //     size: event.target.value
-    // }))
-
-    const {
-      target: { value },
-    } = event;
-    setProductSize(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
-
-    formFields.size = value;
-  };
-
-  const handleChangeisFeaturedValue = (event) => {
-    setisFeaturedValue(event.target.value);
-    setFormFields(() => ({
-      ...formFields,
-      isFeatured: event.target.value,
-    }));
-  };
-
-  const inputChange = (e) => {
-    setFormFields(() => ({
-      ...formFields,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const selectCat = (cat, id) => {
-    formFields.catName = cat;
-    formFields.catId = id;
-  };
-
-  const selectSubCat = (subCat, id) => {
-    setFormFields(() => ({
-      ...formFields,
-      subCat: subCat,
-      subCatName: subCat,
-      subCatId: id,
-    }));
-  };
-
-  let img_arr = [];
-  let uniqueArray = [];
-
-  const onChangeFile = async (e, apiEndPoint) => {
+  const onChangeFile = async (e, endpoint) => {
+    setUploading(true);
+    const files = e.target.files;
+    const formdata = new FormData();
+    Array.from(files).forEach(f => formdata.append('images', f));
     try {
-      const files = e.target.files;
-      setUploading(true);
-
-      //const fd = new FormData();
-      for (var i = 0; i < files.length; i++) {
-        // Validate file type
-        if (
-          files[i] &&
-          (files[i].type === "image/jpeg" ||
-            files[i].type === "image/jpg" ||
-            files[i].type === "image/png" ||
-            files[i].type === "image/webp")
-        ) {
-          const file = files[i];
-
-          formdata.append(`images`, file);
-        } else {
-          context.setAlertBox({
-            open: true,
-            error: true,
-            msg: "Please select a valid JPG or PNG image file.",
-          });
-
-          setUploading(false);
-          return false;
-        }
-      }
-    } catch (error) {
-      console.log(error);
+      await uploadImage(endpoint, formdata);
+      const res = await fetchDataFromApi('/api/imageUpload');
+      setPreviews(Array.from(new Set(res.flatMap(item => item.images))));
+      context.setAlertBox({ open: true, error: false, msg: 'Images Uploaded!' });
+    } catch (err) {
+      console.error(err);
     }
-
-    uploadImage(apiEndPoint, formdata).then((res) => {
-      fetchDataFromApi("/api/imageUpload").then((response) => {
-        if (
-          response !== undefined &&
-          response !== null &&
-          response !== "" &&
-          response.length !== 0
-        ) {
-          response.length !== 0 &&
-            response.map((item) => {
-              item?.images.length !== 0 &&
-                item?.images?.map((img) => {
-                  img_arr.push(img);
-
-                  //console.log(img)
-                });
-            });
-
-          uniqueArray = img_arr.filter(
-            (item, index) => img_arr.indexOf(item) === index
-          );
-
-          //const appendedArray = [...previews, ...uniqueArray];
-
-          setPreviews(uniqueArray);
-
-          setTimeout(() => {
-            setUploading(false);
-            img_arr = [];
-            context.setAlertBox({
-              open: true,
-              error: false,
-              msg: "Images Uploaded!",
-            });
-          }, 500);
-        }
-      });
-    });
+    setUploading(false);
   };
 
-  const removeImg = async (index, imgUrl) => {
-    const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin@admin.com") {
-      const imgIndex = previews.indexOf(imgUrl);
-
-      deleteImages(`/api/category/deleteImage?img=${imgUrl}`).then((res) => {
-        context.setAlertBox({
-          open: true,
-          error: false,
-          msg: "Image Deleted!",
-        });
-      });
-
-      if (imgIndex > -1) {
-        // only splice array when item is found
-        previews.splice(index, 1); // 2nd parameter means remove one item only
-      }
+  const removeImg = async (idx, url) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.email === 'admin@admin.com') {
+      await deleteImages(`/api/category/deleteImage?img=${url}`);
+      setPreviews(prev => prev.filter((_, i) => i !== idx));
+      context.setAlertBox({ open: true, error: false, msg: 'Image Deleted!' });
     } else {
-      context.setAlertBox({
-        open: true,
-        error: true,
-        msg: "Only Admin can delete Image",
-      });
+      context.setAlertBox({ open: true, error: true, msg: 'Only Admin can delete Image' });
     }
   };
 
-  const addProduct = (e) => {
+  const addProduct = async e => {
     e.preventDefault();
-
-    const appendedArray = [...previews, ...uniqueArray];
-
-    img_arr = [];
-
-    formdata.append("name", formFields.name);
-    formdata.append("description", formFields.description);
-    formdata.append("brand", formFields.brand);
-    formdata.append("price", formFields.price);
-    formdata.append("oldPrice", formFields.oldPrice);
-    formdata.append("subCatId", formFields.subCatId);
-    formdata.append("catId", formFields.catId);
-    formdata.append("catName", formFields.catName);
-    formdata.append("category", formFields.category);
-    formdata.append("subCat", formFields.subCat);
-    formdata.append("countInStock", formFields.countInStock);
-    formdata.append("rating", formFields.rating);
-    formdata.append("isFeatured", formFields.isFeatured);
-    formdata.append("discount", formFields.discount);
-    formdata.append("productRam", formFields.productRam);
-    formdata.append("size", formFields.size);
-    formdata.append("productWeight", formFields.productWeight);
-    formdata.append("location", formFields.location);
-
-    formFields.location = selectedLocation;
-
-    formFields.images = appendedArray;
-
-    console.log(formFields);
-
-    if (formFields.name === "") {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product name",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.description === "") {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product description",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.brand === "") {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product brand",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.price === null) {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product price",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.oldPrice === null) {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product oldPrice",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.category === "") {
-      context.setAlertBox({
-        open: true,
-        msg: "please select a category",
-        error: true,
-      });
-      return false;
-    }
-
-    // if (formFields.subCat === "") {
-    //     context.setAlertBox({
-    //         open: true,
-    //         msg: 'please select sub category',
-    //         error: true
-    //     })
-    //     return false;
-    // }
-
-    if (formFields.countInStock === null) {
-      context.setAlertBox({
-        open: true,
-        msg: "please add product count in stock",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.rating === 0) {
-      context.setAlertBox({
-        open: true,
-        msg: "please select product rating",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.isFeatured === null) {
-      context.setAlertBox({
-        open: true,
-        msg: "please select the product is a featured or not",
-        error: true,
-      });
-      return false;
-    }
-
-    if (formFields.discount === null) {
-      context.setAlertBox({
-        open: true,
-        msg: "please select the product discount",
-        error: true,
-      });
-      return false;
-    }
-
-    if (previews.length === 0) {
-      context.setAlertBox({
-        open: true,
-        msg: "please select images",
-        error: true,
-      });
-      return false;
-    }
+    if (!formFields.name) return context.setAlertBox({ open: true, error: true, msg: 'Please add product name' });
+    if (!formFields.description) return context.setAlertBox({ open: true, error: true, msg: 'Please add description' });
+    if (!formFields.brand) return context.setAlertBox({ open: true, error: true, msg: 'Please add brand' });
+    if (!formFields.category) return context.setAlertBox({ open: true, error: true, msg: 'Please select a category' });
+    if (previews.length === 0) return context.setAlertBox({ open: true, error: true, msg: 'Please select images' });
 
     setIsLoading(true);
-
-    postData("/api/products/create", formFields).then((res) => {
-      context.setAlertBox({
-        open: true,
-        msg: "The product is created!",
-        error: false,
-      });
-
-      setIsLoading(false);
-      deleteData("/api/imageUpload/deleteAllImages");
-
-      history("/products");
-    });
+    try {
+      await postData('/api/products/create', { ...formFields, images: previews });
+      context.setAlertBox({ open: true, error: false, msg: 'Product created successfully!' });
+      await deleteData('/api/imageUpload/deleteAllImages');
+      history('/products');
+    } catch (err) {
+      console.error(err);
+      context.setAlertBox({ open: true, error: true, msg: 'Error creating product' });
+    }
+    setIsLoading(false);
   };
 
-
-  const handleChangeLocation = (selectedOptions) => {
-    setSelectedLocation(selectedOptions);
-    console.log(selectedOptions);
-  };
+ 
 
   return (
     <>
@@ -571,16 +194,16 @@ const ProductUpload = () => {
           <h5 className="mb-0">Product Upload</h5>
           <Breadcrumbs aria-label="breadcrumb" className="ml-auto breadcrumbs_">
             <StyledBreadcrumb
-              component="a"
-              href="#"
+              component={Link}
+              to="/"
               label="Dashboard"
               icon={<HomeIcon fontSize="small" />}
             />
 
             <StyledBreadcrumb
-              component="a"
+              component={Link}
+              to="/products"
               label="Products"
-              href="#"
               deleteIcon={<ExpandMoreIcon />}
             />
             <StyledBreadcrumb
@@ -602,7 +225,7 @@ const ProductUpload = () => {
                     type="text"
                     name="name"
                     value={formFields.name}
-                    onChange={inputChange}
+                    onChange={handleInputChange}
                   />
                 </div>
 
@@ -613,7 +236,7 @@ const ProductUpload = () => {
                     cols={10}
                     value={formFields.description}
                     name="description"
-                    onChange={inputChange}
+                    onChange={handleInputChange}
                   />
                 </div>
 
@@ -631,19 +254,7 @@ const ProductUpload = () => {
                         <MenuItem value="">
                           <em value={null}>None</em>
                         </MenuItem>
-                        {context.catData?.categoryList?.length !== 0 &&
-                          context.catData?.categoryList?.map((cat, index) => {
-                            return (
-                              <MenuItem
-                                className="text-capitalize"
-                                value={cat._id}
-                                key={index}
-                                onClick={() => selectCat(cat.name, cat._id)}
-                              >
-                                {cat.name}
-                              </MenuItem>
-                            );
-                          })}
+                        {catData.map(cat => <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>)}
                       </Select>
                     </div>
                   </div>
@@ -661,23 +272,7 @@ const ProductUpload = () => {
                         <MenuItem value="">
                           <em value={null}>None</em>
                         </MenuItem>
-                        {subCatData?.length !== 0 &&
-                          subCatData
-                          .filter((subCat) => subCat.parentId === categoryVal)
-                          .map((subCat, index) => {
-                            return (
-                              <MenuItem
-                                className="text-capitalize"
-                                value={subCat._id}
-                                key={index}
-                                onClick={() =>
-                                  selectSubCat(subCat.name, subCat._id)
-                                }
-                              >
-                                {subCat.name}
-                              </MenuItem>
-                            );
-                          })}
+                        {subCatData.filter(sub => sub.parentId === categoryVal).map(sub => <MenuItem key={sub._id} value={sub._id}>{sub.name}</MenuItem>)}
                       </Select>
                     </div>
                   </div>
@@ -689,65 +284,17 @@ const ProductUpload = () => {
                         type="text"
                         name="brand"
                         value={formFields.brand}
-                        onChange={inputChange}
+                        onChange={handleInputChange}
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="row">
+                  
                   <div className="col">
                     <div className="form-group">
-                      <h6>OLD PRICE </h6>
-                      <input
-                        type="text"
-                        name="oldPrice"
-                        value={formFields.oldPrice}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>DISCOUNT</h6>
-                      <input
-                        type="text"
-                        name="discount"
-                        value={formFields.discount}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="col">
-                    <div className="form-group">
-                      <h6>PRICE</h6>
-                      <input
-                        type="text"
-                        name="price"
-                        value={formFields.price }
-                        readOnly 
-                      />
-                    </div>
-                  </div>                 
-                </div>
-
-                <div className="row">
-                  <div className="col">
-                    <div className="form-group">
-                      <h6>PRODUCT STOCK </h6>
-                      <input
-                        type="text"
-                        name="countInStock"
-                        value={formFields.countInStock}
-                        onChange={inputChange}
-                      />
-                    </div>
-                  </div>
-                  <div className="col">
-                    <div className="form-group">
-                      <h6 className="text-uppercase">is Featured </h6>
+                      <h6 className="text-uppercase">FEATURED </h6>
                       <Select
                         value={isFeaturedValue}
                         onChange={handleChangeisFeaturedValue}
@@ -766,7 +313,7 @@ const ProductUpload = () => {
 
                   <div className="col">
                     <div className="form-group">
-                      <h6 className="text-uppercase">Season </h6>
+                      <h6 className="text-uppercase">SEASON</h6>
                       <Select2
                           defaultValue={formFields.season}
                           isMulti
@@ -779,96 +326,15 @@ const ProductUpload = () => {
                           ]}
                           className="basic-multi-select"
                           classNamePrefix="select"
-                          onChange={seasonChange}
+                          onChange={handleSeasonChange}
                         />
                     </div>
                   </div>
 
-                  {/* <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>PRODUCT RAMS</h6>
-                      <Select
-                        multiple
-                        value={productRams}
-                        onChange={handleChangeProductRams}
-                        displayEmpty
-                        className="w-100"
-                        MenuProps={MenuProps}
-                      >
-                        {productRAMSData?.map((item, index) => {
-                          return (
-                            <MenuItem value={item.productRam}>
-                              {item.productRam}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </div>
-                  </div> */}
+                 
                 </div>
 
                 {/* <div className="row">
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>PRODUCT WEIGHT</h6>
-                      <Select
-                        multiple
-                        value={productWeight}
-                        onChange={handleChangeProductWeight}
-                        displayEmpty
-                        MenuProps={MenuProps}
-                        className="w-100"
-                      >
-                        {productWEIGHTData?.map((item, index) => {
-                          return (
-                            <MenuItem value={item.productWeight}>
-                              {item.productWeight}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>PRODUCT SIZE</h6>
-                      <Select
-                        multiple
-                        value={productSize}
-                        onChange={handleChangeProductSize}
-                        displayEmpty
-                        MenuProps={MenuProps}
-                        className="w-100"
-                      >
-                        {productSIZEData?.map((item, index) => {
-                          return (
-                            <MenuItem value={item.size}>{item.size}</MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="form-group">
-                      <h6>RATINGS</h6>
-                      <Rating
-                        name="simple-controlled"
-                        value={ratingsValue}
-                        onChange={(event, newValue) => {
-                          setRatingValue(newValue);
-                          setFormFields(() => ({
-                            ...formFields,
-                            rating: newValue,
-                          }));
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div> */}
-
-                <div className="row">
                   <div className="col-md-12">
                     <div className="form-group">
                       <h6>LOCATION</h6>
@@ -883,7 +349,7 @@ const ProductUpload = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="row">
                   <div className="col-md-12">
                   <div className="form-group">
@@ -892,7 +358,7 @@ const ProductUpload = () => {
                         type="text"
                         name="note"
                         value={formFields.note}
-                        onChange={inputChange}
+                        onChange={handleInputChange}
                       />
                     </div>
                   </div>
@@ -906,48 +372,23 @@ const ProductUpload = () => {
               <h5 class="mb-4">Media And Published</h5>
 
               <div className="imgUploadBox d-flex align-items-center">
-                {previews?.length !== 0 &&
-                  previews?.map((img, index) => {
-                    return (
-                      <div className="uploadBox" key={index}>
-                        <span
-                          className="remove"
-                          onClick={() => removeImg(index, img)}
-                        >
-                          <IoCloseSharp />
-                        </span>
-                        <div className="box">
-                          <LazyLoadImage
-                            alt={"image"}
-                            effect="blur"
-                            className="w-100"
-                            src={img}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+                 {previews.map((img, idx) => (
+                    <div key={idx} className="uploadBox">
+                      <span className="remove" onClick={() => removeImg(idx, img)}><IoCloseSharp /></span>
+                      <div className="box"><LazyLoadImage effect="blur" src={img} alt="preview" className="w-100" /></div>
+                    </div>
+                  ))}
 
                 <div className="uploadBox">
-                  {uploading === true ? (
-                    <div className="progressBar text-center d-flex align-items-center justify-content-center flex-column">
+                  {uploading ? (
+                    <div className="progressBar d-flex align-items-center justify-content-center flex-column">
                       <CircularProgress />
                       <span>Uploading...</span>
                     </div>
                   ) : (
                     <>
-                      <input
-                        type="file"
-                        multiple
-                        onChange={(e) =>
-                          onChangeFile(e, "/api/products/upload")
-                        }
-                        name="images"
-                      />
-                      <div className="info">
-                        <FaRegImages />
-                        <h5>image upload</h5>
-                      </div>
+                      <input type="file" multiple onChange={e => onChangeFile(e, '/api/products/upload')} ref={fileInputRef} />
+                      <div className="info"><FaRegImages /><h5>Upload Images</h5></div>
                     </>
                   )}
                 </div>
@@ -955,17 +396,8 @@ const ProductUpload = () => {
 
               <br />
 
-              <Button
-                type="submit"
-                disabled={uploading === true ? true : false}
-                className="btn-blue btn-lg btn-big w-100"
-              >
-                <FaCloudUploadAlt /> &nbsp;{" "}
-                {isLoading === true ? (
-                  <CircularProgress color="inherit" className="loader" />
-                ) : (
-                  "PUBLISH AND VIEW"
-                )}{" "}
+              <Button type="submit" disabled={uploading || isLoading} className="btn-blue btn-lg w-100 mt-3">
+                <FaCloudUploadAlt />&nbsp;{isLoading ? <CircularProgress color="inherit" size={20} /> : 'PUBLISH'}
               </Button>
             </div>
           </div>

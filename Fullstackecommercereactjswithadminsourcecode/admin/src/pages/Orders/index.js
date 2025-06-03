@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useCallback } from "react";
 import { editData, editData2, fetchDataFromApi } from "../../utils/api";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -52,17 +52,15 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [products, setproducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState('all');
-  const [querySearch, setQuerySearch] = useState('');
+  const [querySearch, setQuerySearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [isReversed, setIsReversed] = useState(false);
-
   const [singleOrder, setSingleOrder] = useState();
   const [statusVal, setstatusVal] = useState(null);
-
+  const [isReversed, setIsReversed] = useState(false);
   const context = useContext(MyContext);
   const userContext = context.user;
   const [isLoading, setIsLoading] = useState(false);
@@ -84,16 +82,7 @@ const Orders = () => {
     });;
   };
 
-const handlePageChange = (event, value) => {
-  setPage(value);
-};
 
-  const showProducts = (id) => {
-    fetchDataFromApi(`/api/orders/${id}`).then((res) => {
-      setIsOpenModal(true);
-      setproducts(res.products);
-    });
-  };
 
   const onSearch = (keyword) => {
     const query = keyword ? `${keyword}&` : "";
@@ -102,11 +91,25 @@ const handlePageChange = (event, value) => {
       .then((res) => {
         setOrders(res.orders);
         setTotalPages(res.totalPages);
-        setPage(res.currentPage);
+        setPage(res.currentPage)
       })
-      .catch((err) => {
-        console.error("Error during search:", err);
-    });
+      .catch(console.error);
+    setPage(1);
+  };
+  const handlePageChange = (event, value) => {
+  setPage(value);
+};
+
+  const handleDateChange = (setter) => (e) => {
+    setter(e.target.value);
+    setPage(1);
+  };
+
+  const showProducts = (id) => {
+    fetchDataFromApi(`/api/orders/${id}`).then((res) => {
+    setIsOpenModal(true);
+    setProducts(res.products) 
+    })
   };
 
   const handleChangeStatus = (event) => {
@@ -115,15 +118,15 @@ const handlePageChange = (event, value) => {
       (res) => {
         setOrders(res.orders);
         context.setProgress(100);
-      }
-    );
-  };
-  
-  const handleToggleSort = () => {
+
+      });
+    };
+    const handleToggleSort = () => {
     setIsReversed((prev) => !prev);
   };
 
   const displayedOrders = isReversed ? [...orders].reverse() : orders;
+
   return (
     <>
       <div className="right-content w-100">
@@ -215,12 +218,12 @@ const handlePageChange = (event, value) => {
                 <th>Name</th>
                 <th>Phone Number</th>
                 <th>Address</th>
-                <th>Pincode</th>
                 <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
-                <th>User Id</th>
+
                 <th>Location</th>
+                <th>Shipping Method</th>
                 <th>Order Status</th>
                 <th>Date</th>
                 <th>Note</th>
@@ -228,8 +231,8 @@ const handlePageChange = (event, value) => {
               </thead>
 
               <tbody>
-                {displayedOrders?.length !== 0 &&
-                  displayedOrders?.map((order, index) => {
+                {orders?.length !== 0 &&
+                  orders?.map((order, index) => {
                     return (
                       <>
                         <tr key={index}>
@@ -256,7 +259,6 @@ const handlePageChange = (event, value) => {
                             <FaPhoneAlt /> {order?.phoneNumber}
                           </td>
                           <td>{order?.address}</td>
-                          <td>{order?.pincode}</td>
                           <td>{order?.orderDiscount}</td>
                           <td>
                              ${order?.amount}
@@ -264,7 +266,7 @@ const handlePageChange = (event, value) => {
                           <td>
                             <MdOutlineEmail /> {order?.email}
                           </td>
-                          <td>{order?.userid}</td>
+                          <td>{order?.shippingMethod}</td>
                           <td>{order?.locationName}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
@@ -272,7 +274,7 @@ const handlePageChange = (event, value) => {
                               <Select
                                 disabled={isLoading}
                                 value={order?.status}
-                                onChange={(e) => handleChangeStatus(e, order?._id)}
+                                onChange={(e) =>  handleChangeStatus(e, order?._id)}
                                 displayEmpty
                                 size="small"
                                 className="w-100"

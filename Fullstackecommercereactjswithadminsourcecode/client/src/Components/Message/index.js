@@ -276,7 +276,7 @@ function ClientChat() {
               color: 'white', // Chữ màu trắng
             }}
           >
-            <span style={{ fontWeight: 'bold' }}>Shopify</span> {/* Tên trang chủ Shopify */}
+            <span style={{ fontWeight: 'bold' }}>FRUITOPIA</span> 
           </div>
 
           {/* Chat Options */}

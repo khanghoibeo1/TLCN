@@ -5,7 +5,7 @@ import { postData } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Logo from "../../assets/images/logo.jpg";
+import Logo from "../../assets/images/logo2.png";
 
 const ForgotPassword = () => {
 

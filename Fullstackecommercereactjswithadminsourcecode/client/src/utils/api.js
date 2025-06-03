@@ -112,7 +112,7 @@ export const deleteData = async (url ) => {
 
 
 export const uploadImage = async (url, formData) => {
-    const { res } = await axios.post(process.env.REACT_APP_API_URL + url , formData)
+    const { res } = await axios.post(process.env.REACT_APP_API_URL + url , formData, params);
     return res;
 }
 

@@ -9,24 +9,41 @@ const router = express.Router();
 const paypal = require('@paypal/checkout-server-sdk');
 const  client  = require('../helper/paypal/paypal.config');
 const { User } = require('../models/user');
+const { sendOrderConfirmationEmail } = require('../helper/mailtrap/emails');
 
-router.get(`/user`, async (req, res) => {
-
-    try {
-    
-
-        const ordersList = await Orders.find(req.query)
-
-
-        if (!ordersList) {
-            res.status(500).json({ success: false })
-        }
-
-        return res.status(200).json(ordersList);
-
-    } catch (error) {
-        res.status(500).json({ success: false })
+router.get('/user', async (req, res) => {
+  try {
+    const { userid, page = 1, limit = 10 } = req.query;
+    if (!userid) {
+      return res.status(400).json({ success: false, message: 'Missing userid parameter.' });
     }
+
+    const pageInt  = parseInt(page,  10);
+    const limitInt = parseInt(limit, 10);
+
+    // chỉ lọc những đơn của chính user đó
+    const filter = { userid };
+
+    // đếm tổng đơn để client dùng pagination
+    const totalOrders = await Orders.countDocuments(filter);
+
+    // lấy danh sách, sort theo date giảm dần (mới nhất trước)
+    const ordersList = await Orders
+      .find(filter)
+      .sort({ date: -1 })
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    return res.status(200).json({
+      orders: ordersList,
+      currentPage: pageInt,
+      totalPages:  Math.ceil(totalOrders / limitInt),
+      totalOrders,
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
 });
 
 router.get('/', async (req, res) => {
@@ -55,14 +72,14 @@ router.get('/', async (req, res) => {
     }
 
     // Lọc theo khoảng thời gian tạo đơn
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      // Đặt end là cuối ngày (23:59:59)
-      end.setHours(23, 59, 59, 999);
-
-      filter.date = { $gte: start, $lte: end };
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) filter.date.$gte = new Date(startDate);
+      if (endDate) {
+        const e = new Date(endDate);
+        e.setHours(23,59,59,999);
+        filter.date.$lte = e;
+      }
     }
 
     // Lọc theo locationId
@@ -70,10 +87,12 @@ router.get('/', async (req, res) => {
         filter.locationId = locationId;
     }
 
+    
+
     const totalOrders = await Orders.countDocuments(filter);
 
     const ordersList = await Orders.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ date: -1 })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt);
 
@@ -114,22 +133,22 @@ router.get(`/get/count`, async (req, res) =>{
 
 router.post('/create', async (req, res) => {
 
-    try{
-        const { name, phoneNumber, address, pincode, shippingFee, amount, payment, email, userid, products, date, orderDiscount, note, locationId, locationName } = req.body;
+  try{
+    const { name, phoneNumber, address, shippingFee, shippingMethod, amount, payment, email, userid, products, date, orderDiscount, note, locationId, locationName } = req.body;
 
-        if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
-            return res.status(400).json({ success: false, message: 'Invalid payment method.'});
-        }
+    if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment method.'});
+    }
 
-        if (!amount || typeof amount !== 'number' || amount <= 0) {
-            return res.status(400).json({ success: false, message: 'Invalid amount.' });
-          }
+    if (!amount || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid amount.' });
+    }
 
         const newOrder = new Orders({
             name,
             phoneNumber,
             address,
-            pincode,
+            shippingMethod,
             shippingFee,
             amount,
             payment, 
@@ -144,41 +163,79 @@ router.post('/create', async (req, res) => {
             status: 'pending' 
         });
 
-        const savedOrder = await newOrder.save();
-        for (const item of products) {
-            const batch = await BatchCode.findById(item.batchId);
-            if (!batch) continue;
+    const savedOrder = await newOrder.save();
+    for (const item of products) {
+      const batch = await BatchCode.findById(item.batchId);
+      if (!batch) continue;
 
-            // Trừ trong batchCode
-            batch.amountRemain -= item.quantity;
-            if (batch.amountRemain < 0) {
-                return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
-            }
-            await batch.save();
+      // Trừ trong batchCode
+      batch.amountRemain -= item.quantity;
+      if (batch.amountRemain < 0) {
+          return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
+      }
+      await batch.save();
 
-            // Trừ trong product.amountAvailable theo locationId từ batch
-            const product = await Product.findById(item.productId);
-            if (!product) continue;
+      // Trừ trong product.amountAvailable theo locationId từ batch
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
 
-            const locationIndex = product.amountAvailable.findIndex(
-                a => a.locationId?.toString() === batch.locationId?.toString()
-            );
-            console.log(locationIndex)
+      const locationIndex = product.amountAvailable.findIndex(
+          a => a.locationId?.toString() === batch.locationId?.toString()
+      );
+      console.log(locationIndex)
 
-            if (locationIndex >= 0) {
-                product.amountAvailable[locationIndex].quantity -= item.quantity;
-                if (product.amountAvailable[locationIndex].quantity < 0) {
-                return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
-                }
-            }
+      if (locationIndex >= 0) {
+          product.amountAvailable[locationIndex].quantity -= item.quantity;
+          if (product.amountAvailable[locationIndex].quantity < 0) {
+          return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
+          }
+      }
 
-            await product.save();
-            }
-        return res.status(201).json(savedOrder);
-    }catch(error){
-        console.error('Error while creating order:', error);
-        return res.status(500).json({ success: false, message: 'Server error.' });
+      await product.save();
     }
+    const customerName = name;
+
+    // Mã đơn hàng là ID vừa lưu (có thể savedOrder._id)
+    const orderId = savedOrder._id.toString();
+
+    // Tổng tiền (format ra currency string)
+    const totalAmountFormatted = amount.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    // Lấy danh sách sản phẩm để làm chi tiết
+    const orderItems = products.map((item) => ({
+      productName: item.productTitle || "Unknown Product",
+      quantity: item.quantity,
+      subTotalFormatted: (item.price * item.quantity).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      }),
+    }));
+
+    // Gọi hàm gửi mail (không bắt buộc phải await, nhưng nên await để catch error)
+    try {
+      await sendOrderConfirmationEmail(
+        email,
+        customerName,
+        orderId,
+        amount,
+        payment,
+        shippingMethod,
+        orderItems
+      );
+      console.log("Order confirmation email sent to:", email);
+    } catch (mailError) {
+      console.error("Lỗi khi gửi email xác nhận đơn hàng:", mailError);
+      // Nếu muốn rollback order, bạn có thể xóa savedOrder ở đây (tùy yêu cầu)
+      // Hoặc chỉ log và trả về response bình thường, không throw tiếp
+    }
+    return res.status(201).json(savedOrder);
+  }catch(error){
+    console.error('Error while creating order:', error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
 });
 
 
@@ -203,7 +260,7 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     try {
-        const { name, phoneNumber, address, pincode, shippingFee, amount, payment, email, userid, products, status, date, note, locationId, locationName } = req.body;
+        const { name, phoneNumber, address, shippingMethod, shippingFee, amount, payment, email, userid, products, status, date, note, locationId, locationName } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
         if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
@@ -220,7 +277,7 @@ router.put('/:id', async (req, res) => {
         order.name = name || order.name;
         order.phoneNumber = phoneNumber || order.phoneNumber;
         order.address = address || order.address;
-        order.pincode = pincode || order.pincode;
+        order.shippingMethod = shippingMethod || order.shippingMethod;
         order.amount = amount || order.amount;
         order.shippingFee = shippingFee || order.shippingFee;
         order.payment = payment || order.payment;
@@ -424,7 +481,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
     const { fromDate, toDate, groupBy, locationId } = req.query;
   
     if (!fromDate || !toDate || !groupBy) {
-      return res.status(400).json({ message: "Missing required parameters." });
+      return res.status(400).json({ message: 'Missing required parameters.' });
     }
   
     try {
@@ -564,7 +621,8 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
 router.put('/admin-update/:id', async (req, res) => {
   try {
-      const { status } = req.body; // Admin chỉ cập nhật status
+      const { status } = req.body;
+      console.log(status) // Admin chỉ cập nhật status
       const order = await Orders.findById(req.params.id);
 
       if (!order) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../../assets/images/logo.jpg";
+import Logo from "../../assets/images/logo2.png";
 import Button from "@mui/material/Button";
 import CountryDropdown from "../CountryDropdown";
 import { FiUser } from "react-icons/fi";
@@ -134,7 +134,7 @@ const Header = () => {
           <div className="top-strip bg-blue">
             <div className="container">
               <p className="mb-0 mt-0 text-center">
-                Welcome to ecommerce website <b>Shopify</b>
+                Welcome to ecommerce website <b>FRUITOPIA</b>
               </p>
             </div>
           </div>

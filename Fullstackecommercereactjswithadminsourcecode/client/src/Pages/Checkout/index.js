@@ -31,11 +31,7 @@ import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 const Checkout = () => {
   const [formFields, setFormFields] = useState({
     fullName: "",
-    country: "",
     streetAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
     phoneNumber: "",
     email: "",
     note: ""
@@ -104,9 +100,9 @@ const Checkout = () => {
   useEffect(() => {
     setFormFields(prev => ({
       ...prev,
-      fullName: userContext.name || prev.fullName,
+      fullName: userAddress?.name || prev.fullName,
       phoneNumber: userAddress?.phoneNumber || prev.phoneNumber,
-      email: userAddress?.email || prev.email,
+      email: userContext.email || prev.email,
       streetAddress: userAddress?.address,
     }));
   }, [userContext, userAddress]);
@@ -458,7 +454,6 @@ const Checkout = () => {
         name: formFields.fullName,
         phoneNumber: formFields.phoneNumber,
         address: formFields.streetAddress,
-        pincode: formFields.zipCode,
         date: new Date().toLocaleString("en-US", {
           month: "short",
           day: "2-digit",
@@ -469,10 +464,12 @@ const Checkout = () => {
 
     const payLoad = {
       name: addressInfo.name,
-      phoneNumber: formFields.phoneNumber,
+      phoneNumber: addressInfo.phoneNumber,
       address: addressInfo.address,
-      pincode: addressInfo.pincode,
+
       amount: parseInt(totalAmount - discount + shippingFee - shippingFeeDiscount),
+      shippingMethod: shippingMethod,
+
       payment: paymentMethod,
       email: formFields.email,
       userid: user.userId,
@@ -590,7 +587,7 @@ const Checkout = () => {
                       className="w-100"
                       size="small"
                       name="fullName"
-                      value={userContext?.name}
+                      value={userAddress?.name}
                       onChange={onChangeInput}
                     />
                   </div>
@@ -649,8 +646,9 @@ const Checkout = () => {
                       className="w-100"
                       size="small"
                       name="email"
-                      value={userAddress?.email}
-                      onChange={onChangeInput}
+                      value={userContext?.email}
+                      // InputProps={{ readOnly: true }}
+                      dissabled
                     />
                   </div>
                 </div>

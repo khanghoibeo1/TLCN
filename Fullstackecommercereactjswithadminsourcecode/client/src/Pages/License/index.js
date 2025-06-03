@@ -1,78 +1,63 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Button, Typography, Box } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import profileImg from '../../assets/images/license/profile.jpg'
-import bannerImg from '../../assets/images/license/banner2.png';
-import infoImg from '../../assets/images/license/info.jpg';
+import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 
 const IntroduceAndLicense = () => {
   return (
-    <div className="container py-5" style={{ background: "#fff" }}>
-      <h1 className="text-center text-blue font-bold mb-5" style={{ fontSize: "32px" }}>
-        <InfoOutlinedIcon fontSize="large" /> Giới Thiệu & Giấy Phép
-      </h1>
+    <Box component="section" sx={{ p: 5, backgroundColor: '#ffffff' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ color: '#4A148C', fontWeight: 'bold' }}>
+        <InfoOutlinedIcon fontSize="large" sx={{ verticalAlign: 'middle', mr: 1 }} />
+        Introduction & License
+      </Typography>
 
-      <div className="row align-items-center mb-5">
-        <div className="col-md-6 mb-4 mb-md-0">
-          <img
-            src={profileImg}
-            alt="Giới thiệu về nhóm"
-            style={{ width: "100%", borderRadius: "15px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}
-          />
-        </div>
-        <div className="col-md-6">
-          <h3 className="text-blue mb-3"><SchoolOutlinedIcon /> Về Chúng Tôi</h3>
-          <p style={{ fontSize: "16px", lineHeight: "1.7" }}>
-            Chúng tôi là <strong>Trần Trọng Khang</strong> và <strong>Đăng Minh Thiện</strong>, sinh viên năm 4 trường Đại học Sư phạm Kỹ thuật.  
-            Dự án “Website bán hàng nông sản” được phát triển nhằm phục vụ nhu cầu học tập, thực hành, và nghiên cứu.
-          </p>
-        </div>
-      </div>
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h5" sx={{ color: '#4A148C', mb: 2 }}>
+          <SchoolOutlinedIcon sx={{ verticalAlign: 'middle', mr: 1 }} /> About Us
+        </Typography>
+        <Typography paragraph>
+          We, <strong>Trần Trọng Khang</strong> and <strong>Đặng Minh Thiện</strong>, are final-year students
+          majoring in Information Technology at the University of Technology. This project was born from our passion
+          for technology and the desire to apply academic knowledge to practical solutions.
+        </Typography>
+        <Typography paragraph>
+          Contact us:
+          <br />Email: <a href="mailto:nongsanteam@example.com">nongsanteam@example.com</a>
+          <br />Phone: +84 123 456 789
+        </Typography>
+      </Box>
 
-      <div className="row align-items-center mb-5 flex-md-row-reverse">
-        <div className="col-md-6 mb-4 mb-md-0">
-          <img
-            src={bannerImg}
-            alt="Mục tiêu dự án"
-            style={{ width: "100%", borderRadius: "15px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}
-          />
-        </div>
-        <div className="col-md-6">
-          <h3 className="text-blue mb-3">🌿 Mục Tiêu Dự Án</h3>
-          <ul style={{ lineHeight: "1.8", fontSize: "16px" }}>
-            <li>Kết nối trực tiếp người tiêu dùng và nhà nông.</li>
-            <li>Hỗ trợ bán hàng minh bạch, sản phẩm sạch và rõ nguồn gốc.</li>
-            <li>Ứng dụng công nghệ ReactJS - NodeJS - MongoDB - Express hiện đại.</li>
-            <li>Đưa kiến thức học tập vào thực tế.</li>
-          </ul>
-        </div>
-      </div>
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h5" sx={{ color: '#4A148C', mb: 2 }}>
+          🌿 Features & Goals
+        </Typography>
+        <Typography component="ul" sx={{ pl: 2, '& li': { mb: 1 } }}>
+          <li>Connect consumers directly with farmers in a direct-to-consumer model.</li>
+          <li>Manage clean products with transparent origins.</li>
+          <li>Shopping cart, payment processing, and order tracking.</li>
+          <li>Map location and local store finder.</li>
+          <li>Built with ReactJS, Node.js, Express, and MongoDB for performance and scalability.</li>
+        </Typography>
+      </Box>
 
-      <div className="row align-items-center mb-5">
-        <div className="col-md-6 mb-4 mb-md-0">
-          <img
-            src={infoImg}
-            alt="Giấy phép sử dụng"
-            style={{ width: "100%", borderRadius: "15px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}
-          />
-        </div>
-        <div className="col-md-6">
-          <h3 className="text-blue mb-3"><GavelOutlinedIcon /> Giấy Phép</h3>
-          <p style={{ fontSize: "16px", lineHeight: "1.7" }}>
-            Dự án được thực hiện với mục đích <strong>phi thương mại</strong> và phục vụ cho việc học tập - nghiên cứu.
-            Mọi mã nguồn và nội dung chỉ được sử dụng trong nội bộ nhóm. Nếu có nhu cầu sử dụng lại, vui lòng liên hệ nhóm thực hiện.
-          </p>
-        </div>
-      </div>
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h5" sx={{ color: '#4A148C', mb: 2 }}>
+          <GavelOutlinedIcon sx={{ verticalAlign: 'middle', mr: 1 }} /> License
+        </Typography>
+        <Typography paragraph>
+          This project is completely <strong>non-commercial</strong> and serves educational and research purposes only.
+          All source code and content are intended for internal group use. If you wish to reuse any part of this project,
+          please contact us for permission.
+        </Typography>
+      </Box>
 
-      <div className="text-center">
-        <Button className="btn-green btn-big btn-round" href="/">
-          Trở về Trang Chủ
+      <Box textAlign="center" sx={{ mt: 4 }}>
+        <Button variant="contained" size="large" href="/" sx={{ bgcolor: '#388E3C', '&:hover': { bgcolor: '#2E7D32' } }}>
+          Back to Home
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

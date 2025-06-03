@@ -8,7 +8,7 @@ const userAddressSchema = mongoose.Schema({
   },
   addresses: [
     {
-      email: {
+      name: {
         type: String,
         required: false,
         default: null,

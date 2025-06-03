@@ -13,9 +13,9 @@ const ordersSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    pincode: {
+    shippingMethod: {
         type: String,
-        default: ""
+        required: true,
     },
     shippingFee:{
         type: Number,
@@ -90,7 +90,7 @@ const ordersSchema = mongoose.Schema({
         default: null,
     },
 
-})
+}, { timestamps: true })
 
 ordersSchema.virtual('id').get(function () {
     return this._id.toHexString();

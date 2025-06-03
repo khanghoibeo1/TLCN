@@ -66,7 +66,7 @@ const UserAdmin = () => {
 
     const loadUsers = (currentPage, itemsPerPage) => {
         context.setProgress(40);
-        fetchDataFromApi(`/api/user/userAdmin?page=${currentPage}&perPage=${itemsPerPage}`)
+        fetchDataFromApi(`/api/admin/userAdmin?page=${currentPage}&perPage=${itemsPerPage}`)
           .then((res) => {
             setUserAdminData(res);
             setTotalUserAdmins(res.totalUsers);
@@ -82,7 +82,7 @@ const UserAdmin = () => {
     const deleteUserAdmin = (id) => {
       const confirmDelete = window.confirm("Are you sure you want to delete?");
       if (!confirmDelete) return;
-        deleteData(`/api/user/userAdmin/${id}`).then(() => {
+        deleteData(`/api/admin/userAdmin/${id}`).then(() => {
           context.setAlertBox({
             open: true,
             error: false,
@@ -98,7 +98,7 @@ const UserAdmin = () => {
 
     const showPerPage = (e) => {
         setShowBy(e.target.value);
-        fetchDataFromApi(`/api/user/userAdmin?page=1&perPage=${e.target.value}`).then((res) => {
+        fetchDataFromApi(`/api/admin/userAdmin?page=1&perPage=${e.target.value}`).then((res) => {
           setUserAdminData(res);
           context.setProgress(100);
         });
@@ -110,7 +110,7 @@ const UserAdmin = () => {
             setUserAdminData(res);
           });
         } else {
-          fetchDataFromApi(`/api/user/userAdmin?page=1&perPage=${10}`).then((res) => {
+          fetchDataFromApi(`/api/admin/userAdmin?page=1&perPage=${10}`).then((res) => {
             setUserAdminData(res);
           });
         }

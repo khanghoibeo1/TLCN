@@ -71,7 +71,9 @@ router.post(`/upload`, upload.array("images"), async (req, res) => {
 
 router.get(`/`, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const perPage = parseInt(req.query.perPage);
+  const perPage = parseInt(req.query.perPage)|| 12;
+  const filter = {};
+  
   const totalPosts = await Product.countDocuments();
   const totalPages = Math.ceil(totalPosts / perPage);
 
@@ -100,6 +102,7 @@ router.get(`/`, async (req, res) => {
     } else {
       productList = await Product.find()
         .populate("category")
+        .sort({ dateCreated: -1 }) 
         .skip((page - 1) * perPage)
         .limit(perPage)
         .exec();
@@ -242,6 +245,7 @@ router.get(`/catId`, async (req, res) => {
   const totalPosts = await Product.countDocuments({ catId: req.query.catId });
   const totalPages = Math.ceil(totalPosts / perPage);
 
+  
   if (page > totalPages) {
     return res.status(404).json({ message: "Page not found" });
   }
@@ -293,7 +297,7 @@ router.get(`/subCatId`, async (req, res) => {
   const perPage = parseInt(req.query.perPage);
   const totalPosts = await Product.countDocuments({ subCatId: req.query.subCatId });
   const totalPages = Math.ceil(totalPosts / perPage);
-
+  
   if (page > totalPages) {
     return res.status(404).json({ message: "Page not found" });
   }
@@ -338,7 +342,7 @@ router.get(`/subCatId`, async (req, res) => {
   }
 });
 
-router.get(`/fiterByPrice`, async (req, res) => {
+router.get(`/filterByPrice`, async (req, res) => {
   try {
     const { minPrice, maxPrice, catId, subCatId, location, page = 1, perPage = 12 } = req.query;
 
@@ -614,58 +618,40 @@ router.post(`/recentlyViewd`, async (req, res) => {
 });
 
 router.post(`/create`, async (req, res) => {
-  const category = await Category.findById(req.body.category);
+  try {
+    const category = await Category.findById(req.body.category);
   if (!category) {
     return res.status(404).send("invalid Category!");
   }
 
-  const images_Array = [];
-  const uploadedImages = await ImageUpload.find();
+  const imagesList = [];
+  const uploads = await ImageUpload.find();
+  uploads.forEach(doc => doc.images.forEach(img => imagesList.push(img)));
 
-  const images_Arr = uploadedImages?.map((item) => {
-    item.images?.map((image) => {
-      images_Array.push(image);
-      console.log(image);
-    });
-  });
-
-  product = new Product({
+  const product = new Product({
     name: req.body.name,
     description: req.body.description,
-    images: images_Array,
+    images: imagesList,
     brand: req.body.brand,
-    price: req.body.price,
-    oldPrice: req.body.oldPrice,
     catId: req.body.catId,
     catName: req.body.catName,
     subCat: req.body.subCat,
     subCatId: req.body.subCatId,
     subCatName: req.body.subCatName,
+    rating: 5,
     category: req.body.category,
-    countInStock: req.body.countInStock,
-    rating: req.body.rating,
     isFeatured: req.body.isFeatured,
-    discount: req.body.discount,
-    productRam: req.body.productRam,
-    size: req.body.size,
-    productWeight: req.body.productWeight,
     season: req.body.season,
     note: req.body.note,
-    location: req.body.location !== "" ? req.body.location : "All",
   });
 
-  product = await product.save();
-
-  if (!product) {
-    res.status(500).json({
-      error: err,
-      success: false,
-    });
+  const saved = await product.save();
+  return res.status(200).json(saved);
+  } catch (error) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
   }
-
-  imagesArr = [];
-
-  res.status(201).json(product);
+  
 });
 
 router.get("/:id", async (req, res) => {
@@ -749,53 +735,30 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  console.log(req.body)
-  const product = await Product.findByIdAndUpdate(
-    req.params.id,
-    {
+  try {
+    const data = {
       name: req.body.name,
-      subCat: req.body.subCat,
       description: req.body.description,
       images: req.body.images,
       brand: req.body.brand,
-      price: req.body.price,
-      oldPrice: req.body.oldPrice,
       catId: req.body.catId,
+      catName: req.body.catName,
       subCat: req.body.subCat,
       subCatId: req.body.subCatId,
       subCatName: req.body.subCatName,
-      catName: req.body.catName,
       category: req.body.category,
-      countInStock: req.body.countInStock,
-      rating: req.body.rating,
-      numReviews: req.body.numReviews,
       isFeatured: req.body.isFeatured,
-      discount: req.body.discount,
-      productRam: req.body.productRam,
-      size: req.body.size,
-      productWeight: req.body.productWeight,
       season: req.body.season,
+      note: req.body.note,
       location: req.body.location,
-      note: req.body.note
-    },
-    { new: true }
-  );
-
-  if (!product) {
-    res.status(404).json({
-      message: "the product can not be updated!",
-      status: false,
-    });
+    };
+    const updated = await Product.findByIdAndUpdate(req.params.id, data, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Not found' });
+    return res.json(updated);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
   }
-
-  imagesArr = [];
-
-  res.status(200).json({
-    message: "the product is updated!",
-    status: true,
-  });
-
-  //res.send(product);
 });
 
 //Update count in stock

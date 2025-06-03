@@ -18,12 +18,12 @@ const CountryDropdown = () => {
 
     const [newAddress, setNewAddress] = useState("");
     const [newPhoneNumber, setNewPhoneNumber] = useState("");
-    const [newEmail, setNewEmail] = useState("");
+    const [newName, setNewName] = useState("");
 
     const [editIndex, setEditIndex] = useState(null);
     const [editAddress, setEditAddress] = useState("");
     const [editPhoneNumber, setEditPhoneNumber] = useState("");
-    const [editEmail, setEditEmail] = useState("");
+    const [editName, setEditName] = useState("");
 
     const [selectedTab, setSelectedTab] = useState(null);
     const [addressList, setAddressList] = useState([]);
@@ -45,16 +45,16 @@ const CountryDropdown = () => {
 
     // Add new address
     const handleSaveNewAddress = () => {
-        onAdd(newAddress, newPhoneNumber, newEmail);
+        onAdd(newAddress, newPhoneNumber, newName);
         setNewAddress("");
         setNewPhoneNumber("");
-        setNewEmail("");
+        setNewName("");
         setIsOpenAddDialog(false);
     };
 
-    const onAdd = async (address, phoneNumber, email) => {
+    const onAdd = async (address, phoneNumber, name) => {
         try {
-            const payload = { address, phoneNumber, email };
+            const payload = { address, phoneNumber, name };
             await postData(`/api/userAddress/add/${userContext.userId}`, payload);
             const res = await fetchDataFromApi(`/api/userAddress?userId=${userContext.userId}`);
             context.setAddressList(res[0]?.addresses || []);
@@ -69,7 +69,7 @@ const CountryDropdown = () => {
         setEditIndex(index);
         setEditAddress(item.address);
         setEditPhoneNumber(item.phoneNumber || "");
-        setEditEmail(item.email || "");
+        setEditName(item.name || "");
         setIsOpenEditDialog(true);
     };
 
@@ -84,7 +84,7 @@ const CountryDropdown = () => {
             await editData(`/api/userAddress/${userContext.userId}/${editIndex}`, {
                 address: editAddress,
                 phoneNumber: editPhoneNumber,
-                email: editEmail,
+                name: editName,
             });
 
             const res = await fetchDataFromApi(`/api/userAddress?userId=${userContext.userId}`);
@@ -94,7 +94,7 @@ const CountryDropdown = () => {
             setEditIndex(null);
             setEditAddress("");
             setEditPhoneNumber("");
-            setEditEmail("");
+            setEditName("");
         } catch (error) {
             console.error("Edit address error:", error);
         }
@@ -181,10 +181,10 @@ const CountryDropdown = () => {
                         style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
                     />
                     <input
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="Enter email..."
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="Enter name..."
                         style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
                     />
 
@@ -213,10 +213,10 @@ const CountryDropdown = () => {
                         style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
                     />
                     <input
-                        type="email"
-                        value={editEmail}
-                        onChange={(e) => setEditEmail(e.target.value)}
-                        placeholder="Enter email..."
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Enter name..."
                         style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
                     />
 

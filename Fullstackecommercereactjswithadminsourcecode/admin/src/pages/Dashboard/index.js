@@ -1,3 +1,5 @@
+// src/pages/admin/Dashboard.jsx
+
 import DashboardBox from "./components/dashboardBox";
 import DateFilter from "../../components/DateFilter";
 import { FaUserCircle } from "react-icons/fa";
@@ -18,11 +20,11 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 // Customizing the calendar date format
 const localizer = momentLocalizer(moment);
-
+const PIE_COLORS = ['#29B6F6', '#AB47BC', '#66BB6A', '#FFCA28', '#EF5350'];
 const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showBy, setshowBy] = useState(10);
-  const [showBysetCatBy, setCatBy] = useState("");
+  const [showBy, setShowBy] = useState(10);
+  const [catBy, setCatBy] = useState("");
   const [storeLocationList, setStoreLocationList] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
 
@@ -42,15 +44,19 @@ const Dashboard = () => {
   const [reviewStatsDataWithStars, setReviewStatsDataWithStars] = useState([]);
   const [mostSellingProductsData, setMostSellingProductsData] = useState([]);
   const [salesData, setSalesData] = useState([]);
+  const userChartHeight = Math.max(userSpentData.length * 40, 300)
+
+  const maxNameLen = Math.max(...userSpentData.map(u => u.name.length), 0);
+  const yAxisLabelWidth = Math.min(Math.max(maxNameLen * 8, 80), 160); 
+  const productChartHeight = Math.max(reviewStatsData.length * 40 + 60, 200);
+  // nhân với 8px trên mỗi ký tự, giới hạn trong [80, 160]
+  const ITEM_HEIGHT = 48;
+  const yAxisMarginLeft = yAxisLabelWidth + 20;
   const [filter, setFilter] = useState({
     fromDate: "2024-01-01",
-    toDate: "2024-12-31",
-    groupBy: "day", // hoặc "day", "quarter", "year"
+    toDate: "2025-12-31",
+    groupBy: "month"
   });
-
-  const open = Boolean(anchorEl);
-
-  const ITEM_HEIGHT = 48;
 
   const context = useContext(MyContext);
   const user = context.user;
@@ -71,6 +77,9 @@ const Dashboard = () => {
       setOrderStatusData(res);
     });
 
+    fetchDataFromApi('/api/posts/get/data/category-stats').then((res) => {
+      setBlogCountCatgoryData(res);
+    });
     fetchDataFromApi('/api/user/get/data/user-rank-summary').then((res) => {
       setUserRankData(res);
     });
@@ -79,14 +88,9 @@ const Dashboard = () => {
       setProductLittleData(res.data);
     });
 
-    fetchDataFromApi('/api/posts/get/data/category-stats').then((res) => {
-      setBlogCountCatgoryData(res);
-    });
-
     fetchDataFromApi('/api/category/get/data/categories-with-product-counts').then((res) => {
       setSubCatData(res);
     });
-
     fetchDataFromApi('/api/user/get/data/user-spent').then((res) => {
       setUserSpentData(res);
     });
@@ -103,10 +107,6 @@ const Dashboard = () => {
       setSalesData(res);
     })
 
-    // fetchDataFromApi(`/api/products?page=1&perPage=${perPage}`).then((res) => {
-    //   setProductList(res);
-    //   context.setProgress(100);
-    // });
     fetchDataFromApi(`/api/storeLocations`).then((res) => {
       setStoreLocationList(res.data);
       context.setProgress(100);
@@ -318,6 +318,9 @@ const Dashboard = () => {
               <div className="col-md-4">
                 <div className="box bg-dark p-3">
                   <h6 className="text-white mb-3">Product Ratings Stats</h6>
+                  <div className="col-md-4">
+                    <div className="box bg-dark p-3">
+                  <h6 className="text-white mb-3">Product Ratings Stats</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Tooltip />
@@ -345,6 +348,7 @@ const Dashboard = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
+            </div>
             </div>
 
             {/* Row 3 */}
@@ -381,7 +385,7 @@ const Dashboard = () => {
                         {userSpentData.map((user, index) => (
                           <tr>
                             <td>{index + 1}</td>
-                            <td>{user.name}</td>
+                              <td>{user.name}</td>
                             <td>{user.totalSpent.toLocaleString()}</td>
                           </tr>
                         ))}
@@ -484,15 +488,14 @@ const Dashboard = () => {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-              </div>
+                  </div>
             </div>
-            
-            {/* Row 5 */}
+               {/* Row 5 */}
             <div className="row mt-3 d-flex justify-content-between">
               
               <div className="col-md-12 ">
                 <div className="box p-3 bg-dark">
-                    <h6 className="text-white mb-3">Stats Products Follow Category</h6>
+                <h6 className="text-white mb-3">Stats Products Follow Category</h6>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={subCatData}>
                         <YAxis />
@@ -512,13 +515,10 @@ const Dashboard = () => {
                   </div>
               </div>
             </div>
-
-            
-            
-            
-          </div>
+            </div>
         </div>
-      </div>
+        </div>
+    </div>
     </>
   );
 };

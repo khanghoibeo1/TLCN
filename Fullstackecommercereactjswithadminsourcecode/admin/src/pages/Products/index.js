@@ -57,7 +57,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const Products = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [showBy, setshowBy] = useState(10);
-  const [categoryVal, setcategoryVal] = useState("all");
+  const [categoryVal, setCategoryVal] = useState("all");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalProducts, setTotalProducts] = useState();
@@ -77,15 +77,22 @@ const Products = () => {
 
   const ITEM_HEIGHT = 48;
 
+  const loadProducts = () => {
+    context.setProgress(40);
+    let url = `/api/products?page=${page}&perPage=${perPage}`;
+    if (categoryVal !== 'all') {
+      url = `/api/products/catId?catId=${categoryVal}&page=${page}&perPage=${perPage}`;
+    }
+    fetchDataFromApi(url).then(res => {
+      setProductList(res);
+      console.log("Fetched Products:", res);
+      context.setProgress(100);
+    });
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     context.setProgress(40);
-    fetchDataFromApi(`/api/products?page=1&perPage=${perPage}`).then(
-      (res) => {
-        setProductList(res);
-        context.setProgress(100);
-      }
-    );
 
     fetchDataFromApi("/api/products/get/count").then((res) => {
       setTotalProducts(res.productsCount);
@@ -99,6 +106,10 @@ const Products = () => {
       setTotalSubCategory(res.categoryCount);
     });
   }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [page, perPage, categoryVal]);
 
   const deleteProduct = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -135,56 +146,25 @@ const Products = () => {
      }
   };
 
-  const handleChange = (event, value) => {
-    context.setProgress(40);
-    if(categoryVal!=="all"){
-      fetchDataFromApi(`/api/products/catId?catId=${categoryVal}&page=${value}&perPage=${perPage}`).then((res) => {
-        setProductList(res);
-        context.setProgress(100);
-      });
-    }
-  else{
-    fetchDataFromApi(`/api/products?page=${value}&perPage=${perPage}`).then((res) => {
-      setProductList(res);
-      context.setProgress(100);
-    });
-  }
+  const handleChange = (_, newPage) => {
+    setPage(newPage);
   };
 
-  const showPerPage = (e) => {
-    setshowBy(e.target.value);
-    fetchDataFromApi(
-      `/api/products?page=${1}&perPage=${e.target.value}`
-    ).then((res) => {
-      setProductList(res);
-      context.setProgress(100);
-    });
+  const showPerPage = e => {
+    const newPerPage = e.target.value;
+    setPerPage(newPerPage);
+    setPage(1);           // reset về trang 1
   };
 
-  const handleChangeCategory = (event) => {
-    if (event.target.value !== "all") {
-      setcategoryVal(event.target.value);
-      fetchDataFromApi(`/api/products/catId?catId=${event.target.value}&page=${1}&perPage=${perPage}`).then(
-        (res) => {
-          setProductList(res);
-          context.setProgress(100);
-        }
-      );
-    }
-    if (event.target.value === "all") {
-      setcategoryVal("all");
-      setcategoryVal(event.target.value);
-      fetchDataFromApi(`/api/products?page=${1}&perPage=${perPage}`).then((res) => {
-        setProductList(res);
-        context.setProgress(100);
-      });
-    }
+  const handleChangeCategory = e => {
+    setCategoryVal(e.target.value);
+    setPage(1);           // reset về trang 1
   };
 
 
   const onSearch = (keyword) => {
     if(keyword!==""){
-      fetchDataFromApi(`/api/search/product?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
+      fetchDataFromApi(`/api/search/product?q=${keyword}&page=${page}&perPage=${perPage}`).then((res) => {
         setProductList(res);
       })
     }else{
@@ -359,8 +339,8 @@ const Products = () => {
                   <th>CATEGORY</th>
                   <th>SUB CATEGORY</th>
                   <th>BRAND</th>
-                  <th>AMOUNT</th>
                   {/* <th>PRICE</th> */}
+                  <th>AMOUNT</th>
                   <th>RATING</th>
                   <th>SEASON</th>
                   <th>NOTE</th>
@@ -411,7 +391,7 @@ const Products = () => {
                         <td>
                           <Rating
                             name="read-only"
-                            value={item.rating}
+                            value={item?.rating}
                             precision={0.5}
                             size="small"
                             readOnly

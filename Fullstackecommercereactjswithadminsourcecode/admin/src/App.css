@@ -278,6 +278,26 @@ line-height: 45px;}
 
 .dashboardBoxWrapper .dashboardBox .MuiList-root svg{color: #000 !important; font-size: 17px !important; margin-right: 10px !important;}
 
+/* Khoảng cách giữa Top-cards và Charts */
+.dashboard-top-cards {
+  margin-bottom: 2rem;
+}
+
+/* Styling chung cho tất cả các khung chart */
+.chart-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.chart-card h6 {
+  margin-bottom: 0.75rem;
+  color: #333;
+  font-weight: 600;
+}
 .dropdown_menu .MuiButtonBase-root svg{margin-right: 10px !important;}
 
 .graphBox{background-image: linear-gradient(#1a50b5, #2a6ff7); border-radius: 10px; padding: 25px;}

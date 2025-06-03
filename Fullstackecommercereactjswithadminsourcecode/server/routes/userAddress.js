@@ -42,7 +42,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/add/:id', async (req, res) => {
   try {
-    const { phoneNumber, email, address, isDefault } = req.body;
+    const { phoneNumber, name, address, isDefault } = req.body;
     const userId = req.params.id;
 
     console.log("Address:", address);
@@ -69,7 +69,7 @@ router.post('/add/:id', async (req, res) => {
 
     const newEntry = {
       phoneNumber: phoneNumber || "",
-      email: email || "",
+      name: name || "",
       address: address || "",
       lat: parseFloat(lat),
       lng: parseFloat(lon),
@@ -102,7 +102,7 @@ router.post('/add/:id', async (req, res) => {
 router.put('/:userId/:index', async (req, res) => {
   try {
     const { userId, index } = req.params;
-    const { phoneNumber, email, address, lat, lng, isDefault } = req.body;
+    const { phoneNumber, name, address, lat, lng, isDefault } = req.body;
 
     const userDoc = await UserAddress.findOne({userId});
     if (!userDoc) return res.status(404).json({ message: 'UserAddress not found' });
@@ -111,7 +111,7 @@ router.put('/:userId/:index', async (req, res) => {
     if (!addr) return res.status(404).json({ message: 'Address not found' });
 
     addr.phoneNumber = phoneNumber || addr.phoneNumber;
-    addr.email = email || addr.email;
+    addr.name = name || addr.name;
     addr.address = address || addr.address;
     addr.lat = lat ?? addr.lat;
     addr.lng = lng ?? addr.lng;
