@@ -621,32 +621,92 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
 router.put('/admin-update/:id', async (req, res) => {
   try {
-      const { status } = req.body;
-      console.log(status) // Admin chỉ cập nhật status
-      const order = await Orders.findById(req.params.id);
+    const { status } = req.body;
+    const order = await Orders.findById(req.params.id);
 
-      if (!order) {
-          return res.status(404).json({ success: false, message: 'Order not found.' });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    // pending -> verify
+    if (order.status === 'pending' && status === 'verify') {
+      order.status = 'verify';
+      await order.save();
+      return res.status(200).json(order);
+    }
+
+    // pending -> cancel (Admin huỷ đơn giống client)
+    if (order.status === 'pending' && status === 'cancel') {
+      for (const item of order.products) {
+        const batch = await BatchCode.findById(item.batchId);
+        if (batch) {
+          batch.amountRemain += item.quantity;
+          await batch.save();
+        }
+
+        const product = await Product.findById(item.productId);
+        if (!product) continue;
+
+        const locationIndex = product.amountAvailable.findIndex(
+          a => a.locationId?.toString() === batch?.locationId?.toString()
+        );
+
+        if (locationIndex >= 0) {
+          product.amountAvailable[locationIndex].quantity += item.quantity;
+        }
+
+        await product.save();
       }
 
-      // pending -> verify
-      if (order.status === 'pending' && status === 'verify') {
-          order.status = 'verify';
-          await order.save();
-          return res.status(200).json(order);
-      }
+      order.status = 'cancel';
+      await order.save();
+      return res.status(200).json(order);
+    }
 
-      // Nếu order đã là verify, cancel, paid => admin không cập nhật nữa
-      if (['verify', 'cancel', 'paid'].includes(order.status)) {
-          return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
-      }
+    // Không cập nhật nếu đã chuyển trạng thái cao hơn
+    if (['verify', 'cancel', 'paid'].includes(order.status)) {
+      return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
+    }
 
-      return res.status(400).json({ success: false, message: 'Invalid status transition.' });
-
+    return res.status(400).json({ success: false, message: 'Invalid status transition.' });
   } catch (error) {
-      console.error('Order cannot be updated by admin!', error);
-      return res.status(500).json({ success: false, message: 'Server error.' });
+    console.error('Order cannot be updated by admin!', error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
+
+
+// router.put('/admin-update/:id', async (req, res) => {
+//   try {
+//       const { status } = req.body;
+//       console.log(status) // Admin chỉ cập nhật status
+//       const order = await Orders.findById(req.params.id);
+
+//       if (!order) {
+//           return res.status(404).json({ success: false, message: 'Order not found.' });
+//       }
+
+//       // pending -> verify
+//       if (order.status === 'pending' && status === 'verify') {
+//           order.status = 'verify';
+//           await order.save();
+//           return res.status(200).json(order);
+//       }
+
+//       // Nếu order đã là verify, cancel, paid => admin không cập nhật nữa
+//       if (['verify', 'cancel', 'paid'].includes(order.status)) {
+//           return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
+//       }
+
+//       return res.status(400).json({ success: false, message: 'Invalid status transition.' });
+
+//   } catch (error) {
+//       console.error('Order cannot be updated by admin!', error);
+//       return res.status(500).json({ success: false, message: 'Server error.' });
+//   }
+// });
+
+
+
 module.exports = router;
 

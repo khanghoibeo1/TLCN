@@ -147,6 +147,7 @@ const Users = () => {
             <table className="table table-bordered table-striped v-align">
               <thead className="thead-dark">
                 <tr>
+                  <th>ID</th>
                   <th>NAME</th>
                   <th>EMAIL</th>
                   <th>PHONE</th>
@@ -159,6 +160,7 @@ const Users = () => {
                 {users?.data?.length > 0 &&
                   users?.data?.map((user) => (
                     <tr key={user.id}>
+                      <td>{user.id}</td>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
                       <td>{user.phone}</td>

@@ -112,7 +112,7 @@ const Orders = () => {
     })
   };
 
-  const handleChangeStatus = (event) => {
+  const handleChangeStatusToFind = (event) => {
     setStatus(event.target.value);
     fetchDataFromApi(`/api/orders?${event.target.value  ? `status=${event.target.value }&` : ""  }${querySearch ? `q=${querySearch}&` : ""  }page=${page}&limit=10&locationId=${userContext.locationId}`).then(
       (res) => {
@@ -124,6 +124,24 @@ const Orders = () => {
     const handleToggleSort = () => {
     setIsReversed((prev) => !prev);
   };
+
+  const handleChangeStatus = (e, orderId) => {
+    setstatusVal(e.target.value);
+    setIsLoading(true);
+    context.setProgress(40);
+    editData2(`/api/orders/admin-update/${orderId}`, { status: e.target.value })
+      .then((res) => {
+        
+          fetchOrders();
+          context.setProgress(100);
+          setIsLoading(false);
+        
+      }).catch((err) => {
+        console.error("Error updating order status by admin:", err);
+        context.setProgress(100);
+        setIsLoading(false);
+      });
+    };
 
   const displayedOrders = isReversed ? [...orders].reverse() : orders;
 
@@ -161,7 +179,7 @@ const Orders = () => {
                 <FormControl size="small" className="w-100">
                   <Select
                     value={status}
-                    onChange={handleChangeStatus}
+                    onChange={handleChangeStatusToFind}
                     displayEmpty
                     inputProps={{ "aria-label": "Without label" }}
                     className="w-100"
@@ -281,6 +299,7 @@ const Orders = () => {
                               >
                                 <MenuItem value="pending">Pending</MenuItem>
                                 <MenuItem value="verify">Verify</MenuItem>
+                                <MenuItem value="cancel">Cancel</MenuItem>
                               </Select>
                             ) : (
                               order?.status === 'cancel' ? (

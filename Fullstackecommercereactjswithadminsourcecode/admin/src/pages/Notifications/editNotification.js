@@ -148,7 +148,7 @@ const AddNotification = () => {
               multiple
               id="users-autocomplete"
               options={usersWithAll}
-              getOptionLabel={(option) => option.name || option.email || option._id}
+              getOptionLabel={(option) => `${option.name} - ${option._id}`}
               value={formFields.recipients}
               onChange={(event, newValue) => {
                 // Nếu "All" được chọn
