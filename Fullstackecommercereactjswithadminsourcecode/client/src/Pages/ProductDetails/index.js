@@ -17,7 +17,7 @@ import { FaHeart } from "react-icons/fa";
 
 
 const ProductDetails = () => {
-  const [activeSize, setActiveSize] = useState(null);
+  const [activeSize, setActiveSize] = useState(1);
   const [activeTabs, setActiveTabs] = useState(0);
   const [productData, setProductData] = useState([]);
   const [relatedProductData, setRelatedProductData] = useState([]);
@@ -43,7 +43,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    setActiveSize(null);
+    setActiveSize(1);
     fetchDataFromApi(`/api/products/${id}`).then((res) => {
       setProductData(res);
 
