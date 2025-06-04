@@ -182,8 +182,12 @@ const Cart = () => {
                                             <span>Subtotal</span>
                                             <span className="ml-auto text-red font-weight-bold">
                                             {
-                                                (context.cartData?.length !== 0 ?
-                                                    context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+                                                (cartData?.length !== 0
+                                                ? cartData
+                                                    .map(item => parseInt(item.price) * item.quantity)
+                                                    .reduce((total, value) => total + value, 0)
+                                                : 0
+                                                )?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                                             }
                                             </span>
                                         </div>

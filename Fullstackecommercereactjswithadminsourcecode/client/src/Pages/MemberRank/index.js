@@ -61,8 +61,8 @@ const RankPage = () => {
         {showUpgradeBox && (
           <UpgradeRankBox
             currentRank={userRank}
-            totalOrders={totalSpent}
-            totalSpent={totalOrders}
+            totalOrders={totalOrders}
+            totalSpent={totalSpent}
             onClose={handleCloseUpgradeBox}
             onUpgradeSuccess={handleRankUpgraded}
           />
