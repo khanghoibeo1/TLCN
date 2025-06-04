@@ -54,7 +54,7 @@ const Dashboard = () => {
   const yAxisMarginLeft = yAxisLabelWidth + 20;
   const [filter, setFilter] = useState({
     fromDate: "2024-01-01",
-    toDate: "2025-12-31",
+    toDate: new Date().toISOString().slice(0, 10),
     groupBy: "day"
   });
 

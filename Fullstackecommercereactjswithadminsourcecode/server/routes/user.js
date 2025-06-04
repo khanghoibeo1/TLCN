@@ -383,6 +383,37 @@ router.get('/userAdmin', async (req, res) => {
 });
 
 
+// router.get('/user-rank-stats', async (req, res) => {
+//     try {
+//         const { userId } = req.query;
+
+//         if (!userId) {
+//             return res.status(400).json({ message: 'Missing userId' });
+//         }
+
+//         // Lấy thông tin user
+//         const user = await User.findById(userId).select('rank');
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         // Lấy danh sách đơn hàng của user
+//         const orders = await Orders.find({ userid: userId, status: { $in: ['paid'] } });
+
+//         const totalOrders = orders.length;
+//         const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
+
+//         return res.status(200).json({
+//             rank: user.rank || 'un',
+//             totalOrders,
+//             totalSpent
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: 'Server error' });
+//     }
+// });
+
 router.get('/user-rank-stats', async (req, res) => {
     try {
         const { userId } = req.query;
@@ -397,8 +428,20 @@ router.get('/user-rank-stats', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Lấy danh sách đơn hàng của user
-        const orders = await Orders.find({ userid: userId, status: { $in: ['paid'] } });
+        // Xác định thời gian đầu và cuối của tháng trước
+        const now = new Date();
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999); // ngày cuối cùng của tháng trước
+
+        // Lấy danh sách đơn hàng đã thanh toán trong tháng trước
+        const orders = await Orders.find({
+            userid: userId,
+            status: 'paid',
+            date: {
+                $gte: startOfLastMonth,
+                $lte: endOfLastMonth
+            }
+        });
 
         const totalOrders = orders.length;
         const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
@@ -413,6 +456,7 @@ router.get('/user-rank-stats', async (req, res) => {
         return res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 // get user id
 router.get('/:id', async(req,res)=>{
