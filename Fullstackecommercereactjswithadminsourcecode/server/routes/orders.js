@@ -488,7 +488,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
       const matchStage = {
         date: {
           $gte: new Date(fromDate),
-          $lte: new Date(),
+          $lte: new Date(toDate),
         },
       };
       if (locationId && locationId !== "null") {

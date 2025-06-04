@@ -52,9 +52,9 @@ const Sidebar = (props) => {
         setSubCatId(event.target.value)
     };
 
-    useEffect(() => {
-        props.filterByPrice(value, subCatId);
-    }, [value,id]);
+    // useEffect(() => {
+    //     props.filterByPrice(value, subCatId);
+    // }, [value,id]);
 
     const filterByRating = (rating) => {
         props.filterByRating(rating, subCatId);
@@ -101,7 +101,7 @@ const Sidebar = (props) => {
                 </div>
 
 
-                <div className="filterBox">
+                {/* <div className="filterBox">
                     <h6>FILTER BY PRICE</h6>
 
                     <RangeSlider value={value} onInput={setValue} min={0} max={10000} step={5} />
@@ -111,7 +111,7 @@ const Sidebar = (props) => {
                         <span>From: <strong className='text-dark'>${value[0]}</strong></span>
                         <span className='ml-auto'>To: <strong className='text-dark'>${value[1]}</strong></span>
                     </div>
-                </div>
+                </div> */}
 
 
                 <div className="filterBox">

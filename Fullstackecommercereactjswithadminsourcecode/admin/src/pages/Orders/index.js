@@ -240,9 +240,8 @@ const Orders = () => {
                 <th>Discount</th>
                 <th>Total Amount</th>
                 <th>Email</th>
-
-                <th>Location</th>
                 <th>Shipping Method</th>
+                <th>Location</th>
                 <th>Order Status</th>
                 <th>Date</th>
                 <th>Note</th>

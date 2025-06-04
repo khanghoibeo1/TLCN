@@ -93,7 +93,7 @@ const Dashboard = () => {
     });
     fetchDataFromApi('/api/user/get/data/user-spent').then((res) => {
       setUserSpentData(res);
-    });
+    }); 
 
     fetchDataFromApi('/api/productReviews/get/reviews/stats').then((res) => {
       setreviewStatsData(res);
@@ -202,26 +202,31 @@ const Dashboard = () => {
             {/* Row 1 */}
             <div className="row mt-4 d-flex justify-content-between">
               <div className="col-md-8">
-                <div className="box  p-3 bg-dark">
-                  <h6 className="text-white mb-3">Total Sales</h6>
+                <div className="box  p-3  bg-light">
+                  <h6 className="text-dark mb-3">Total Sales</h6>
                     <DateFilter onFilter={(handleFilter)} />
                     <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={salesData}
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
-                      <XAxis dataKey="label" stroke="#ccc" />
-                      <YAxis stroke="#ccc" />
-                      <Tooltip />
-                      <CartesianGrid stroke="#444" strokeDasharray="3 3" />
-                      <Line type="monotone" dataKey="sales" stroke="#1da256" strokeWidth={3} dot={{ r: 4 }} />
+                      <XAxis dataKey="label"
+            stroke="#666"
+            tick={{ fill: "#333", fontSize: 12 }} />
+                      <YAxis stroke="#ccc"
+                      tick={{ fill: "#333", fontSize: 12 }} />
+                      <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #ccc" }}
+          labelStyle={{ color: "#555" }}
+           itemStyle={{ color: "#333" }}v />
+                      <CartesianGrid stroke="#e0e0e0" strokeDasharray="3 3" />
+                      <Line type="monotone" dataKey="sales" stroke="#1da256" strokeWidth={3} dot={{ r: 4, fill: "#1da256"  }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="box p-3 bg-dark">
-                  <h6 className="text-white mb-3">All Store Location</h6>
+                <div className="box p-3 bg-light">
+                  <h6 className="text-dark mb-3">All Store Location</h6>
                   {user.locationId === null && <button 
                     className="btn btn-warning btn-sm"
                     onClick={() => setLocationSelected(null)}
@@ -230,8 +235,8 @@ const Dashboard = () => {
                     Main Store
                   </button>}
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    <table className="table table-dark table-striped">
-                      <thead>
+                    <table className="table table-light table-striped">
+                      <thead className="thead-light">
                         <tr>
                           <th>#</th>
                           <th>Store</th>
@@ -260,8 +265,8 @@ const Dashboard = () => {
             {/* Row 2 */}
             <div className="row mt-2 mt-3 d-flex justify-content-between">
               <div className="col-md-4">
-                <div className="box bg-dark p-3">
-                  <h6 className="text-white mb-3">Order Status</h6>
+                <div className="box bg-light p-3">
+                  <h6 className="text-dark mb-3">Order Status</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Tooltip />
@@ -285,8 +290,8 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="box bg-dark p-3">
-                  <h6 className="text-white mb-3">User Rank Stats</h6>
+                <div className="box bg-light p-3">
+                  <h6 className="text-dark mb-3">User Rank Stats</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Tooltip />
@@ -315,8 +320,8 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="box bg-dark p-3">
-                  <h6 className="text-white mb-3">Product Ratings Stats</h6>
+                <div className="box bg-light p-3">
+                  <h6 className="text-dark mb-3">Product Ratings Stats</h6>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Tooltip />
@@ -365,11 +370,11 @@ const Dashboard = () => {
                 </div>
               </div> */}
               <div className="col-md-4">
-                <div className="box p-3 bg-dark">
-                  <h6 className="text-white mb-3">Top Spent Users</h6>
+                <div className="box p-3 bg-light">
+                  <h6 className="text-dark mb-3">Top Spent Users</h6>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    <table className="table table-dark table-striped">
-                      <thead>
+                    <table className="table table-light table-striped">
+                      <thead className="thead-light">
                         <tr>
                           <th>#</th>
                           <th>User</th>
@@ -390,11 +395,11 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="box p-3 bg-dark">
-                  <h6 className="text-white mb-3">Little Product Amount</h6>
+                <div className="box p-3 bg-light">
+                  <h6 className="text-dark mb-3">Little Product Amount</h6>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    <table className="table table-dark table-striped">
-                      <thead>
+                    <table className="table table-light table-striped">
+                      <thead className="thead-light">
                         <tr>
                           <th>#</th>
                           <th>Product</th>
@@ -415,11 +420,11 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="col-md-4">
-                <div className="box p-3 bg-dark">
-                  <h6 className="text-white mb-3">Top Selling Products</h6>
+                <div className="box p-3 bg-light">
+                  <h6 className="text-dark mb-3">Top Selling Products</h6>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    <table className="table table-dark table-striped">
-                      <thead>
+                    <table className="table table-light table-striped">
+                      <thead className="thead-light">
                         <tr>
                           <th>#</th>
                           <th>Product</th>
@@ -465,8 +470,8 @@ const Dashboard = () => {
             <div className="row mt-3 d-flex justify-content-between">
               
               <div className="col-md-12 ">
-                <div className="box p-3 bg-dark">
-                    <h6 className="text-white mb-3">Stats Blogs Follow Category</h6>
+                <div className="box p-3 bg-light">
+                    <h6 className="text-dark mb-3">Stats Blogs Follow Category</h6>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={blogCountCatgoryData}>
                         <YAxis />
@@ -489,8 +494,8 @@ const Dashboard = () => {
             <div className="row mt-3 d-flex justify-content-between">
               
               <div className="col-md-12 ">
-                <div className="box p-3 bg-dark">
-                <h6 className="text-white mb-3">Stats Products Follow Category</h6>
+                <div className="box p-3 bg-light">
+                <h6 className="text-dark mb-3">Stats Products Follow Category</h6>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={subCatData}>
                         <YAxis />

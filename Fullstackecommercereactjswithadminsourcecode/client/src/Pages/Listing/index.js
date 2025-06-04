@@ -129,33 +129,7 @@ const Listing = () => {
 
   };
 
-  const filterByPrice = (price, subCatId) => {
-    var window_url = window.location.href;
-    var api_EndPoint = "";
-
-
-    if (window_url.includes("subCat")) {
-      api_EndPoint = `/api/products/filterByPrice?minPrice=${
-        price[0]
-      }&maxPrice=${price[1]}&subCatId=${id}&location=${localStorage.getItem(
-        "location"
-      )}&page=1&perPage=12`;
-    }
-    if (window_url.includes("category")) {
-      api_EndPoint = `/api/products/filterByPrice?minPrice=${
-        price[0]
-      }&maxPrice=${price[1]}&catId=${id}&location=${localStorage.getItem(
-        "location"
-      )}&page=1&perPage=12`;
-    }
-
-    setisLoading(true);
-
-    fetchDataFromApi(api_EndPoint).then((res) => {
-      setProductData(res);
-      setisLoading(false);
-    });
-  };
+  
 
   const filterByRating = (rating, subCatId) => {
     setisLoading(true);
@@ -190,7 +164,7 @@ const Listing = () => {
           <div className="productListing d-flex">
             <Sidebar
               filterData={filterData}
-              filterByPrice={filterByPrice}
+              // filterByPrice={filterByPrice}
               filterByRating={filterByRating}
               isOpenFilter={context?.isOpenFilters}
             />
