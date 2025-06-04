@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import "./index.css";
 
 const RankPage = () => {
-  const [userRank, setUserRank] = useState("Bronze");
+  const [userRank, setUserRank] = useState("bronze");
   const [totalSpent, setTotalSpent] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
   const [showUpgradeBox, setShowUpgradeBox] = useState(false); // thêm state này
@@ -47,7 +47,7 @@ const RankPage = () => {
     <section className="section rankPage">
       <div className="container">
         <h2 className="hd mb-1">Your Membership Rank</h2>
-        <p className="mb-3">Current Rank: <b className="text-red">{userRank}</b></p>
+        <p className="mb-3">Current Rank: <b className="text-red">{userRank?.charAt(0).toUpperCase() + userRank?.slice(1)}</b></p>
         <p>Total Spent Previous Month: <b>${totalSpent}</b></p>
         <p>Total Orders Previous Month: <b>{totalOrders}</b></p>
 

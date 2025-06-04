@@ -8,7 +8,7 @@ cron.schedule('0 0 1 * *', async () => {
   try {
     console.log("Resetting all user ranks...");
 
-    await User.updateMany({}, { rank: 'Bronze' }); // hoặc 'unranked' nếu cần
+    await User.updateMany({}, { rank: 'bronze' }); // hoặc 'unranked' nếu cần
 
     console.log("All user ranks have been reset.");
   } catch (error) {
