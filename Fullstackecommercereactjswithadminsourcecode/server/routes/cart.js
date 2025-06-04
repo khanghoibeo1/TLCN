@@ -26,21 +26,89 @@ router.get(`/`, async (req, res) => {
 
 
 
+// router.post('/add', async (req, res) => {
+//   try {
+//     const {image, productTitle, productId, quantity, userId, location } = req.body;
+//     const locationDoc = await StoreLocation.findOne({ iso2: location });
+//     const locationId = locationDoc?.id;
+
+//     // 1. Lấy thông tin product
+//     const product = await Product.findById(productId);
+//     if (!product) return res.status(404).json({ message: 'Product not found' });
+
+//     // 2. Lấy các batch khả dụng theo FIFO
+//     const batches = await BatchCode.find({
+//       productId,
+//       status: 'delivered',
+//       amountRemain: {  $gt: 0 },
+//       locationId: locationId
+//     }).sort({ importDate: 1 });
+
+//     if (!batches || batches.length === 0) {
+//       return res.status(400).json({ message: 'No available batches for this product' });
+//     }
+
+//     let remainingQty = quantity;
+//     const cartItems = [];
+
+//     for (const batch of batches) {
+//       if (remainingQty === 0) break;
+
+//       const takeQty = Math.min(remainingQty, batch.amountRemain);
+//       const subTotal = takeQty * batch.price;
+
+//       const newCart = new Cart({
+//         productTitle: productTitle,
+//         image: image,
+//         rating: product.rating,
+//         price: batch.price,
+//         quantity: takeQty,
+//         subTotal: subTotal,
+//         productId: product.id,
+//         categoryId: product.catId,
+//         categoryName: product.catName,
+//         countInStock: batch.amountRemain,
+//         userId: userId,
+//         batchId: batch.id,
+//       });
+
+//       cartItems.push(newCart);
+//       remainingQty -= takeQty;
+//     }
+
+//     if (remainingQty > 0) {
+//       return res.status(400).json({ message: 'Not enough stock to fulfill request' });
+//     }
+
+//     // Lưu toàn bộ cartItems
+//     for (const item of cartItems) {
+//       await item.save();
+//     }
+
+//     return res.status(201).json({ message: 'Cart items added', items: cartItems });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: 'Server error' });
+//   }
+// });
 router.post('/add', async (req, res) => {
   try {
-    const {image, productTitle, productId, quantity, userId, location } = req.body;
+    const { image, productTitle, productId, quantity, userId, location } = req.body;
+
     const locationDoc = await StoreLocation.findOne({ iso2: location });
     const locationId = locationDoc?.id;
 
-    // 1. Lấy thông tin product
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    // 2. Lấy các batch khả dụng theo FIFO
+    const today = new Date();
+
     const batches = await BatchCode.find({
       productId,
       status: 'delivered',
-      amountRemain: {  $gt: 0 },
+      amountRemain: { $gt: 0 },
+      expiredDate: { $gt: today },
       locationId: locationId
     }).sort({ importDate: 1 });
 
@@ -49,49 +117,59 @@ router.post('/add', async (req, res) => {
     }
 
     let remainingQty = quantity;
-    const cartItems = [];
+    const updatedOrNewItems = [];
 
     for (const batch of batches) {
       if (remainingQty === 0) break;
 
-      const takeQty = Math.min(remainingQty, batch.amountRemain);
-      const subTotal = takeQty * batch.price;
+      let cartItem = await Cart.findOne({ productId, userId, batchId: batch.id });
+      let availableQty = batch.amountRemain;
 
-      const newCart = new Cart({
-        productTitle: productTitle,
-        image: image,
-        rating: product.rating,
-        price: batch.price,
-        quantity: takeQty,
-        subTotal: subTotal,
-        productId: product.id,
-        categoryId: product.catId,
-        categoryName: product.catName,
-        countInStock: batch.amountRemain,
-        userId: userId,
-        batchId: batch.id,
-      });
+      if (cartItem) {
+        const canAdd = availableQty - cartItem.quantity;
+        if (canAdd <= 0) continue; // batch đã hết chỗ để thêm
 
-      cartItems.push(newCart);
-      remainingQty -= takeQty;
+        const addQty = Math.min(remainingQty, canAdd);
+        cartItem.quantity += addQty;
+        cartItem.subTotal = cartItem.quantity * cartItem.price;
+        await cartItem.save();
+        updatedOrNewItems.push(cartItem);
+        remainingQty -= addQty;
+      } else {
+        const addQty = Math.min(remainingQty, availableQty);
+        const newItem = new Cart({
+          productTitle,
+          image,
+          rating: product.rating,
+          price: batch.price,
+          quantity: addQty,
+          subTotal: addQty * batch.price,
+          productId: product.id,
+          categoryId: product.catId,
+          categoryName: product.catName,
+          countInStock: batch.amountRemain,
+          userId,
+          batchId: batch.id,
+        });
+        await newItem.save();
+        updatedOrNewItems.push(newItem);
+        remainingQty -= addQty;
+      }
     }
 
     if (remainingQty > 0) {
       return res.status(400).json({ message: 'Not enough stock to fulfill request' });
     }
 
-    // Lưu toàn bộ cartItems
-    for (const item of cartItems) {
-      await item.save();
-    }
-
-    return res.status(201).json({ message: 'Cart items added', items: cartItems });
+    return res.status(201).json({ message: 'Cart updated with available batches', items: updatedOrNewItems });
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
 
 
 
