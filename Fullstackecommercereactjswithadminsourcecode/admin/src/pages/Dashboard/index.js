@@ -222,13 +222,13 @@ const Dashboard = () => {
               <div className="col-md-4">
                 <div className="box p-3 bg-dark">
                   <h6 className="text-white mb-3">All Store Location</h6>
-                  <button 
+                  {user.locationId === null && <button 
                     className="btn btn-warning btn-sm"
                     onClick={() => setLocationSelected(null)}
                     disabled={user.locationId !== null} 
                   >
                     Main Store
-                  </button>
+                  </button>}
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     <table className="table table-dark table-striped">
                       <thead>

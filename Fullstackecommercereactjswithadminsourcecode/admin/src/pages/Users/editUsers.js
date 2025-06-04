@@ -81,11 +81,11 @@ const EditUser = () => {
       .then((res) => {
         setPreviews(res?.data?.images)
         setFormFields({
-          name: res?.data?.name,
-          phone: res?.data?.phone,
-          email: res?.data?.email,
-          images: res?.data?.images,
-          status: res?.data?.status,
+          name: res?.name,
+          phone: res?.phone,
+          email: res?.email,
+          images: res?.images,
+          status: res?.status,
         });
       })
       
@@ -280,7 +280,7 @@ const EditUser = () => {
       <div className="card p-4 mt-4">
         <h5>Media and Publication</h5>
         <div className="imgUploadBox d-flex align-items-center">
-          {previews.map((img, index) => (
+          {previews?.map((img, index) => (
             <div className="uploadBox" key={index}>
               <span className="remove" onClick={() => removeImg(index, img)}>
                 <IoCloseSharp />

@@ -47,13 +47,13 @@ const ProductDetails = () => {
     fetchDataFromApi(`/api/products/${id}`).then((res) => {
       setProductData(res);
 
-      if (
-        res?.productRam.length === 0 &&
-        res?.productWeight.length === 0 &&
-        res?.size.length === 0
-      ) {
-        setActiveSize(1);
-      }
+      // if (
+      //   res?.productRam.length === 0 &&
+      //   res?.productWeight.length === 0 &&
+      //   res?.size.length === 0
+      // ) {
+      //   setActiveSize(1);
+      // }
 
       fetchDataFromApi(
         `/api/products/subCatId?subCatId=${
