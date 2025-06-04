@@ -34,8 +34,7 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const context = useContext(MyContext);
-  const selectedCountry = context.selectedCountry.iso2;
-
+  const selectedCountry = context.selectedCountry?.iso2;
   const isActive = (index) => {
     setActiveSize(index);
     setTabError(false);
@@ -54,7 +53,7 @@ const ProductDetails = () => {
       // ) {
       //   setActiveSize(1);
       // }
-
+      setActiveSize(1);
       fetchDataFromApi(
         `/api/products/subCatId?subCatId=${
           res?.subCatId
