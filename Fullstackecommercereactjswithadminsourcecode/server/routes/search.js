@@ -241,6 +241,7 @@ router.get("/user/userAdmins", async (req, res) => {
         { name: { $regex: query, $options: "i" } },
         { email: { $regex: query, $options: "i" } },
         { phone: { $regex: query, $options: "i" } },
+        { locationManageName: { $regex: query, $options: "i" } },
       ],
     };
 

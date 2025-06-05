@@ -528,7 +528,15 @@ router.post(`/userAdmin/create`, async (req, res) => {
 
 router.put(`/userAdmin/:id`, async (req, res) => {
     try {
-        const hashPassword = await bcrypt.hash(req.body.password,10);
+        const existingUser = await User.findById(req.params.id);
+        if (!existingUser) {
+        return res.status(404).json({ error: true, msg: 'User not found' });
+        }
+
+        let hashPassword = existingUser.password; // default: giữ nguyên
+        if (req.body.password !== "") {
+        hashPassword = await bcrypt.hash(req.body.password, 10);
+        }
         const user = await User.findByIdAndUpdate(
             req.params.id,
             {

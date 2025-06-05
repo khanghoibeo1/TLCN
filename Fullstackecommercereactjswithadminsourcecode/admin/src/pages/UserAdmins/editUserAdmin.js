@@ -111,7 +111,7 @@ const EditUserAdmin = () => {
         navigate("/userAdmins");
       } catch (error) {
         setIsLoading(false);
-        context.setAlertBox({ open: true, error: true, msg: "Error creating user" });
+        context.setAlertBox({ open: true, error: true, msg: "Error updating user" });
       }
     } else {
       context.setAlertBox({ open: true, error: true, msg: "Please fill all required fields" });
@@ -121,7 +121,7 @@ const EditUserAdmin = () => {
   return (
     <div className="right-content w-100">
       <div className="card shadow border-0 w-100 flex-row p-4 mt-2">
-        <h5 className="mb-0">Add User Admin</h5>
+        <h5 className="mb-0">Edit User Admin</h5>
         <Breadcrumbs aria-label="breadcrumb" className="ml-auto breadcrumbs_">
           <StyledBreadcrumb component="a" href="#" label="Dashboard" icon={<HomeIcon fontSize="small" />} />
           <StyledBreadcrumb component="a" label="User Admin" href="#" deleteIcon={<ExpandMoreIcon />} />

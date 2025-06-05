@@ -7,7 +7,8 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
+import { TextField, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -65,6 +66,11 @@ const MyAccount = () => {
 
   const [userData, setUserData] = useState(null);
   const [profilePreviews, setProfilePreviews] = useState([]); // array of image URLs
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const [profileFields, setProfileFields] = useState({
     name: "",
@@ -474,10 +480,19 @@ const MyAccount = () => {
                     label="Old Password"
                     variant="outlined"
                     fullWidth
-                    type="password"
+                    type={showOldPassword ? "text" : "password"}
                     name="oldPassword"
                     onChange={handlePasswordInput}
                     value={passwordFields.oldPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowOldPassword(!showOldPassword)}>
+                            {showOldPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -485,10 +500,19 @@ const MyAccount = () => {
                     label="New Password"
                     variant="outlined"
                     fullWidth
-                    type="password"
+                    type={showNewPassword ? "text" : "password"}
                     name="newPassword"
                     onChange={handlePasswordInput}
                     value={passwordFields.newPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowNewPassword(!showNewPassword)}>
+                            {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -496,10 +520,19 @@ const MyAccount = () => {
                     label="Confirm Password"
                     variant="outlined"
                     fullWidth
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     onChange={handlePasswordInput}
                     value={passwordFields.confirmPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
               </div>

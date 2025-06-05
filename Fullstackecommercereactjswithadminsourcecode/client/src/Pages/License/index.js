@@ -23,8 +23,8 @@ const IntroduceAndLicense = () => {
         </Typography>
         <Typography paragraph>
           Contact us:
-          <br />Email: <a href="mailto:nongsanteam@example.com">nongsanteam@example.com</a>
-          <br />Phone: +84 123 456 789
+          <br />Email: <a href="mailto:minhthien12149@gmail.com">minhthien12149@gmail.com</a>
+          <br />Phone: +84 387445808
         </Typography>
       </Box>
 

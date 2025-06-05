@@ -52,7 +52,7 @@ const UserAdmin = () => {
     const history = useNavigate();
 
     const context = useContext(MyContext);
-
+    const userContext = context.user;
     // useEffect(() => {
     //     window.scrollTo(0, 0);
     //     context.setProgress(20)
@@ -66,7 +66,7 @@ const UserAdmin = () => {
 
     const loadUsers = (currentPage, itemsPerPage) => {
         context.setProgress(40);
-        fetchDataFromApi(`/api/admin/userAdmin?page=${currentPage}&perPage=${itemsPerPage}`)
+        fetchDataFromApi(`/api/admin/userAdmin?page=${currentPage}&perPage=${itemsPerPage}&locationId=${userContext.locationId}`)
           .then((res) => {
             setUserAdminData(res);
             setTotalUserAdmins(res.totalUsers);

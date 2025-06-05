@@ -8,10 +8,15 @@ const router = express.Router();
 router.get('/userAdmin', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 10;
-    const locationFilter = req.query.location;
+    const locationFilter = req.query.locationId;
 
     try {
         const query = { isAdmin: true };
+        if (locationFilter && locationFilter !== 'null' && locationFilter !== 'undefined') {
+            query.locationManageId = locationFilter;
+        }
+
+
         const totalUsers = await User.countDocuments(query);
         const totalPages = Math.ceil(totalUsers / perPage);
 
@@ -19,23 +24,30 @@ router.get('/userAdmin', async (req, res) => {
             return res.status(404).json({ success: false, message: "Page not found" });
         }
 
-        let users = [];
+        const users = await User.find(query)
+            .populate("name")
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .exec();
 
-        if (locationFilter) {
-            const allUsers = await User.find(query)
-                .populate("name")
-                .exec();
 
-                users = allUsers.filter(user =>
-                user.location && user.location.some(loc => loc.value === locationFilter)
-            ).slice((page - 1) * perPage, page * perPage);
-        } else {
-            users = await User.find(query)
-                .populate("name")
-                .skip((page - 1) * perPage)
-                .limit(perPage)
-                .exec();
-        }
+        // let users = [];
+
+        // if (locationFilter) {
+        //     const allUsers = await User.find(query)
+        //         .populate("name")
+        //         .exec();
+
+        //         users = allUsers.filter(user =>
+        //         user.location && user.location.some(loc => loc.value === locationFilter)
+        //     ).slice((page - 1) * perPage, page * perPage);
+        // } else {
+        //     users = await User.find(query)
+        //         .populate("name")
+        //         .skip((page - 1) * perPage)
+        //         .limit(perPage)
+        //         .exec();
+        // }
 
         return res.status(200).json({
             success: true,

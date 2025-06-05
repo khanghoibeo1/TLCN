@@ -5,7 +5,8 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { IoMdCloudUpload } from "react-icons/io";
-import TextField from "@mui/material/TextField";
+import { TextField, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -58,6 +59,10 @@ function a11yProps(index) {
 
 const MyAccount = () => {
   const [isLogin, setIsLogin] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const [value, setValue] = React.useState(0);
 
@@ -443,8 +448,17 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="oldPassword"
-                          type="password"
+                          type={showOldPassword ? "text" : "password"}
                           onChange={changeInput2}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowOldPassword(!showOldPassword)}>
+                                  {showOldPassword ? <VisibilityOff sx={{ color: 'black' }}/> : <Visibility sx={{ color: 'black' }}/>}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       </div>
                     </div>
@@ -456,8 +470,17 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="password"
-                          type="password"
+                          type={showNewPassword ? "text" : "password"}
                           onChange={changeInput2}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowNewPassword(!showNewPassword)}>
+                                  {showNewPassword ? <VisibilityOff sx={{ color: 'black' }}/> : <Visibility sx={{ color: 'black' }}/>}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       </div>
                     </div>
@@ -469,8 +492,17 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="confirmPassword"
-                          type="password"
+                          type={showConfirmPassword ? "text" : "password"}
                           onChange={changeInput2}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                  {showConfirmPassword ? <VisibilityOff sx={{ color: 'black' }}/> : <Visibility sx={{ color: 'black' }}/>}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       </div>
                     </div>
