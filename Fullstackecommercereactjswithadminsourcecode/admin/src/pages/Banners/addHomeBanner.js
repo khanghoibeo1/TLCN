@@ -138,7 +138,7 @@ const AddBanner = () => {
 
   const removeImg = async (imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email !== "admin@admin.com") {
+    if (userInfo?.role !== "mainAdmin") {
       return context.setAlertBox({
         open: true,
         error: true,

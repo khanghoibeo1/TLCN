@@ -103,7 +103,7 @@ const EditUserAdmin = () => {
   // Gửi dữ liệu tạo user
   const editUserAdmin = async (e) => {
     e.preventDefault();
-    if (formFields.name !== "" && formFields.email !== "" && formFields.role !== "" && formFields.locationManageId !== "") {
+    if (formFields.name !== "" && formFields.email !== "" && formFields.role !== "" && (formFields.locationManageId !== "" || formFields.role === "mainAdmin")) {
       setIsLoading(true);
       try {
         await editData(`/api/user/userAdmin/${id}`, formFields);
@@ -177,6 +177,20 @@ const EditUserAdmin = () => {
               <div className="form-group">
                 <h6>Password</h6>
                 <input type="password" name="password" value={formFields.password} onChange={changeInput} />
+              </div>
+
+              <div className="form-group">
+                <h6>Status</h6>
+                  <Select
+                      value={formFields.status}
+                      onChange={changeInput}
+                      inputProps={{ "aria-label": "Without label" }}
+                      className="w-100"
+                      name="status"
+                      >
+                      <MenuItem value="banned">Banned</MenuItem>
+                      <MenuItem value="active">Active</MenuItem>
+                  </Select>
               </div>
 
               <Button type="submit" className="btn-blue btn-lg btn-big w-100 mt-4">

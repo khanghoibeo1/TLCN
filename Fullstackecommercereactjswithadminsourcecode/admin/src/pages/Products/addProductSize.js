@@ -107,7 +107,7 @@ const AddProductSize = () => {
 
   const deleteItem = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin@admin.com") {
+    if (userInfo?.role !== "mainAdmin") {
       deleteData(`/api/productSIZE/${id}`).then((res) => {
         fetchDataFromApi("/api/productSIZE").then((res) => {
           setProductSizeData(res);

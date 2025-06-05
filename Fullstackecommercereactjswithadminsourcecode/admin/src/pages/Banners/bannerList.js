@@ -63,7 +63,7 @@ const BannersList = () => {
     if (!confirmDelete) return;
     
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if(userInfo?.email==="admin@admin.com"){
+    if(userInfo?.role !== "mainAdmin"){
       context.setProgress(30);
       deleteData(`/api/banners/${id}`).then((res) => {
         context.setProgress(100);

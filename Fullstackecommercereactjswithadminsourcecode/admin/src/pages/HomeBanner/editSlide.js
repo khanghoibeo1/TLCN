@@ -167,7 +167,7 @@ const EditHomeSlide = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.email === "admin@admin.com") {
+    if (userInfo?.role !== "mainAdmin") {
       const imgIndex = previews.indexOf(imgUrl);
 
       deleteImages(`/api/homeBanner/deleteImage?img=${imgUrl}`).then((res) => {

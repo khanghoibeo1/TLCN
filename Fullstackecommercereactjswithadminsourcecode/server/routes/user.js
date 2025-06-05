@@ -272,6 +272,7 @@ router.put(`/changePassword/:id`, async (req, res) => {
         },
         { new: true}
     )
+    console.log('hhhhh')
 
     if(!user){
         return res.status(400).json({error:true,  status: 'FAILED', msg:'The user cannot be Updated!'})
@@ -494,8 +495,8 @@ router.post(`/userAdmin/create`, async (req, res) => {
             status: req.body.status || "active",
             images: req.body.images || [],
             isAdmin: true, // Luôn là admin
-            locationManageName: req.body.locationManageName || "",
-            locationManageId: req.body.locationManageId || "",
+            locationManageName: req.body.locationManageName || null,
+            locationManageId: req.body.locationManageId || null,
             role: req.body.role || "storeAdmin", // Mặc định là storeAdmin
             password: hashPassword,
             note: req.body.note,
@@ -830,10 +831,10 @@ router.post(`/admin`, async (req, res) => {
             res.status(404).json({error:true, msg:"User not found!"})
             return;
         }
-        if(!existingUser.isVerified) {
-            res.status(400).json({error:true, msg:"Email is not verify!"})
-            return;
-        }
+        // if(!existingUser.isVerified) {
+        //     res.status(400).json({error:true, msg:"Email is not verify!"})
+        //     return;
+        // }
         const matchPassword = await bcrypt.compare(password, existingUser.password);
         if(!matchPassword){
             return res.status(400).json({error:true,msg:"Invailid credentials"})

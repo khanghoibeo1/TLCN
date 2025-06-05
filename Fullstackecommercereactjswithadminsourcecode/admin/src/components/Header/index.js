@@ -158,10 +158,12 @@ const Header = () => {
                       </Link>
                     </MenuItem>
                     <MenuItem onClick={handleCloseMyAccDrop}>
+                    <Link to="/my-account">
                       <ListItemIcon>
                         <IoShieldHalfSharp />
                       </ListItemIcon>
                       Reset Password
+                    </Link>
                     </MenuItem>
                     <MenuItem onClick={logout}>
                       <ListItemIcon>

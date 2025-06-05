@@ -63,7 +63,7 @@ const HomeSlidesList = () => {
     const confirmDelete = window.confirm("Are you sure you want to delete?");
     if (!confirmDelete) return;
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if(userInfo?.email==="admin@admin.com"){
+    if(userInfo?.role !== "mainAdmin"){
     context.setProgress(30);
       deleteData(`/api/homeBanner/${id}`).then((res) => {
         context.setProgress(100);

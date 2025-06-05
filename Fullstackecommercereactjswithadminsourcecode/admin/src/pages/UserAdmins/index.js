@@ -177,6 +177,7 @@ const UserAdmin = () => {
                             <th>ROLE</th>
                             <th>LOCATION</th>
                             <th>STATUS</th>
+                            <th>ACTION</th>
                           </tr>
                         </thead>
 
@@ -189,11 +190,18 @@ const UserAdmin = () => {
                                   <td>{item.name}	</td>
                                   <td>{item.email}	</td>
                                   <td>{item.phone}	</td>
-                                  <td>{item.role}	</td>
+                                  <td>
+                                    {{
+                                      staff: 'Staff',
+                                      storeAdmin: 'Store Admin',
+                                      mainAdmin: 'Main Admin'
+                                    }[item.role] || item.role}
+                                  </td>
                                   <td>{item.locationManageName}	</td>
+                                  <td>{item.status}	</td>
                                   <td>
                                     <div className="actions d-flex align-items-center">
-                                      <Link to={`/userAdmin/edit/${item._id}`}   >                                         <Button className="success" color="success"><FaPencilAlt /></Button>
+                                      <Link to={`/userAdmin/edit/${item._id}`}><Button className="success" color="success"><FaPencilAlt /></Button>
                                       </Link>
 
                                       <Button className="error" color="error" onClick={() => deleteUserAdmin(item._id)}

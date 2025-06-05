@@ -12,6 +12,7 @@ import {
   deleteData,
   deleteImages,
   editData,
+  editData2,
   fetchDataFromApi,
   postData,
   uploadImage,
@@ -283,9 +284,36 @@ const MyAccount = () => {
           images: formFields.images,
         };
 
-        editData(`/api/user/changePassword/${user.userId}`, data).then(
-          (res) => {
-          
+        editData2(`/api/user/changePassword/${user.userId}`, data)
+        .then((res) => {
+            console.log(res)
+            if (res.status === 'SUCCESS') {
+              setFields({
+                oldPassword: "",
+                password: "",
+                confirmPassword: "",
+              });
+              context.setAlertBox({
+                open: true,
+                error: false,
+                msg: res.msg || "Password updated successfully!",
+              });
+              setValue(0);
+            } else {
+              context.setAlertBox({
+                open: true,
+                error: true,
+                msg: res.msg || "Failed to update password!",
+              });
+            }
+          })
+          .catch((err) => {
+            console.error(err.response.data.msg);
+            context.setAlertBox({
+              open: true,
+              error: true,
+              msg: err.response.data.msg,
+            });
           }
         );
       }
@@ -415,6 +443,7 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="oldPassword"
+                          type="password"
                           onChange={changeInput2}
                         />
                       </div>
@@ -427,6 +456,7 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="password"
+                          type="password"
                           onChange={changeInput2}
                         />
                       </div>
@@ -439,6 +469,7 @@ const MyAccount = () => {
                           variant="outlined"
                           className="w-100"
                           name="confirmPassword"
+                          type="password"
                           onChange={changeInput2}
                         />
                       </div>

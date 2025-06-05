@@ -87,7 +87,7 @@ const AddUserAdmin = () => {
   // Gửi dữ liệu tạo user
   const addUserAdmin = async (e) => {
     e.preventDefault();
-    if (formFields.name !== "" && formFields.email !== "" && formFields.role !== "" && formFields.locationManageId !== "") {
+    if (formFields.name !== "" && formFields.email !== "" && formFields.role !== "" && (formFields.locationManageId !== "" || formFields.role === 'mainAdmin')) {
       setIsLoading(true);
       try {
         await postData(`/api/user/userAdmin/create`, formFields);

@@ -161,7 +161,7 @@ const EditUpload = () => {
 
   const removeImg = async (idx, url) => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user?.email === 'admin@admin.com') {
+    if (user?.role !== "mainAdmin") {
       await deleteImages(`/api/category/deleteImage?img=${url}`);
       setPreviews(prev => prev.filter((_, i) => i !== idx));
       context.setAlertBox({ open: true, error: false, msg: 'Image Deleted!' });

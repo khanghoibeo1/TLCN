@@ -82,7 +82,7 @@ const Login = () => {
         if (res.error !== true) {
           localStorage.setItem("token", res.token);
 
-          if (res.user?.isAdmin === true) {
+          if (res.user?.isAdmin === true && res.user?.status === 'active') {
             const user = {
               name: res.user?.name,
               email: res.user?.email,
