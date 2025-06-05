@@ -15,7 +15,7 @@ const myListSchema = mongoose.Schema({
     },
     price:{
         type:Number,
-        required:true
+        required:false
     },
     productId:{
         type:String,

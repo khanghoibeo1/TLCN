@@ -29,10 +29,10 @@ const ProductModal = (props) => {
     const selectedCountry = context.selectedCountry.iso2;
 
     useEffect(() => {
-        if (props?.data?.productRam.length === 0 && props?.data?.productWeight.length === 0 && props?.data?.size.length === 0) {
-            setActiveSize(1);
-        }
-
+        // if (props?.data?.productRam.length === 0 && props?.data?.productWeight.length === 0 && props?.data?.size.length === 0) {
+        //     setActiveSize(1);
+        // }
+        setActiveSize(1);
         const user = JSON.parse(localStorage.getItem("user"));
 
         fetchDataFromApi(`/api/my-list?productId=${props?.data?.id}&userId=${user?.userId}`).then((res) => {

@@ -532,6 +532,13 @@ router.put(`/userAdmin/:id`, async (req, res) => {
         if (!existingUser) {
         return res.status(404).json({ error: true, msg: 'User not found' });
         }
+        let locationManageIdTest = req.body.locationManageId
+        let locationManageNameTest = req.body.locationManageName
+        if(req.body.role === 'mainAdmin'){
+            locationManageIdTest = null
+            locationManageNameTest = null
+        }
+
 
         let hashPassword = existingUser.password; // default: giữ nguyên
         if (req.body.password !== "") {
@@ -545,8 +552,8 @@ router.put(`/userAdmin/:id`, async (req, res) => {
                 email: req.body.email,
                 status: req.body.status,
                 images: req.body.images,
-                locationManageName: req.body.locationManageName,
-                locationManageId: req.body.locationManageId,
+                locationManageName: locationManageNameTest,
+                locationManageId: locationManageIdTest,
                 role: req.body.role,
                 password: hashPassword,
                 note: req.body.note,

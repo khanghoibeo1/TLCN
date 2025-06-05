@@ -82,7 +82,7 @@ const MyList = () => {
                                                 <thead>
                                                     <tr>
                                                         <th width="50%">Product</th>
-                                                        <th width="15%">Unit Price</th>
+                                                        {/* <th width="15%">Unit Price</th> */}
                                                         <th width="10%">Remove</th>
                                                     </tr>
                                                 </thead>
@@ -110,7 +110,7 @@ const MyList = () => {
                                                                             </div>
                                                                         </Link>
                                                                     </td>
-                                                                    <td width="15%">${item?.price}</td>
+                                                                    {/* <td width="15%">${item?.price}</td> */}
 
 
                                                                     <td width="10%"><span className="remove" onClick={() => removeItem(item?._id)}><IoIosClose /></span></td>
