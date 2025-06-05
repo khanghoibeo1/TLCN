@@ -107,7 +107,7 @@ const AddProductRAMS = () => {
 
   const deleteItem = (id) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.role !== "mainAdmin") {
+    if (userInfo?.role === "mainAdmin") {
       deleteData(`/api/productRAMS/${id}`).then((res) => {
         fetchDataFromApi("/api/productRAMS").then((res) => {
           setproductRamData(res);

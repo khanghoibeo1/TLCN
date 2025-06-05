@@ -64,7 +64,7 @@ const BannersList = () => {
     if (!confirmDelete) return;
     
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if(userInfo?.role !== "mainAdmin"){
+    if(userInfo?.role === "mainAdmin"){
       context.setProgress(30);
       deleteData(`/api/homeSideBanners/${id}`).then((res) => {
         context.setProgress(100);

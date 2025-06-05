@@ -64,7 +64,7 @@ const StoreLocation = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if (!confirmDelete) return;
         const userInfo = JSON.parse(localStorage.getItem("user"));
-        if(userInfo?.role !== "mainAdmin"){
+        if(userInfo?.role === "mainAdmin"){
        
             setIsLoadingBar(true);
             context.setProgress(30);

@@ -156,7 +156,7 @@ const EditBanner = () => {
 
   const removeImg = async (index, imgUrl) => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
-    if (userInfo?.role !== "mainAdmin") {
+    if (userInfo?.role === "mainAdmin") {
       await deleteImages(`/api/banners/deleteImage?img=${imgUrl}`);
       setPreviews((prev) => prev.filter((_, i) => i !== index));
       context.setAlertBox({ open: true, error: false, msg: "Image Deleted!" });
