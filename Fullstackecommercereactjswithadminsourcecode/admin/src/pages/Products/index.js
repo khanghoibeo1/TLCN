@@ -340,7 +340,7 @@ const Products = () => {
                   <th>SUB CATEGORY</th>
                   <th>BRAND</th>
                   {/* <th>PRICE</th> */}
-                  <th>AMOUNT</th>
+                  <th>AMOUNT REMAIN</th>
                   <th>RATING</th>
                   <th>SEASON</th>
                   <th>NOTE</th>
@@ -396,7 +396,6 @@ const Products = () => {
                             size="small"
                             readOnly
                           />
-                          {item.rating}
                         </td>
                         
                         <td>{item?.season.join(",")}</td>

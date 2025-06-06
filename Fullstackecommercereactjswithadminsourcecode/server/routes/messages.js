@@ -98,8 +98,8 @@ router.get('/:id', authenticateToken, async(req, res) => {
         const partner = await User.findById(partnerId);
 
         // Kiểm tra xem đối tác có phải là client hoặc mainAdmin không
-        if (!partner || !['client', 'mainAdmin'].includes(partner.role)) {
-            return res.status(400).json({ error: "Invalid partner. You can only chat with client or mainAdmin." });
+        if (!partner || !['client', 'mainAdmin', 'storeAdmin', 'staff'].includes(partner.role)) {
+            return res.status(400).json({ error: "Invalid partner. You can only chat with client or admin." });
         }
 
         // Lọc các tin nhắn giữa người dùng hiện tại và đối tác
@@ -131,7 +131,7 @@ router.post('/send/:id', authenticateToken, multer.single('image'), async(req, r
         const sender = await User.findById(senderId); 
         const receiver = await User.findById(receiverId);
         const senderRole = sender.role;
-        if (!receiver || !['mainAdmin', 'client'].includes(receiver.role) || !['mainAdmin', 'client'].includes(senderRole)) {
+        if (!receiver || !['mainAdmin', 'client', 'storeAdmin', 'staff'].includes(receiver.role) || !['mainAdmin', 'client', 'storeAdmin', 'staff'].includes(senderRole)) {
             return res.status(400).json({ error: 'You can only chat between client and mainAdmin' });
         }
 
@@ -139,8 +139,12 @@ router.post('/send/:id', authenticateToken, multer.single('image'), async(req, r
 
         // Kiểm tra nếu vai trò của người gửi và người nhận không đúng      
         if ((senderRole === 'client' && receiver.role !== 'mainAdmin') || 
-            (senderRole === 'mainAdmin' && receiver.role !== 'client')) {
-            return res.status(400).json({ error: 'You can only chat between client and mainAdmin' });
+            (senderRole === 'mainAdmin' && receiver.role !== 'client') ||
+            (senderRole === 'client' && receiver.role !== 'storeAdmin') || 
+            (senderRole === 'storeAdmin' && receiver.role !== 'client') ||
+            (senderRole === 'client' && receiver.role !== 'staff') || 
+            (senderRole === 'staff' && receiver.role !== 'client') ) {
+            return res.status(400).json({ error: 'You can only chat between client and admin' });
         }
 
         let imageUrl;
@@ -333,7 +337,8 @@ router.get('/count/unread', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   const count = await Messages.countDocuments({
     receiverId: userId,
-    senderRole: 'mainAdmin',
+    // senderRole: 'mainAdmin',
+    senderRole: { $in: ['mainAdmin', 'storeAdmin', 'staff'] },  
     isRead: false
   });
   res.json({ unreadCount: count });
@@ -343,7 +348,10 @@ router.get('/count/unread', authenticateToken, async (req, res) => {
 router.put('/count/mark-read', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   await Messages.updateMany(
-    { receiverId: userId, senderRole: 'mainAdmin', isRead: false },
+    { receiverId: userId, 
+      // senderRole: 'mainAdmin',
+      senderRole: { $in: ['mainAdmin', 'storeAdmin', 'staff'] }, 
+      isRead: false },
     { $set: { isRead: true } }
   );
   res.json({ success: true });

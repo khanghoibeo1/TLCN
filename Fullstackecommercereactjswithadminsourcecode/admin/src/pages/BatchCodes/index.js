@@ -63,18 +63,30 @@ const BatchCodeList = () => {
     const deleteBatchCode = (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
         if (!confirmDelete) return;
-        setIsLoading(true);
-        context.setProgress(30);
-        deleteData(`/api/batchCodes/${id}&page=${page}&perPage=${perPage}`).then(() => {
-            setBatchCodes(batchCodes.filter(batch => batch._id !== id));
-            context.setProgress(100);
+        const userInfo = JSON.parse(localStorage.getItem("user"));
+        if (userInfo?.role === "mainAdmin") {
+            setIsLoading(true);
+            context.setProgress(30);
+            deleteData(`/api/batchCodes/${id}`).then(() => {
+                context.setProgress(100);
+                context.setAlertBox({
+                    open: true,
+                    error: false,
+                    msg: "Batch Code Deleted!"
+                });
+                setIsLoading(false);
+                fetchDataFromApi(`/api/batchCodes?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=${perPage}`).then((res) => {
+                    setBatchCodes(res);
+                    context.setProgress(100);
+                });
+            });
+        } else {
             context.setAlertBox({
                 open: true,
-                error: false,
-                msg: "Batch Code Deleted!"
+                error: true,
+                msg: "Only Admin can delete ",
             });
-            setIsLoading(false);
-        });
+        }
     };
 
     const onSearch = (keyword) => {

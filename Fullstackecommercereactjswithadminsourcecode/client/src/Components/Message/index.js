@@ -35,13 +35,13 @@ function ClientChat() {
 
   useEffect(() => {
     if (!isLogin) return;
-    socketRef.current = io("http://localhost:8000", {
+    socketRef.current = io(process.env.REACT_APP_API_URL, {
       query: { userId: user.userId }
     });
 
     socketRef.current.on("newMessage", newMsg => {
       // nếu tin nhắn từ admin gửi tới client và hộp chat đang đóng
-      if (newMsg.senderRole === 'mainAdmin' && !isChatOpen) {
+      if (['mainAdmin', 'storeAdmin','staff'].includes(newMsg.senderRole) && !isChatOpen) {
         setUnreadCount(c => c + 1);
       }
       // cập nhật message list (giữ như cũ)

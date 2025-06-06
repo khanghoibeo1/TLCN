@@ -34,8 +34,7 @@ export default function AdminChat() {
 
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:8000", {
-      // nếu REACT_APP_API_URL = http://localhost:8000/api thì ta cắt /api ra
+    socketRef.current = io(process.env.REACT_APP_BASE_URL, {
       query: { userId: user.userId },
     });
 
@@ -220,12 +219,12 @@ export default function AdminChat() {
                       )}
                       <div style={{
                         display:'flex',
-                        justifyContent: m.senderRole==='mainAdmin'?'flex-end':'flex-start',
+                        justifyContent: ['mainAdmin', 'storeAdmin','staff'].includes(m.senderRole)?'flex-end':'flex-start',
                         margin:'6px 0'
                       }}>
                         <div style={{
-                          background:m.senderRole==='mainAdmin'?'#6A1B9A':'#eee',
-                          color:m.senderRole==='mainAdmin'?'white':'black',
+                          background:['mainAdmin', 'storeAdmin','staff'].includes(m.senderRole)?'#6A1B9A':'#eee',
+                          color:['mainAdmin', 'storeAdmin','staff'].includes(m.senderRole)?'white':'black',
                           padding:'8px 12px', borderRadius:16,
                           maxWidth:'70%',wordBreak:'break-word'
                         }}>
@@ -243,7 +242,7 @@ export default function AdminChat() {
                           <div style={{
                             textAlign:'right',fontSize:'0.75em',
                             marginTop:4,
-                            color:m.senderRole==='mainAdmin'
+                            color:['mainAdmin', 'storeAdmin','staff'].includes(m.senderRole)
                               ?'rgba(255,255,255,0.7)':'#999'
                           }}>
                             {formatTime(msgDate)}

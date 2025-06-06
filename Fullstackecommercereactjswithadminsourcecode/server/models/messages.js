@@ -22,7 +22,7 @@ const messageSchema = mongoose.Schema({
         },
         senderRole: {
             type: String,
-            enum: ['client', 'mainAdmin','bot'],
+            enum: ['client', 'mainAdmin','bot','storeAdmin','staff'],
             required: true,
         },
         isRead: { type: Boolean, default: false },

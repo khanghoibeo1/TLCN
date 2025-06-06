@@ -82,14 +82,23 @@ const UserAdmin = () => {
     const deleteUserAdmin = (id) => {
       const confirmDelete = window.confirm("Are you sure you want to delete?");
       if (!confirmDelete) return;
-        deleteData(`/api/admin/userAdmin/${id}`).then(() => {
-          context.setAlertBox({
-            open: true,
-            error: false,
-            msg: "User Admin Deleted!",
+      const userInfo = JSON.parse(localStorage.getItem("user"));
+        if (userInfo?.role === "mainAdmin") {
+          deleteData(`/api/admin/userAdmin/${id}`).then(() => {
+            context.setAlertBox({
+              open: true,
+              error: false,
+              msg: "User Admin Deleted!",
+            });
+            loadUsers(page, perPage);
           });
-          loadUsers(page, perPage);
-        });
+        } else {
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: "Only Admin can delete",
+            });
+        }
       };
     
     const handleChange = (event, value) => {
