@@ -72,7 +72,7 @@ const NotificationList = () => {
           <h5 className="mb-0">Notification List</h5>
           <div className="ml-auto">
             <Link to="/notification/add">
-              <Button className="btn-blue ml-3 pl-3 pr-3">Add Notification Code</Button>
+              <Button className="btn-blue ml-3 pl-3 pr-3">Add Notification</Button>
             </Link>
           </div>
         </div>

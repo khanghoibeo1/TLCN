@@ -287,35 +287,35 @@ function App() {
 
               <Route path="/products" exact={true} element={<Products />} />
               <Route path="/product/details/:id" exact={true} element={<ProductDetails />} />
-              <Route path="/product/upload" exact={true} element={<ProductUpload />} />
-              <Route  path="/product/edit/:id" exact={true} element={<EditProduct />} />
+              <Route path="/product/upload" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><ProductUpload /></ProtectedRoute>} />
+              <Route  path="/product/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditProduct /></ProtectedRoute>} />
 
               <Route path="/category" exact={true} element={<Category />} />
-              <Route path="/category/add" exact={true} element={<CategoryAdd />} />
-              <Route path="/category/edit/:id" exact={true} element={<EditCategory />} />
+              <Route path="/category/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><CategoryAdd /></ProtectedRoute>} />
+              <Route path="/category/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditCategory /></ProtectedRoute>} />
 
               <Route path="/subCategory/" exact={true} element={<SubCatList />} />
-              <Route path="/subCategory/add" exact={true} element={<SubCatAdd />} />
+              <Route path="/subCategory/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><SubCatAdd /></ProtectedRoute>} />
 
               <Route path="/productRAMS/add" exact={true} element={<AddProductRAMS />} />
               <Route path="/productWEIGHT/add" exact={true} element={<ProductWeight />}  />
               <Route path="/productSIZE/add" exact={true} element={<ProductSize />} />
               
               <Route path="/blogs" exact={true} element={<Blogs />} />
-              <Route path="/blog/edit/:id" exact={true} element={<EditBlog />} />
+              <Route path="/blog/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditBlog /></ProtectedRoute>} />
               <Route path="/blog/details/:id" exact={true} element={<BlogDetails />} />
-              <Route path="/blog/add" exact={true} element={<AddBlog />} />
+              <Route path="/blog/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><AddBlog /></ProtectedRoute>} />
               
               <Route path="/postTypes" exact={true} element={<PostTypes />} />
-              <Route path="/postTypes/edit/:id" exact={true} element={<EditPostTypes />} />
-              <Route path="/postTypes/add" exact={true} element={<AddPostTypes />} />
+              <Route path="/postTypes/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditPostTypes /></ProtectedRoute>} />
+              <Route path="/postTypes/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><AddPostTypes /></ProtectedRoute>} />
 
-              <Route path="/storeLocations" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><StoreLocations /></ProtectedRoute>} />
-              <Route path="/storeLocations/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditStoreLocations /></ProtectedRoute>} />
-              <Route path="/storeLocations/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><AddStoreLocations /></ProtectedRoute>} />
+              <Route path="/storeLocations" exact={true} element={<StoreLocations />} />
+              <Route path="/storeLocations/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditStoreLocations /></ProtectedRoute>} />
+              <Route path="/storeLocations/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddStoreLocations /></ProtectedRoute>} />
 
-              <Route path="/users" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><Users /></ProtectedRoute>} />
-              <Route path="/user/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditUser /></ProtectedRoute>} />
+              <Route path="/users" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><Users /></ProtectedRoute>} />
+              <Route path="/user/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditUser /></ProtectedRoute>} />
 
               <Route path="/userAdmins" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><UserAdmins /></ProtectedRoute>} />
               <Route path="/userAdmin/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditUserAdmins /></ProtectedRoute>} />
@@ -324,34 +324,34 @@ function App() {
               <Route path="/messages" exact={true} element={<AdminChat />} />
 
               <Route path="/batchCodes" exact={true} element={<BatchCodes />} />
-              <Route path="/batchCode/edit/:id" exact={true} element={<EditBatchCode />} />
-              <Route path="/batchCode/add" exact={true} element={<AddBatchCode />} />
+              <Route path="/batchCode/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditBatchCode /></ProtectedRoute>} />
+              <Route path="/batchCode/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><AddBatchCode /></ProtectedRoute>} />
               <Route path="/batchCode/request" exact={true} element={<RequestBatchCode />} />
               
               <Route path="/notifications" exact={true} element={<Notifications />} />
-              <Route path="/notification/edit/:id" exact={true} element={<EditNotification />} />
-              <Route path="/notification/add" exact={true} element={<AddNotification/>} />
+              <Route path="/notification/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><EditNotification /></ProtectedRoute>} />
+              <Route path="/notification/add" exact={true} element={<ProtectedRoute roles={["mainAdmin","storeAdmin"]}><AddNotification/></ProtectedRoute>} />
               <Route path="/notification/details/:id" exact={true} element={<NotificationDetails/>} />
 
               <Route path="/promotionCode" exact={true} element={<PromotionCode />} />
-              <Route path="/promotionCode/edit/:id" exact={true} element={<EditPromotionCode />} />
+              <Route path="/promotionCode/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditPromotionCode /></ProtectedRoute>} />
               <Route path="/promotionCode/details/:id" exact={true} element={<PromotionCodeDetails />} />
-              <Route path="/promotionCode/add" exact={true} element={<AddPromotionCode />} />
+              <Route path="/promotionCode/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddPromotionCode /></ProtectedRoute>} />
               <Route path="/orders/" exact={true} element={<Orders />} />
 
               <Route path="/homeBannerSlide/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddHomeBannerSlide /></ProtectedRoute>} />
-              <Route path="/homeBannerSlide/list" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><HomeBannerSlideList /></ProtectedRoute>} />
+              <Route path="/homeBannerSlide/list" exact={true} element={<HomeBannerSlideList />} />
               <Route path="/homeBannerSlide/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditHomeBannerSlide /></ProtectedRoute>} />
 
-              <Route path="/banners" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><BannersList /></ProtectedRoute>} />
+              <Route path="/banners" exact={true} element={<BannersList />} />
               <Route path="/banners/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddBanner /></ProtectedRoute>} />
               <Route path="/banners/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditBanner /></ProtectedRoute>} />
 
-              <Route path="/homeSideBanners" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><HomeSideBannersList /></ProtectedRoute>} />
+              <Route path="/homeSideBanners" exact={true} element={<HomeSideBannersList />} />
               <Route path="/homeSideBanners/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddHomeSideBanner /></ProtectedRoute>} />
               <Route path="/homeSideBanners/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditHomeSideBanner /></ProtectedRoute>} />
 
-              <Route path="/homeBottomBanners" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><HomeBottomBannersList /></ProtectedRoute>} />
+              <Route path="/homeBottomBanners" exact={true} element={<HomeBottomBannersList />} />
               <Route path="/homeBottomBanners/add" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><AddHomeBottomBanner /></ProtectedRoute>} />
               <Route path="/homeBottomBanners/edit/:id" exact={true} element={<ProtectedRoute roles={["mainAdmin"]}><EditHomeBottomBanner /></ProtectedRoute>} />
 

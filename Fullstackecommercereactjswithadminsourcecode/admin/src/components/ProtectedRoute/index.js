@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children, roles = [] }) => {
 
   if (roles.length > 0 && !roles.includes(user.role)) {
     // Không có quyền, hiển thị thông báo hoặc null (tùy ý)
-    return ;
+    return null;
   }
 
   return children;

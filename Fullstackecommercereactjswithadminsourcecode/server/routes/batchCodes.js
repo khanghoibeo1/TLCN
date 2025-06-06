@@ -165,7 +165,8 @@ router.get(`/locationBatchCode`, async (req, res) => {
     if (q) {
       filter.$or = [
         { batchName: { $regex: q, $options: "i" } },
-        { productName: { $regex: q, $options: "i" } }
+        { productName: { $regex: q, $options: "i" } },
+        { locationName: { $regex: q, $options: "i" } }
       ];
     }
 

@@ -195,7 +195,7 @@ const EditUserAdmin = () => {
 
               <Button type="submit" className="btn-blue btn-lg btn-big w-100 mt-4">
                 <FaCloudUploadAlt /> &nbsp;
-                {isLoading ? <CircularProgress color="inherit" className="loader" /> : "CREATE USER"}
+                {isLoading ? <CircularProgress color="inherit" className="loader" /> : "UPDATE USER ADMIN"}
               </Button>
             </div>
           </div>

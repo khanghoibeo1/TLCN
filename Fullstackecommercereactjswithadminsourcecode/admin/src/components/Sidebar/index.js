@@ -87,7 +87,7 @@ const Sidebar = () => {
           </li>
 
           {
-            context.user.role === "mainAdmin" &&
+            // context.user.role === "mainAdmin" &&
             <li>
             <Button
               className={`w-100 ${
@@ -287,6 +287,7 @@ const Sidebar = () => {
                   : "colapsed"
               }`}
             >
+              {context.user.role === "mainAdmin" &&
               <ul className="submenu">
                 <li>
                   <NavLink
@@ -298,7 +299,7 @@ const Sidebar = () => {
                     Users List
                   </NavLink>
                 </li>
-              </ul>
+              </ul>}
 
               <ul className="submenu">
                 <li>
@@ -404,7 +405,7 @@ const Sidebar = () => {
 
           {/* store location */}
           {
-            (context.user.role === "mainAdmin" || context.user.role === "storeAdmin") &&
+            // (context.user.role === "mainAdmin" || context.user.role === "storeAdmin") &&
             <li>
             <Button
               className={`w-100 ${
@@ -530,7 +531,9 @@ const Sidebar = () => {
               
             </div>
           </li>
-          {context.user.role === "mainAdmin" && (
+          {
+          // context.user.role === "mainAdmin" && 
+          (
           <li>
             <NavLink
               exact

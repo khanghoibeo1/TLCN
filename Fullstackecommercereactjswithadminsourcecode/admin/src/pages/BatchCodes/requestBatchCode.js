@@ -124,7 +124,7 @@ const RequestBatchCode = () => {
     return (
         <div className="right-content w-100">
             <div className="card shadow border-0 w-100 flex-row p-4 align-items-center">
-                <h5 className="mb-0">Batch Codes</h5>
+                <h5 className="mb-0">Request Batch Codes</h5>
                 <div className="ml-auto d-flex align-items-center">
                     <Breadcrumbs aria-label="breadcrumb">
                         <StyledBreadcrumb component="a" href="#" label="Dashboard" icon={<HomeIcon fontSize="small" />} />

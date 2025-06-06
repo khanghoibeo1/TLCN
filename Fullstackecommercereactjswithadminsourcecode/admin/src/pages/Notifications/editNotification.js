@@ -193,7 +193,7 @@ const AddNotification = () => {
 
         <Button type="submit" disabled={isLoading} className="btn-blue btn-lg w-100 mt-4">
           <FaCloudUploadAlt /> &nbsp;
-          {isLoading ? <CircularProgress color="inherit" size={24} /> : "CREATE NOTIFICATION"}
+          {isLoading ? <CircularProgress color="inherit" size={24} /> : "UPDATE NOTIFICATION"}
         </Button>
       </form>
     </div>

@@ -126,22 +126,33 @@ const Orders = () => {
   };
 
   const handleChangeStatus = (e, orderId) => {
-    setstatusVal(e.target.value);
-    setIsLoading(true);
-    context.setProgress(40);
-    editData2(`/api/orders/admin-update/${orderId}`, { status: e.target.value })
-      .then((res) => {
-        
-          fetchOrders();
+    if(userContext.role !== "staff"){
+      setstatusVal(e.target.value);
+      setIsLoading(true);
+      context.setProgress(40);
+      editData2(`/api/orders/admin-update/${orderId}`, { status: e.target.value })
+        .then((res) => {
+          
+            fetchOrders();
+            context.setProgress(100);
+            setIsLoading(false);
+          
+        })
+        .catch((err) => {
+          console.error("Error updating order status by admin:", err);
           context.setProgress(100);
           setIsLoading(false);
-        
-      }).catch((err) => {
-        console.error("Error updating order status by admin:", err);
-        context.setProgress(100);
-        setIsLoading(false);
-      });
-    };
+        });
+      }
+      else {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: "You are not a admin",
+        });
+      }
+    }
+    
 
   const displayedOrders = isReversed ? [...orders].reverse() : orders;
 
