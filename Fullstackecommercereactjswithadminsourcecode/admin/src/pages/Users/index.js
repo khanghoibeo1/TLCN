@@ -35,28 +35,24 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 });
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(1);
-  const [showBy, setShowBy] = useState(10);
-  const [perPage, setPerPage] = useState(10);
+  const [userLists, setUserLists] = useState([]);
+  const [showBy, setShowBy] = useState(10); 
+  const [rankFind, setRankFind] = useState('');
+  const [querySearch, setQuerySearch] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
   const context = useContext(MyContext);
   const history = useNavigate();
 
   useEffect(() => {
-    loadUsers(page, perPage);
-  }, [page, perPage]);
-
-  const loadUsers = (currentPage, itemsPerPage) => {
     context.setProgress(40);
-    fetchDataFromApi(`/api/user?page=${currentPage}&perPage=${itemsPerPage}`)
+    fetchDataFromApi(`/api/user?q=${querySearch}&rank=${rankFind}&page=1&perPage=10`)
       .then((res) => {
-        setUsers(res);
+        setUserLists(res);
         setTotalUsers(res.totalUsers);
         context.setProgress(100);
       })
       .catch(() => context.setProgress(100));
-  };
+  }, []);
 
   const deleteUser = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -69,7 +65,12 @@ const Users = () => {
           error: false,
           msg: "User Deleted!",
         });
-        loadUsers(page, perPage);
+        fetchDataFromApi(`/api/user?q=${querySearch}&rank=${rankFind}&page=1&perPage=10`)
+        .then((res) => {
+          setUserLists(res);
+          context.setProgress(100);
+        })
+        .catch(() => context.setProgress(100));
       });
     } else {
         context.setAlertBox({
@@ -81,27 +82,26 @@ const Users = () => {
   };
 
   const handleChange = (event, value) => {
-    setPage(value);
+    context.setProgress(40);
+    fetchDataFromApi(`/api/user?q=${querySearch}&rank=${rankFind}&page=${value}&perPage=10`).then((res) => {
+        setUserLists(res);
+        context.setProgress(100);
+    }); 
   };
 
-  const showPerPage = (e) => {
-    setShowBy(e.target.value);
-    fetchDataFromApi(`/api/user?page=1&perPage=${e.target.value}`).then((res) => {
-      setUsers(res);
+  const showByRank = (e) => {
+    setRankFind(e.target.value);
+    fetchDataFromApi(`/api/user?q=${querySearch}&rank=${e.target.value}&page=1&perPage=10`).then((res) => {
+      setUserLists(res);
       context.setProgress(100);
     });
   };
 
   const onSearch = (keyword) => {
-    if (keyword !== "") {
-      fetchDataFromApi(`/api/search/user?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
-        setUsers(res);
-      });
-    } else {
-      fetchDataFromApi(`/api/user?page=1&perPage=${10}`).then((res) => {
-        setUsers(res);
-      });
-    }
+    setQuerySearch(keyword)
+    fetchDataFromApi(`/api/user?q=${keyword}&rank=${rankFind}&page=1&perPage=10`).then((res) => {
+      setUserLists(res);
+    });
   };
 
   return (
@@ -137,12 +137,14 @@ const Users = () => {
           <h3 className="hd">Recent Users</h3>
           <div className="row cardFilters mt-3">
             <div className="col-md-3">
-                <h4>SHOW BY</h4>
+                <h4>SHOW BY RANK</h4>
                 <FormControl size="small" className="w-100">
-                  <Select value={showBy} onChange={showPerPage} displayEmpty className="w-100">
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={20}>20</MenuItem>
-                    <MenuItem value={30}>30</MenuItem>
+                  <Select value={rankFind} onChange={showByRank} displayEmpty className="w-100">
+                    <MenuItem value=''>All</MenuItem>
+                    <MenuItem value='bronze'>Bronze</MenuItem>
+                    <MenuItem value='silver'>Silver</MenuItem>
+                    <MenuItem value='gold'>Gold</MenuItem>
+                    <MenuItem value='platinum'>Platinum</MenuItem>
                   </Select>
                 </FormControl>
               </div>
@@ -167,8 +169,8 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {users?.data?.length > 0 &&
-                  users?.data?.map((user) => (
+                {userLists?.data?.length > 0 &&
+                  userLists?.data?.map((user) => (
                     <tr key={user.id}>
                       <td>{user.id}</td>
                       <td>{user.name}</td>
@@ -194,10 +196,10 @@ const Users = () => {
               </tbody>
             </table>
 
-            {totalUsers > perPage && (
+            {userLists.totalPages >= 1 && (
               <div className="d-flex tableFooter">
                 <Pagination
-                  count={Math.ceil(totalUsers / perPage)}
+                  count={userLists?.totalPages}
                   color="primary"
                   className="pagination"
                   showFirstButton

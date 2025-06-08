@@ -56,14 +56,73 @@ router.post('/create', async (req, res) => {
 });
 
 // Get all promotion codes
+// router.get('/', async (req, res) => {
+//   try {
+//     const promotionCodes = await PromotionCode.find();
+//     res.status(200).json({ success: true, data: promotionCodes });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
+
 router.get('/', async (req, res) => {
   try {
-    const promotionCodes = await PromotionCode.find();
-    res.status(200).json({ success: true, data: promotionCodes });
+    const {
+      q,
+      expiredDay,
+      page,
+      limit = 10
+    } = req.query;
+
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+
+    let filter = {};
+
+    // Tìm kiếm theo code hoặc description
+    if (q) {
+      filter.$or = [
+        { code: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } }
+      ];
+    }
+
+    // Lọc theo số ngày gần hết hạn
+    if (expiredDay !== undefined) {
+      const expiredDayInt = parseInt(expiredDay);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (expiredDayInt === 0) {
+        // Đã hết hạn
+        filter.endDate = { $lt: today };
+      } else if (expiredDayInt > 0) {
+        const expiredLimit = new Date();
+        expiredLimit.setDate(today.getDate() + expiredDayInt);
+        filter.endDate = { $gte: today, $lte: expiredLimit };
+      }
+    }
+
+    const total = await PromotionCode.countDocuments(filter);
+
+    const promotions = await PromotionCode.find(filter)
+      .sort({ endDate: 1 }) // Ưu tiên gần hết hạn
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    res.status(200).json({
+      success: true,
+      data: promotions,
+      currentPage: pageInt,
+      totalPages: Math.ceil(total / limitInt),
+      total
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error fetching promotion codes:', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
+
 
 router.get('/getPromotionCodeWithCondition', async (req, res) => {
   try {

@@ -11,12 +11,23 @@ const HomeBanner = (props) => {
     
 
 
+    // const ReRoute = (link) => {
+    //     const isAbsoluteUrl = /^https?:\/\//i.test(link);
+    //     const baseUrl = window.location.origin;
+    //     const fullLink = isAbsoluteUrl ? link : `${baseUrl}/${link.replace(/^\/+/, '')}`;
+    //     window.open(fullLink, "_blank");
+    //   };
     const ReRoute = (link) => {
-        const isAbsoluteUrl = /^https?:\/\//i.test(link);
-        const baseUrl = window.location.origin;
-        const fullLink = isAbsoluteUrl ? link : `${baseUrl}/${link.replace(/^\/+/, '')}`;
-        window.open(fullLink, "_blank");
-      };
+    const isAbsoluteUrl = /^https?:\/\//i.test(link);
+    const clientUrl = process.env.REACT_APP_CLIENT_URL;
+
+    const fullLink = isAbsoluteUrl
+        ? link
+        : `${clientUrl.replace(/\/$/, '')}/${link.replace(/^\/+/, '')}`;
+
+    window.open(fullLink, "_blank");
+    };
+
     return (
         <div className="container mt-3">
             <div className="homeBannerSection">

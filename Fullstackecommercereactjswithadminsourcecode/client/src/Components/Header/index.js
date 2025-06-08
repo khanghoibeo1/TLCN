@@ -87,7 +87,7 @@ const Header = () => {
 
   useEffect(() => {
     fetchDataFromApi(`/api/notifications?userId=${context.user.userId}`).then((res) => {
-      setNotifications(res);
+      setNotifications(res?.data);
     });
 
   },[context.user])

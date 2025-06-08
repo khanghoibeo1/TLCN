@@ -43,41 +43,42 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const UserAdmin = () => {
 
     const [userAdminData, setUserAdminData] = useState([]);
+    const [storeLocationData, setStoreLocationData] = useState([]);
     const [isLoadingBar, setIsLoadingBar] = useState(false);
     const [page, setPage] = useState(1);
     const [showBy, setShowBy] = useState(10);
     const [perPage, setPerPage] = useState(10);
+    const [querySearch, setQuerySearch] = useState("");
+    const [locationSearch, setLocationSearch] = useState("");
     const [totalUserAdmins, setTotalUserAdmins] = useState(0);
 
     const history = useNavigate();
 
     const context = useContext(MyContext);
     const userContext = context.user;
-    // useEffect(() => {
-    //     window.scrollTo(0, 0);
-    //     context.setProgress(20)
-    //     fetchDataFromApi(`/api/user?page=${currentPage}&perPage=${itemsPerPage}`).then((res) => {
-    //         setUserAdminData(res);
-    //         context.setProgress(100);
-    //     })
-
-    // }, []);
 
 
-    const loadUsers = (currentPage, itemsPerPage) => {
-        context.setProgress(40);
-        fetchDataFromApi(`/api/admin/userAdmin?page=${currentPage}&perPage=${itemsPerPage}&locationId=${userContext.locationId}`)
-          .then((res) => {
-            setUserAdminData(res);
-            setTotalUserAdmins(res.totalUsers);
-            context.setProgress(100);
-          })
-          .catch(() => context.setProgress(100));
+    const loadUsers = () => {
+      context.setProgress(40);
+      fetchDataFromApi(`/api/admin/userAdmin?q=${querySearch}&locationSearch=${locationSearch}&page=1&perPage=10&locationId=${userContext.locationId}`)
+        .then((res) => {
+          setUserAdminData(res);
+          setTotalUserAdmins(res.totalUsers);
+          context.setProgress(100);
+        })
+        .catch(() => context.setProgress(100));
       };
 
     useEffect(() => {
-        loadUsers(page, perPage);
-      }, [page, perPage]);
+      loadUsers();
+      context.setProgress(40);
+      fetchDataFromApi(`/api/storeLocations`)
+        .then((res) => {
+          setStoreLocationData(res.data);
+          context.sestProgress(100);
+        })
+        .catch(() => context.setProgress(100));
+    }, []);
 
     const deleteUserAdmin = (id) => {
       const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -102,28 +103,27 @@ const UserAdmin = () => {
       };
     
     const handleChange = (event, value) => {
-      setPage(value);
+      context.setProgress(40);
+      fetchDataFromApi(`/api/admin/userAdmin?q=${querySearch}&locationSearch=${locationSearch}&page=${value}&perPage=10&locationId=${userContext.locationId}`).then((res) => {
+          setUserAdminData(res);
+          context.setProgress(100);
+      }); 
     };
 
-    const showPerPage = (e) => {
-        setShowBy(e.target.value);
-        fetchDataFromApi(`/api/admin/userAdmin?page=1&perPage=${e.target.value}`).then((res) => {
+    const showByStore = (e) => {
+        setLocationSearch(e.target.value);
+        fetchDataFromApi(`/api/admin/userAdmin?q=${querySearch}&locationSearch=${e.target.value}&page=1&perPage=10&locationId=${userContext.locationId}`).then((res) => {
           setUserAdminData(res);
           context.setProgress(100);
         });
       };
 
     const onSearch = (keyword) => {
-        if (keyword !== "") {
-          fetchDataFromApi(`/api/search/user/userAdmins?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
-            setUserAdminData(res);
-          });
-        } else {
-          fetchDataFromApi(`/api/admin/userAdmin?page=1&perPage=${10}`).then((res) => {
-            setUserAdminData(res);
-          });
-        }
-      };
+      setQuerySearch(keyword)
+      fetchDataFromApi(`/api/admin/userAdmin?q=${keyword}&locationSearch=${locationSearch}&page=1&perPage=10&locationId=${userContext.locationId}`).then((res) => {
+        setUserAdminData(res);
+      });
+    };
 
 
     return (
@@ -158,18 +158,28 @@ const UserAdmin = () => {
                   </div>
 
                 <div className="card shadow border-0 p-3 mt-4">
-                    <h3 className="hd">Recent Users</h3>
+                    <h3 className="hd">Admins</h3>
                     <div className="row cardFilters mt-3">
-                      <div className="col-md-3">
-                          <h4>SHOW BY</h4>
+                      {userContext.locationId === null && <div className="col-md-3">
+                          <h4>SHOW BY LOCATION</h4>
                           <FormControl size="small" className="w-100">
-                            <Select value={showBy} onChange={showPerPage} displayEmpty className="w-100">
-                              <MenuItem value={10}>10</MenuItem>
-                              <MenuItem value={20}>20</MenuItem>
-                              <MenuItem value={30}>30</MenuItem>
+                            <Select
+                              value={locationSearch}
+                              onChange={showByStore}
+                              displayEmpty
+                              className="w-100"
+                            >
+                              <MenuItem value="">
+                                <em>All Locations</em>
+                              </MenuItem>
+                              {storeLocationData?.map((loc) => (
+                                <MenuItem key={loc.id} value={loc.id}>
+                                  {loc.location}
+                                </MenuItem>
+                              ))}
                             </Select>
                           </FormControl>
-                        </div>
+                        </div>}
                       <div className="col-md-6 d-flex justify-content-end">
                         <div className="searchWrap d-flex">
                           <SearchBox onSearch={onSearch} />
@@ -222,20 +232,20 @@ const UserAdmin = () => {
                           })
                           }
                         </tbody>
-                        {totalUserAdmins > perPage && (
-                          <div className="d-flex tableFooter">
-                            <Pagination
-                              count={Math.ceil(totalUserAdmins / perPage)}
-                              color="primary"
-                              className="pagination"
-                              showFirstButton
-                              showLastButton
-                              onChange={handleChange}
-                            />
-                          </div>
-                        )}
                       </table>
                     </div>
+                    {userAdminData?.totalUsers >=1  && (
+                      <div className="d-flex tableFooter">
+                        <Pagination
+                          count={userAdminData?.totalPages}
+                          color="primary"
+                          className="pagination"
+                          showFirstButton
+                          showLastButton
+                          onChange={handleChange}
+                        />
+                      </div>
+                    )}
                 </div>
             </div>
         </>

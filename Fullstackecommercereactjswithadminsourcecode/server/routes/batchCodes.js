@@ -134,6 +134,7 @@ router.get(`/locationBatchCode`, async (req, res) => {
     const {
       locationId,
       q,
+      status,
       percentage,
       expiredDay,
       page = 1,
@@ -152,13 +153,21 @@ router.get(`/locationBatchCode`, async (req, res) => {
     };
 
     // Xử lý locationId
+    // if (locationId === "null") {
+    //   // kho tổng: không có locationId
+    //   filter = {
+    //     locationName: { $ne: null, $ne: "" }
+    // };
+    // } else {
+    //   filter.locationId = new mongoose.Types.ObjectId(locationId);
+    // }
     if (locationId === "null") {
-      // kho tổng: không có locationId
+      // Nếu locationId là "null" => kho tổng
       filter = {
-        locationName: { $ne: null, $ne: "" }
-    };
-    } else {
-      filter.locationId = locationId;
+         locationName: { $ne: null, $ne: "" }
+      };
+    } else if (mongoose.Types.ObjectId.isValid(locationId)) {
+      filter.locationId = new mongoose.Types.ObjectId(locationId);
     }
 
     // Tìm kiếm theo batchName hoặc productName
@@ -168,6 +177,10 @@ router.get(`/locationBatchCode`, async (req, res) => {
         { productName: { $regex: q, $options: "i" } },
         { locationName: { $regex: q, $options: "i" } }
       ];
+    }
+
+    if(status){
+      filter.status = status
     }
 
     // Lọc theo phần trăm tồn kho
@@ -272,7 +285,7 @@ router.get(`/:id`, async (req, res) => {
 router.post(`/create`, async (req, res) => {
     try {
         console.log(req.body)
-        let batchName = `${req.body.productName}-${req.body.productName}-${req.body.importDate}`;
+        let batchName = `${req.body.productName}-${req.body.importDate}`;
         let batch = new BatchCode({
             batchName: batchName,
             productId: req.body.productId,
@@ -281,9 +294,9 @@ router.post(`/create`, async (req, res) => {
             amountRemain: req.body.amount,
             importDate: req.body.importDate,
             expiredDate: req.body.expiredDate,
-            price: req.body.price,
+            price: req.body.price || req.body.oldPrice,
             oldPrice: req.body.oldPrice,
-            discount: req.body.discount,
+            discount: req.body.discount || 0,
             locationName: req.body.locationName,
             locationId: req.body.locationId ? req.body.locationId : undefined,
             status: req.body.locationName ? req.body.status : "delivered",
@@ -533,6 +546,72 @@ router.get('/amountRemainTotal/getSum', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
 });
+
+
+router.get('/amountRemainTotal/getAvailable', async (req, res) => {
+  try {
+    const { productId } = req.query;
+    if (!productId) {
+      return res.status(400).json({ success: false, message: "Missing productId" });
+    }
+
+    const now = new Date();
+
+    // 1. Tính tổng amountRemain của các batch hợp lệ trong kho tổng
+    const remainAgg = await BatchCode.aggregate([
+      {
+        $match: {
+          productId: new mongoose.Types.ObjectId(productId),
+          locationId: null,
+          amountRemain: { $gt: 0 },
+          expiredDate: { $gt: now }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRemain: { $sum: "$amountRemain" }
+        }
+      }
+    ]);
+
+    const totalRemain = remainAgg[0]?.totalRemain || 0;
+
+    // 2. Tính tổng amount của các batch kho tổng có status "pending"
+    const pendingAgg = await BatchCode.aggregate([
+      {
+        $match: {
+          productId: new mongoose.Types.ObjectId(productId),
+          status: "pending",
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalPending: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const totalPending = pendingAgg[0]?.totalPending || 0;
+
+    // 3. Trừ ra số lượng khả dụng
+    const amountAvailable = Math.max(totalRemain - totalPending, 0);
+
+    res.status(200).json({
+      success: true,
+      total: amountAvailable
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+});
+
 
 
   

@@ -95,7 +95,7 @@ const AddBatchCode = () => {
       productId: product.id,
     });
     // Gọi API để lấy tổng amountRemain
-    fetchDataFromApi(`/api/batchCodes/amountRemainTotal/getSum?productId=${product.id}`).then((res) => {
+    fetchDataFromApi(`/api/batchCodes/amountRemainTotal/getAvailable?productId=${product.id}`).then((res) => {
     setMaxAmount(res.total || 0);  // Giả sử API trả về { total: 150 }
   });
   };
@@ -129,9 +129,8 @@ const AddBatchCode = () => {
     e.preventDefault();
 
     if (
-      formFields.batchName &&
       formFields.productId &&
-      formFields.amount 
+      formFields.amount > 0
     ) {
       setIsLoading(true);
 

@@ -51,6 +51,7 @@ const EditBatchCode = () => {
     discount: null,
     locationName: "",
     locationId: "",
+    status: "",
     note: "",
   });
 
@@ -83,6 +84,7 @@ const EditBatchCode = () => {
         discount: res?.discount || "",
         locationName: res?.locationName || "",
         locationId: res?.locationId || "",
+        status: res?.status || "",
         note: res?.note || "",
       });
       context.setProgress(100);
@@ -108,7 +110,7 @@ const EditBatchCode = () => {
       productId: product.id,
     });
     // Gọi API để lấy tổng amountRemain
-      fetchDataFromApi(`/api/batchCodes/amountRemainTotal/getSum?productId=${product.id}`).then((res) => {
+      fetchDataFromApi(`/api/batchCodes/amountRemainTotal/getAvailable?productId=${product.id}`).then((res) => {
       setMaxAmount(res.total || 0);  // Giả sử API trả về { total: 150 }
     });
   };
@@ -143,10 +145,7 @@ const EditBatchCode = () => {
     if (
       formFields.batchName &&
       formFields.productId &&
-      formFields.amount &&
-      formFields.importDate &&
-      formFields.expiredDate &&
-      formFields.price 
+      formFields.amount 
     ) {
       setIsLoading(true);
 
@@ -248,7 +247,7 @@ const EditBatchCode = () => {
                 <input value={formFields.productName} disabled />
               </div>
 
-              {/* <div className="form-group">
+              {formFields.status === "pending" && <div className="form-group">
                 <h6>Amount</h6>
                 <input
                   type="number"
@@ -273,7 +272,7 @@ const EditBatchCode = () => {
                     Maximum available: {maxAmount}
                   </small>
                 )}
-              </div> */}
+              </div>}
 
               <div className="form-group">
                 <h6>Import Date</h6>

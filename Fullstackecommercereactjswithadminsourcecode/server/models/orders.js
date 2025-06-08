@@ -65,8 +65,13 @@ const ordersSchema = mongoose.Schema({
     ],
     status:{
         type:String,
-        enum: ["pending", "paid", "cancel", "verify"],
+        enum: ["pending", "delivered", "cancelled", "verified"],
         default:"pending"
+    },
+    paymentStatus:{
+        type:String,
+        enum: ["unpaid", "paid"],
+        default:"unpaid"
     },
     orderDiscount: {
         type: Number,

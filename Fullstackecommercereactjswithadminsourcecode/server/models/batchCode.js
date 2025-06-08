@@ -60,7 +60,7 @@ const batchCodeSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "delivered"],
+      enum: ["pending", "delivered", "cancel"],
       default: "pending",
     },
     note: {

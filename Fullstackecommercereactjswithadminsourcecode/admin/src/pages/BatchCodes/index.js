@@ -112,18 +112,10 @@ const BatchCodeList = () => {
       };
     const handleChange = (event, value) => {
         context.setProgress(40);
-        if(true){
         fetchDataFromApi(`/api/batchCodes?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=${value}&perPage=${perPage}`).then((res) => {
             setBatchCodes(res);
             context.setProgress(100);
-        });
-        }
-    else{
-        fetchDataFromApi(`/api/batchCodes?location=${user.locationId}&page=${value}&perPage=${perPage}`).then((res) => {
-        setBatchCodes(res);
-        context.setProgress(100);
-        });
-        }
+        }); 
     };
     return (
         <div className="right-content w-100">

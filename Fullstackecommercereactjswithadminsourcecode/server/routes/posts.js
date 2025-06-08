@@ -164,41 +164,97 @@ router.post(`/richtext/upload`, upload.any(), async (req, res) => {
   });
   
 
-// Get all posts with pagination and optional location filter
+// // Get all posts with pagination and optional location filter
+// router.get('/', async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+//     const perPage = parseInt(req.query.perPage) || 10;
+//     const locationFilter = req.query.location;
+
+//     try {
+//         const totalPosts = await Post.countDocuments();
+//         const totalPages = Math.ceil(totalPosts / perPage);
+
+//         if (page > totalPages) {
+//             return res.status(404).json({ success: false, message: "Page not found" });
+//         }
+
+//         let posts = [];
+
+//         if (locationFilter) {
+//             const allPosts = await Post.find()
+//                 .populate("category")
+//                 .exec();
+
+//             posts = allPosts.filter(post =>
+//                 post.location && post.location.some(loc => loc.value === locationFilter)
+//             ).slice((page - 1) * perPage, page * perPage);
+//         } else {
+//             posts = await Post.find()
+//                 .populate("category")
+//                 .skip((page - 1) * perPage)
+//                 .limit(perPage)
+//                 .exec();
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             data: posts,
+//             totalPages,
+//             currentPage: page,
+//         });
+//     } catch (error) {
+//         return res.status(500).json({ success: false, error: error.message });
+//     }
+// });
+
 router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 10;
     const locationFilter = req.query.location;
+    const searchQuery = req.query.q || '';
+    const postType = req.query.type || '';
 
     try {
-        const totalPosts = await Post.countDocuments();
+        let filter = {};
+
+        // Search by title or description (case-insensitive)
+        if (searchQuery) {
+            filter.$or = [
+                { title: { $regex: searchQuery, $options: 'i' } },
+                { author: { $regex: searchQuery, $options: 'i' } },
+            ];
+        }
+
+        // Filter by type if provided
+        if (postType) {
+            filter.catId = postType;
+        }
+
+        // Find all posts that match filter
+        let posts = await Post.find(filter)
+            .populate("category")
+            .exec();
+
+        // Further filter by location if needed
+        if (locationFilter) {
+            posts = posts.filter(post =>
+                post.location && post.location.some(loc => loc.value === locationFilter)
+            );
+        }
+
+        const totalPosts = posts.length;
         const totalPages = Math.ceil(totalPosts / perPage);
 
-        if (page > totalPages) {
+        if (page > totalPages && totalPages !== 0) {
             return res.status(404).json({ success: false, message: "Page not found" });
         }
 
-        let posts = [];
-
-        if (locationFilter) {
-            const allPosts = await Post.find()
-                .populate("category")
-                .exec();
-
-            posts = allPosts.filter(post =>
-                post.location && post.location.some(loc => loc.value === locationFilter)
-            ).slice((page - 1) * perPage, page * perPage);
-        } else {
-            posts = await Post.find()
-                .populate("category")
-                .skip((page - 1) * perPage)
-                .limit(perPage)
-                .exec();
-        }
+        // Paginate manually
+        const paginatedPosts = posts.slice((page - 1) * perPage, page * perPage);
 
         return res.status(200).json({
             success: true,
-            data: posts,
+            data: paginatedPosts,
             totalPages,
             currentPage: page,
         });
@@ -206,6 +262,7 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ success: false, error: error.message });
     }
 });
+
 
 // Get post count (excluding child posts if needed)
 router.get('/get/count', async (req, res) => {

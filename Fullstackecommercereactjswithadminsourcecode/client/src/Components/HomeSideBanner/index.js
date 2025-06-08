@@ -12,10 +12,14 @@ const HomeSideBanner = (props) => {
 
   const ReRoute = (link) => {
     const isAbsoluteUrl = /^https?:\/\//i.test(link);
-    const baseUrl = window.location.origin;
-    const fullLink = isAbsoluteUrl ? link : `${baseUrl}/${link.replace(/^\/+/, '')}`;
+    const clientUrl = process.env.REACT_APP_CLIENT_URL;
+
+    const fullLink = isAbsoluteUrl
+        ? link
+        : `${clientUrl.replace(/\/$/, '')}/${link.replace(/^\/+/, '')}`;
+
     window.open(fullLink, "_blank");
-  };
+    };
 
   return (
     <>

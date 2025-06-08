@@ -41,9 +41,7 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const RequestBatchCode = () => {
     const [batchCodes, setBatchCodes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [showBy, setshowBy] = useState(10);
+    const [status, setStatus] = useState("");
     const [percentRemain, setPercentRemain] = useState("");
     const [dayRemain, setDayRemain] = useState("");
     const [querySearch, setQuerySearch] = useState('');
@@ -54,11 +52,11 @@ const RequestBatchCode = () => {
 
     useEffect(() => {
         context.setProgress(20);
-        fetchDataFromApi(`/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=${perPage}`).then((res) => {
+        fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${status}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=10`).then((res) => {
             setBatchCodes(res);
             context.setProgress(100);
         });
-    }, [percentRemain, dayRemain, perPage, user]);
+    }, [percentRemain, dayRemain, user]);
 
     const deleteBatchCode = (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -68,7 +66,7 @@ const RequestBatchCode = () => {
             setIsLoading(true);
             context.setProgress(30);
             deleteData(`/api/batchCodes/${id}`).then(() => {
-                setBatchCodes(batchCodes.filter(batch => batch._id !== id));
+                // setBatchCodes(batchCodes.filter(batch => batch._id !== id));
                 context.setProgress(100);
                 context.setAlertBox({
                     open: true,
@@ -76,7 +74,7 @@ const RequestBatchCode = () => {
                     msg: "Batch Code Deleted!"
                 });
                 setIsLoading(false);
-                fetchDataFromApi(`/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=${perPage}`).then((res) => {
+                fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${status}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=10`).then((res) => {
                     setBatchCodes(res);
                     context.setProgress(100);
                 });
@@ -91,34 +89,29 @@ const RequestBatchCode = () => {
     };
 
     const handleChangeStatus = (e, id) => {
+        const confirmChange = window.confirm("Are you sure you want to update status?");
+        if (!confirmChange) return;
         const newStatus = e.target.value;
+        setIsLoading(true);
         postData(`/api/batchCodes/${id}/status`, { status: newStatus }).then((res) => {
-            setBatchCodes(prev =>
-                Array.isArray(prev)
-                    ? prev.map(batch =>
-                        batch._id === id ? { ...batch, status: newStatus } : batch
-                    )
-                    : []
-                );
+            fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${status}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=10`).then((res) => {
+                setBatchCodes(res);
+                context.setProgress(100);
+            });
+            setIsLoading(false);
         });
     };
 
     const onSearch = (keyword) => {
         setQuerySearch(keyword)
-        if(keyword!==""){
-            fetchDataFromApi(`/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${keyword}&page=1&perPage=${perPage}`).then((res) => {
-            setBatchCodes(res);
-            })
-        }else{
-            fetchDataFromApi(`/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${keyword}&page=1&perPage=${perPage}`).then((res) => {
-            setBatchCodes(res);
-            })
-        }} 
+        fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${status}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${keyword}&page=1&perPage=10`).then((res) => {
+        setBatchCodes(res);
+        })
+    } 
 
-    const showPerPage = (e) => {
-        setshowBy(e.target.value);
-        fetchDataFromApi(
-            `/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=${e.target.value}`
+    const showByStatus = (e) => {
+        setStatus(e.target.value);
+        fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${e.target.value}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=1&perPage=10`
         ).then((res) => {
             setBatchCodes(res);
             context.setProgress(100);
@@ -126,18 +119,10 @@ const RequestBatchCode = () => {
         };
     const handleChange = (event, value) => {
         context.setProgress(40);
-        if(true){
-        fetchDataFromApi(`/api/batchCodes/locationBatchCode?locationId=${user.locationId}&locationName=${user.locationName}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=${value}&perPage=${perPage}`).then((res) => {
+        fetchDataFromApi(`/api/batchCodes/locationBatchCode?status=${status}&locationId=${user.locationId}&percentage=${percentRemain}&expiredDay=${dayRemain}&q=${querySearch}&page=${value}&perPage=10`).then((res) => {
             setBatchCodes(res);
             context.setProgress(100);
         });
-        }
-    else{
-        fetchDataFromApi(`/api/batchCodes?location=${user.locationId}&page=${value}&perPage=${perPage}`).then((res) => {
-        setBatchCodes(res);
-        context.setProgress(100);
-        });
-        }
     };
     return (
         <div className="right-content w-100">
@@ -167,18 +152,19 @@ const RequestBatchCode = () => {
             <div className="card shadow border-0 p-3 mt-4">
                 <div className="row cardFilters mt-3">
                     <div className="col-md-3">
-                        <h4>SHOW BY</h4>
+                        <h4>SHOW BY STATUS</h4>
                         <FormControl size="small" className="w-100">
                         <Select
-                            value={showBy}
-                            onChange={showPerPage}
+                            value={status}
+                            onChange={showByStatus}
                             displayEmpty
                             inputProps={{ "aria-label": "Without label" }}
                             className="w-100"
                         >
-                            {[10, 20, 30, 40, 50, 60, 70].map(value => (
-                            <MenuItem key={value} value={value}>{value}</MenuItem>
-                            ))}
+                            <MenuItem value=''>All</MenuItem>
+                            <MenuItem value='delivered'>Delivered</MenuItem>
+                            <MenuItem value='pending'>Pending</MenuItem>
+                            <MenuItem value='cancel'>Cancel</MenuItem>
                         </Select>
                         </FormControl>
                     </div>
@@ -241,7 +227,7 @@ const RequestBatchCode = () => {
                                     <td>{batch.price}</td>
                                     {batch.locationName ? <td>{batch.locationName}</td> : <td>Main Store</td>}
                                     <td>
-                                        { (
+                                        { (batch.status === "pending") ? (
                                             <Select
                                                 disabled={isLoading}
                                                 value={batch.status}
@@ -249,16 +235,21 @@ const RequestBatchCode = () => {
                                                 displayEmpty
                                                 size="small"
                                             >
-                                                {batch.status === "pending" && <MenuItem value="pending">Pending</MenuItem>}
-                                                {(user.role === "mainAdmin" || batch.status === "delivered") && (
+                                                {(user.role === "mainAdmin" ) && (
                                                     <MenuItem value="delivered">Delivered</MenuItem>
                                                 )}
+                                                {batch.status === "pending" && 
+                                                <MenuItem value="pending">Pending</MenuItem> 
+                                                }
+                                                {batch.status === "pending" && 
+                                                <MenuItem value="cancel">Cancel</MenuItem> 
+                                                }
                                             </Select>
-                                        ) }
+                                        ) : batch.status }
                                     </td>
                                     <td>
                                     <div className="actions d-flex align-items-center">
-                                            {(user.locationName && batch.status !== 'delivered')? 
+                                            {(user.locationName && batch.status !== 'delivered' && batch.status !== 'cancel')? 
                                                 <Link to={`/batchCode/edit/${batch._id}`}>
                                                     <Button className="success" color="success"><FaPencilAlt /></Button>
                                                 </Link>

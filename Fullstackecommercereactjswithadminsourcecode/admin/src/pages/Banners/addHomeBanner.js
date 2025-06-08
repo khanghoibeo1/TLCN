@@ -189,7 +189,7 @@ const AddBanner = () => {
   const addHomeBanner = async (e) => {
     e.preventDefault();
 
-    if (previews.length === 0 || !formFields.link) {
+    if (previews.length === 0 ) {
       return context.setAlertBox({
         open: true,
         error: true,

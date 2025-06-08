@@ -30,7 +30,7 @@ const Blog = () => {
   const [expandedIndexes, setExpandedIndexes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 12; // Số bài viết trên mỗi trang
+  const postsPerPage = 9; // Số bài viết trên mỗi trang
   const [reviews, setReviews] = useState({
       postId: "", 
       author: {

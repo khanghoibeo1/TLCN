@@ -6,25 +6,25 @@ import { Button } from '@mui/material';
 import SearchBox from '../../components/SearchBox';
 import { FaPencilAlt, FaEye } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
+import Pagination from '@mui/material/Pagination';
 import DashboardBox from '../Dashboard/components/dashboardBox'; // Import DashboardBox
 
 const NotificationList = () => {
   const [notificationList, setNotificationList] = useState([]);
-  const [totalPromotion, setTotalPromotion] = useState(0);
+  const [totalNotification, setTotalNotification] = useState(0);
+  const [querySearch, setQuerySearch] = useState('');
   const context = useContext(MyContext);
   const history = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
     context.setProgress(40);
-    fetchDataFromApi(`/api/notifications`).then((res) => {
+    fetchDataFromApi(`/api/notifications?q=${querySearch}&page=1&perPage=10`).then((res) => {
       setNotificationList(res);
+      setTotalNotification(res.total);
       context.setProgress(100);
     });
 
-    fetchDataFromApi("/api/promotionCode/get/count").then((res) => {
-      setTotalPromotion(res.promotionCodeCount);
-    });
   }, []);
 
   const deleteNotification = (id) => {
@@ -42,7 +42,7 @@ const NotificationList = () => {
         });
 
         // Fetch updated list
-        fetchDataFromApi(`/api/notifications`).then((res) => {
+        fetchDataFromApi(`/api/notifications?q=${querySearch}&page=1&perPage=10`).then((res) => {
           setNotificationList(res);
         });
       });
@@ -50,20 +50,26 @@ const NotificationList = () => {
       context.setAlertBox({
         open: true,
         error: true,
-        msg: "Only Admin can delete Promotion Codes",
+        msg: "Only Admin can delete",
       });
     }
   };
+
+  const handleChange = (event, value) => {
+    context.setProgress(40);
+    fetchDataFromApi(`/api/notifications?q=${querySearch}&page=${value}&perPage=10`).then(
+      (res) => {
+        setNotificationList(res);
+        context.setProgress(100);
+      }
+    );
+  };
+
   const onSearch = (keyword) => {
-    if (keyword !== "") {
-      fetchDataFromApi(`/api/search/notification?q=${keyword}`).then((res) => {
+    setQuerySearch(keyword)
+      fetchDataFromApi(`/api/notifications?q=${keyword}&page=1&perPage=10`).then((res) => {
         setNotificationList(res.data);
       });
-    } else {
-      fetchDataFromApi(`/api/notifications`).then((res) => {
-        setNotificationList(res);
-      });
-    }
   };
   return (
     <>
@@ -82,9 +88,9 @@ const NotificationList = () => {
             <div className="dashboardBoxWrapper d-flex">
               <DashboardBox
                 color={["#1da256", "#48d483"]}
-                title="Total Promotion Codes"
-                count={totalPromotion}
-                onClick={() => history('/promotionCode')}
+                title="Total Notifications"
+                count={totalNotification}
+                onClick={() => history('/notifications')}
               />
             </div>
           </div>
@@ -111,8 +117,8 @@ const NotificationList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {notificationList?.length > 0 &&
-                    notificationList.map((notification, index) => (
+                  {notificationList?.data?.length > 0 &&
+                    notificationList?.data?.map((notification, index) => (
                       <tr key={index}>
                         <td>{notification?.title}</td>
                         <td>{notification?.message}</td>
@@ -140,6 +146,19 @@ const NotificationList = () => {
                 </tbody>
             </table>
           </div>
+
+          {notificationList?.totalPages >= 1 && (
+            <div className="d-flex tableFooter">
+              <Pagination
+                count={notificationList.totalPages}
+                color="primary"
+                className="pagination"
+                showFirstButton
+                showLastButton
+                onChange={handleChange}
+              />
+            </div>
+          )}
         </div>
 
       </div>

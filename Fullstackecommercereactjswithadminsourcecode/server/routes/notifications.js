@@ -5,27 +5,69 @@ const { User } = require('../models/user');
 const mongoose = require("mongoose");
 
 // Get all notifications for a specific user
+// router.get("/", async (req, res) => {
+//     try {
+//       const { userId } = req.query;
+//       console.log(userId)
+  
+//       let notifications;
+//       if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+//         notifications = await Notification.find({
+//           recipients: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } }
+//         }).sort({ createdAt: -1 });
+//       } else {
+//         // Không có userId, lấy tất cả
+//         notifications = await Notification.find().sort({ createdAt: -1 });
+//       }
+  
+//       res.status(200).json(notifications);
+//     } catch (error) {
+//       res.status(500).json({ success: false, message: "Error fetching notifications", error });
+//     }
+//   });
+
 router.get("/", async (req, res) => {
-    try {
-      const { userId } = req.query;
-      console.log(userId)
-  
-      let notifications;
-      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-        notifications = await Notification.find({
-          recipients: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } }
-        }).sort({ createdAt: -1 });
-      } else {
-        // Không có userId, lấy tất cả
-        notifications = await Notification.find().sort({ createdAt: -1 });
-      }
-  
-      res.status(200).json(notifications);
-    } catch (error) {
-      res.status(500).json({ success: false, message: "Error fetching notifications", error });
+  try {
+    const { q, userId, page = 1, perPage = 10 } = req.query;
+
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(perPage);
+
+    let filter = {};
+
+    // Nếu có userId và hợp lệ
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      filter.recipients = { $elemMatch: { userId: new mongoose.Types.ObjectId(userId) } };
     }
-  });
-  
+
+    // Tìm kiếm theo title hoặc content
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { content: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    const total = await Notification.countDocuments(filter);
+
+    const notifications = await Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt);
+
+    res.status(200).json({
+      success: true,
+      data: notifications,
+      currentPage: pageInt,
+      totalPages: Math.ceil(total / limitInt),
+      total
+    });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ success: false, message: "Error fetching notifications", error });
+  }
+});
+
 
 // Get notification by ID
 router.get("/:id", async (req, res) => {

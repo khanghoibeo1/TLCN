@@ -97,8 +97,8 @@ const Orders = () => {
     setPage(1);
   };
   const handlePageChange = (event, value) => {
-  setPage(value);
-};
+    setPage(value);
+  };
 
   const handleDateChange = (setter) => (e) => {
     setter(e.target.value);
@@ -126,6 +126,8 @@ const Orders = () => {
   };
 
   const handleChangeStatus = (e, orderId) => {
+    const confirmChange = window.confirm("Are you sure you want to update status?");
+    if (!confirmChange) return;
     if(userContext.role !== "staff"){
       setstatusVal(e.target.value);
       setIsLoading(true);
@@ -199,9 +201,9 @@ const Orders = () => {
                       <em>All</em>
                     </MenuItem>
                     <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="paid">Paid</MenuItem>
-                    <MenuItem value="cancel">Cancel</MenuItem>
-                    <MenuItem value="verify">Verify</MenuItem>
+                    <MenuItem value="delivered">Delivered</MenuItem>
+                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                    <MenuItem value="verified">Verified</MenuItem>
                   </Select>
                 </FormControl>
               </div>
@@ -242,19 +244,19 @@ const Orders = () => {
               <thead className="thead-dark">
               <tr>
                 <th>Order Id</th> 
-                <th>Payment Method</th>
                 <th>Products</th>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Phone Number</th>
-                <th>Address</th>
                 <th>Discount</th>
                 <th>Total Amount</th>
-                <th>Email</th>
-                <th>Shipping Method</th>
                 <th>Location</th>
                 <th>Order Status</th>
                 <th>Date</th>
+                <th>User Id</th>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Payment Method</th>
+                <th>Shipping Method</th>
                 <th>Note</th>
             </tr>
               </thead>
@@ -269,12 +271,7 @@ const Orders = () => {
                         <span className="text-blue fonmt-weight-bold">
                           {order?._id}
                         </span>
-                      </td>
-                          <td>
-                            <span className="text-blue fonmt-weight-bold">
-                              {order?.payment}
-                            </span>
-                          </td>
+                        </td>
                           <td>
                             <span
                               className="text-blue fonmt-weight-bold cursor"
@@ -283,20 +280,10 @@ const Orders = () => {
                               Click here to view
                             </span>
                           </td>
-                          <td>{order?.userid}</td>
-                          <td>{order?.name}</td>
-                          <td>
-                            <FaPhoneAlt /> {order?.phoneNumber}
-                          </td>
-                          <td>{order?.address}</td>
                           <td>{order?.orderDiscount}</td>
                           <td>
                              ${order?.amount}
                           </td>
-                          <td>
-                            <MdOutlineEmail /> {order?.email}
-                          </td>
-                          <td>{order?.shippingMethod}</td>
                           <td>{order?.locationName}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
@@ -310,25 +297,52 @@ const Orders = () => {
                                 className="w-100"
                               >
                                 <MenuItem value="pending">Pending</MenuItem>
-                                <MenuItem value="verify">Verify</MenuItem>
+                                <MenuItem value="verified">Verify</MenuItem>
                                 <MenuItem value="cancel">Cancel</MenuItem>
                               </Select>
                             ) : (
-                              order?.status === 'cancel' ? (
+                              order?.status === 'cancelled' ? (
                                 <span className="badge badge-danger">{order?.status}</span>
-                              ) : order?.status === 'verify' ? (
-                                <span className="badge badge-success">{order?.status}</span>
-                              ) : order?.status === 'paid' ? (
+                              ) : (order?.status === 'verified' ? (
+                                  <Select
+                                  disabled={isLoading}
+                                  value={order?.status}
+                                  onChange={(e) => handleChangeStatus(e, order?._id)}
+                                  displayEmpty
+                                  size="small"
+                                  className="w-100"
+                                >
+                                  <MenuItem value="verified">Verified</MenuItem>
+                                  <MenuItem value="delivered">Delivered</MenuItem>
+                                  <MenuItem value="cancel">Cancel</MenuItem>
+                                </Select>
+                              ) : order?.status === 'delivered' ? (
                                 <span className="badge badge-info">{order?.status}</span>
                               ) : (
                                 // fallback cho các trạng thái khác, ví dụ info
                                 <span className="badge badge-info">{order?.status}</span>
                               )
+                            )
                             )}
                           </td>
                           <td>
                             <MdOutlineDateRange /> {order?.date?.split("T")[0]}
                           </td>
+                          <td>{order?.userid}</td>
+                          <td>{order?.name}</td>
+                          <td>
+                            <FaPhoneAlt /> {order?.phoneNumber}
+                          </td>
+                          <td>{order?.address}</td>
+                          <td>
+                            <MdOutlineEmail /> {order?.email}
+                          </td>
+                          <td>
+                            <span className="text-blue fonmt-weight-bold">
+                              {order?.payment}
+                            </span>
+                          </td>
+                          <td>{order?.shippingMethod}</td>
                           <td>
                             {order?.note}
                           </td>

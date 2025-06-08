@@ -83,11 +83,12 @@ router.get(`/`, async (req, res) => {
 
   let productList = [];
 
-  if (req.query.page !== undefined && req.query.perPage !== undefined) {
+  if (true) {
     if (req.query.location !== undefined) {
       console.log(req.query.location)
       const productListArr = await Product.find()
-        .populate("category")
+        .populate("name")
+        .sort({ dateCreated: -1 }) 
         .skip((page - 1) * perPage)
         .limit(perPage)
         .exec();
@@ -101,7 +102,7 @@ router.get(`/`, async (req, res) => {
       }
     } else {
       productList = await Product.find()
-        .populate("category")
+        .populate("name")
         .sort({ dateCreated: -1 }) 
         .skip((page - 1) * perPage)
         .limit(perPage)

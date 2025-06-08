@@ -13,7 +13,7 @@ const { sendOrderConfirmationEmail } = require('../helper/mailtrap/emails');
 
 router.get('/user', async (req, res) => {
   try {
-    const { userid, page = 1, limit = 10 } = req.query;
+    const { userid, page = 1, limit = 10, startDate, endDate } = req.query;
     if (!userid) {
       return res.status(400).json({ success: false, message: 'Missing userid parameter.' });
     }
@@ -23,6 +23,17 @@ router.get('/user', async (req, res) => {
 
     // chỉ lọc những đơn của chính user đó
     const filter = { userid };
+    
+    // Lọc theo khoảng thời gian tạo đơn
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) filter.date.$gte = new Date(startDate);
+      if (endDate) {
+        const e = new Date(endDate);
+        e.setHours(23,59,59,999);
+        filter.date.$lte = e;
+      }
+    }
 
     // đếm tổng đơn để client dùng pagination
     const totalOrders = await Orders.countDocuments(filter);
@@ -353,7 +364,8 @@ router.post('/capture-paypal-order', async (req, res) => {
 
         if (capture.result.status === 'COMPLETED') {
             // Cập nhật trạng thái đơn hàng
-            order.status = 'paid';
+            order.paymentStatus = 'paid';
+            order.status = 'verified';
             order.payment = 'Paypal';
             await order.save();
 
@@ -441,41 +453,6 @@ router.post('/capture-paypal-order', async (req, res) => {
     }
 });
 
-// API để lấy tổng doanh thu theo năm
-// router.get('/get/data/stats/sales', async (req, res) => {
-//     try {
-//       // Tính toán tổng doanh thu theo từng năm
-//       const salesData = await Orders.aggregate([
-//         {
-//           $project: {
-//             year: { $year: "$date" }, // Lấy năm từ trường "date"
-//             amount: { $toDouble: "$amount" } // Chuyển "amount" thành số để tính toán
-//           }
-//         },
-//         {
-//           $group: {
-//             _id: "$year", // Nhóm theo năm
-//             totalSales: { $sum: "$amount" } // Tính tổng doanh thu theo năm
-//           }
-//         },
-//         {
-//           $sort: { _id: 1 } // Sắp xếp theo năm
-//         }
-//       ]);
-  
-//       // Định dạng lại dữ liệu cho phù hợp với biểu đồ
-//       const formattedSalesData = salesData.map(item => ({
-//         year: item._id.toString(),
-//         sales: item.totalSales
-//       }));
-  
-//       res.status(200).json(formattedSalesData);
-//     } catch (error) {
-//       res.status(500).json({ message: "Error fetching sales data", error });
-//     }
-//   });
-
-
 
 router.get("/get/data/stats/sales", async (req, res) => {
     const { fromDate, toDate, groupBy, locationId } = req.query;
@@ -549,7 +526,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
   router.put('/client-update/:id', async (req, res) => {
     try {
-        const { status } = req.body; // Client chỉ cập nhật status
+        const { status, paymentStatus } = req.body; // Client chỉ cập nhật status
         const order = await Orders.findById(req.params.id);
 
         if (!order) {
@@ -558,7 +535,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
         // Kiểm tra logic trạng thái từ phía client
         // pending -> cancel (nếu payment=COD)
-        if (order.status === 'pending' && order.payment === 'Cash on Delivery' && status === 'cancel') {
+        if (order.status === 'pending' && order.payment === 'Cash on Delivery' && status === 'cancelled') {
             for (const item of order.products) {
                 const batch = await BatchCode.findById(item.batchId);
                 if (batch) {
@@ -579,14 +556,14 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
                 await product.save();
                 }
-            order.status = 'cancel';
+            order.status = 'cancelled';
             await order.save();
             return res.status(200).json(order);
         }
 
         // verify -> paid
-        if (order.status === 'verify' && status === 'paid') {
-            order.status = 'paid';
+        if (order.status === 'delivered' && paymentStatus === 'paid') {
+            order.paymentStatus = 'paid';
             await order.save();
             // Cập nhật totalSpent khi order chuyển sang paid
             const updatedUser = await User.findByIdAndUpdate(
@@ -606,7 +583,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
         }
 
         // Nếu đã là cancel hoặc paid thì không cập nhật được nữa
-        if (order.status === 'cancel' || order.status === 'paid') {
+        if (order.status === 'cancelled' || order.paymentStatus === 'paid') {
             return res.status(400).json({ success: false, message: 'Cannot update a cancelled or paid order.' });
         }
         
@@ -621,7 +598,7 @@ router.get("/get/data/stats/sales", async (req, res) => {
 
 router.put('/admin-update/:id', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, paymentStatus } = req.body;
     const order = await Orders.findById(req.params.id);
 
     if (!order) {
@@ -629,14 +606,26 @@ router.put('/admin-update/:id', async (req, res) => {
     }
 
     // pending -> verify
-    if (order.status === 'pending' && status === 'verify') {
-      order.status = 'verify';
+    if (order.status === 'pending' && status === 'verified') {
+      order.status = 'verified';
       await order.save();
       return res.status(200).json(order);
     }
 
+    // verify -> deliver
+    if (order.status === 'verified' && status === 'delivered') {
+      order.status = 'delivered';
+      await order.save();
+      const updatedUser = await User.findByIdAndUpdate(
+          order.userid,
+          { $inc: { totalSpent: order.amount } },
+          { new: true }
+      );
+      return res.status(200).json(order);
+    }
+
     // pending -> cancel (Admin huỷ đơn giống client)
-    if (order.status === 'pending' && status === 'cancel') {
+    if (order.status === 'pending' && status === 'cancelled') {
       for (const item of order.products) {
         const batch = await BatchCode.findById(item.batchId);
         if (batch) {
@@ -658,14 +647,14 @@ router.put('/admin-update/:id', async (req, res) => {
         await product.save();
       }
 
-      order.status = 'cancel';
+      order.status = 'cancelled';
       await order.save();
       return res.status(200).json(order);
     }
 
     // Không cập nhật nếu đã chuyển trạng thái cao hơn
-    if (['verify', 'cancel', 'paid'].includes(order.status)) {
-      return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
+    if (['delivered', 'cancel'].includes(order.status)) {
+      return res.status(400).json({ success: false, message: 'Cannot update order after it has been delivered/cancelled.' });
     }
 
     return res.status(400).json({ success: false, message: 'Invalid status transition.' });
@@ -675,36 +664,6 @@ router.put('/admin-update/:id', async (req, res) => {
   }
 });
 
-
-// router.put('/admin-update/:id', async (req, res) => {
-//   try {
-//       const { status } = req.body;
-//       console.log(status) // Admin chỉ cập nhật status
-//       const order = await Orders.findById(req.params.id);
-
-//       if (!order) {
-//           return res.status(404).json({ success: false, message: 'Order not found.' });
-//       }
-
-//       // pending -> verify
-//       if (order.status === 'pending' && status === 'verify') {
-//           order.status = 'verify';
-//           await order.save();
-//           return res.status(200).json(order);
-//       }
-
-//       // Nếu order đã là verify, cancel, paid => admin không cập nhật nữa
-//       if (['verify', 'cancel', 'paid'].includes(order.status)) {
-//           return res.status(400).json({ success: false, message: 'Cannot update order after it has been verified/cancelled/paid.' });
-//       }
-
-//       return res.status(400).json({ success: false, message: 'Invalid status transition.' });
-
-//   } catch (error) {
-//       console.error('Order cannot be updated by admin!', error);
-//       return res.status(500).json({ success: false, message: 'Server error.' });
-//   }
-// });
 
 
 

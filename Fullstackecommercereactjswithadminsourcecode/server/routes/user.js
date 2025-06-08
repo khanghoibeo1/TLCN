@@ -296,48 +296,106 @@ router.get('/get/count', async (req, res) => {
 
 
 // Get all users with pagination and optional location filter
+// router.get('/', async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+//     const perPage = parseInt(req.query.perPage) || 10;
+//     const locationFilter = req.query.location;
+
+//     try {
+//         const query = { isAdmin: false };
+//         const totalUsers = await User.countDocuments(query);
+//         const totalPages = Math.ceil(totalUsers / perPage);
+
+//         if (page > totalUsers) {
+//             return res.status(404).json({ success: false, message: "Page not found" });
+//         }
+
+//         let users = [];
+
+//         if (locationFilter) {
+//             const allUsers = await User.find(query)
+//                 .populate("name")
+//                 .exec();
+
+//                 users = allUsers.filter(user =>
+//                 user.location && user.location.some(loc => loc.value === locationFilter)
+//             ).slice((page - 1) * perPage, page * perPage);
+//         } else {
+//             users = await User.find(query)
+//                 .populate("name")
+//                 .skip((page - 1) * perPage)
+//                 .limit(perPage)
+//                 .exec();
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             data: users,
+//             totalUsers,
+//             currentPage: page,
+//         });
+//     } catch (error) {
+//         return res.status(500).json({ success: false, error: error.message });
+//     }
+// });
 router.get('/', async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const perPage = parseInt(req.query.perPage) || 10;
-    const locationFilter = req.query.location;
+  const page = parseInt(req.query.page) || 1;
+  const perPage = parseInt(req.query.perPage) || 10;
+  const locationFilter = req.query.location;
+  const q = req.query.q;
+  const rank = req.query.rank;
 
-    try {
-        const query = { isAdmin: false };
-        const totalUsers = await User.countDocuments(query);
-        const totalPages = Math.ceil(totalUsers / perPage);
+  try {
+    const query = { isAdmin: false };
 
-        if (page > totalUsers) {
-            return res.status(404).json({ success: false, message: "Page not found" });
-        }
-
-        let users = [];
-
-        if (locationFilter) {
-            const allUsers = await User.find(query)
-                .populate("name")
-                .exec();
-
-                users = allUsers.filter(user =>
-                user.location && user.location.some(loc => loc.value === locationFilter)
-            ).slice((page - 1) * perPage, page * perPage);
-        } else {
-            users = await User.find(query)
-                .populate("name")
-                .skip((page - 1) * perPage)
-                .limit(perPage)
-                .exec();
-        }
-
-        return res.status(200).json({
-            success: true,
-            data: users,
-            totalUsers,
-            currentPage: page,
-        });
-    } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+    // Tìm kiếm theo tên hoặc email (q)
+    if (q) {
+      query.$or = [
+        { name: { $regex: q, $options: 'i' } },
+        { email: { $regex: q, $options: 'i' } }
+      ];
     }
+
+    // Lọc theo rank nếu có
+    if (rank) {
+      query.rank = rank;
+    }
+
+    const totalUsers = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / perPage);
+
+    if (page > totalPages && totalUsers !== 0) {
+      return res.status(404).json({ success: false, message: "Page not found" });
+    }
+
+    let users = [];
+
+    if (locationFilter) {
+      const allUsers = await User.find(query).exec();
+
+      // Lọc thêm theo location.value
+      users = allUsers.filter(user =>
+        user.location && user.location.some(loc => loc.value === locationFilter)
+      ).slice((page - 1) * perPage, page * perPage);
+    } else {
+      users = await User.find(query)
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+      totalUsers,
+      currentPage: page,
+      totalPages,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
 });
+
 
 // Get all user admin with pagination and optional location filter
 router.get('/userAdmin', async (req, res) => {
@@ -437,7 +495,7 @@ router.get('/user-rank-stats', async (req, res) => {
         // Lấy danh sách đơn hàng đã thanh toán trong tháng trước
         const orders = await Orders.find({
             userid: userId,
-            status: 'paid',
+            status: 'delivered',
             date: {
                 $gte: startOfLastMonth,
                 $lte: endOfLastMonth

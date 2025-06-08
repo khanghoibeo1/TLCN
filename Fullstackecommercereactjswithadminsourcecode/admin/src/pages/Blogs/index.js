@@ -42,39 +42,36 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const PostList = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [showBy, setShowBy] = useState(10);
-  const [categoryVal, setCategoryVal] = useState("all");
   const [page, setPage] = useState(1);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [totalCategory, setTotalCategory] = useState();
-  const [totalSubCategory, setTotalSubCategory] = useState();
-  const [isLoadingBar, setIsLoadingBar] = useState(false);
   const [perPage, setPerPage] = useState(10);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [isLoadingBar, setIsLoadingBar] = useState(false);
+  const [postList, setPostList] = useState([]);
+  const [postTypeList, setPostTypeList] = useState([]);
+  const [postTypeVal, setPostTypeVal] = useState("");
+  const [querySearch, setQuerySearch] = useState("");
   const open = Boolean(anchorEl);
   
   const context = useContext(MyContext);
 
   const history = useNavigate();
 
-  const [postList, setPostList] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     context.setProgress(40);
-    fetchDataFromApi(`/api/posts?page=1&perPage=${perPage}`).then((res) => {
+    fetchDataFromApi(`/api/posts?q=${querySearch}&type=${postTypeVal}&page=1&perPage=${perPage}`).then((res) => {
       setPostList(res);
+      context.setProgress(100);
+    });
+
+    fetchDataFromApi(`/api/postTypes`).then((res) => {
+      setPostTypeList(res);
       context.setProgress(100);
     });
 
     fetchDataFromApi("/api/posts/get/count").then((res) => {
       setTotalPosts(res.postCount);
-    });
-
-    fetchDataFromApi("/api/category/get/count").then((res) => {
-      setTotalCategory(res.categoryCount);
-    });
-
-    fetchDataFromApi("/api/category/subCat/get/count").then((res) => {
-      setTotalSubCategory(res.categoryCount);
     });
   }, []);
 
@@ -94,7 +91,7 @@ const PostList = () => {
         });
 
         fetchDataFromApi(
-          `/api/posts?page=${page}&perPage=${perPage}`
+          `/api/posts?q=${querySearch}&type=${postTypeVal}&page=1&perPage=${perPage}`
         ).then((res) => {
           setPostList(res);
         });
@@ -111,58 +108,38 @@ const PostList = () => {
 
   const handleChange = (event, value) => {
     context.setProgress(40);
-    if (categoryVal !== "all") {
-      fetchDataFromApi(`/api/posts/catId?catId=${categoryVal}&page=${value}&perPage=${perPage}`).then(
-        (res) => {
-          setPostList(res);
-          context.setProgress(100);
-        }
-      );
-    } else {
-      fetchDataFromApi(`/api/posts?page=${value}&perPage=${perPage}`).then((res) => {
+    fetchDataFromApi(`/api/posts?q=${querySearch}&type=${postTypeVal}&page=${value}&perPage=${perPage}`).then(
+      (res) => {
         setPostList(res);
         context.setProgress(100);
-      });
-    }
+      }
+    );
   };
 
   const showPerPage = (e) => {
     setShowBy(e.target.value);
-    fetchDataFromApi(`/api/posts?page=1&perPage=${e.target.value}`).then((res) => {
+    fetchDataFromApi(`/api/posts?q=${querySearch}&type=${postTypeVal}&page=1&perPage=${e.target.value}`).then((res) => {
       setPostList(res);
       context.setProgress(100);
     });
   };
 
-  const handleChangeCategory = (event) => {
-    if (event.target.value !== "all") {
-      setCategoryVal(event.target.value);
-      fetchDataFromApi(`/api/posts/catId?catId=${event.target.value}&page=1&perPage=${perPage}`).then(
-        (res) => {
-          setPostList(res);
-          context.setProgress(100);
-        }
-      );
-    } else {
-      setCategoryVal("all");
-      fetchDataFromApi(`/api/posts?page=1&perPage=${perPage}`).then((res) => {
+  const handleChangePostType = (event) => {
+    setPostTypeVal(event.target.value);
+    fetchDataFromApi(`/api/posts?q=${querySearch}&type=${event.target.value}&page=1&perPage=${perPage}`).then(
+      (res) => {
         setPostList(res);
         context.setProgress(100);
-      });
-    }
+      }
+    );
   };
 
   const onSearch = (keyword) => {
-    if (keyword !== "") {
-      fetchDataFromApi(`/api/search/post?q=${keyword}&page=1&perPage=${10000}`).then((res) => {
-        setPostList(res);
-      });
-    } else {
-      fetchDataFromApi(`/api/posts?page=1&perPage=${10}`).then((res) => {
-        setPostList(res);
-        console.log(postList);
-      });
-    }
+    setQuerySearch(keyword)
+    fetchDataFromApi(`/api/posts?q=${keyword}&type=${postTypeVal}&page=1&perPage=${perPage}`).then((res) => {
+      setPostList(res);
+    });
+    
   };
   return (
     <>
@@ -209,17 +186,19 @@ const PostList = () => {
               <h4>CATEGORY BY</h4>
               <FormControl size="small" className="w-100">
                 <Select
-                  value={categoryVal}
-                  onChange={handleChangeCategory}
+                  value={postTypeVal}
+                  onChange={handleChangePostType}
                   displayEmpty
                   inputProps={{ "aria-label": "Without label" }}
                   className="w-100"
                 >
-                  <MenuItem value="all" >
+                  <MenuItem value="" >
                     <em>All</em>
                   </MenuItem>
-                  {context.catData?.categoryList?.length !== 0 &&
-                    context.catData?.categoryList?.map((cat, index) => {
+                  {postTypeList?.length !== 0 &&
+                    postTypeList
+                    .filter((cat) => cat.name !== 'All')
+                    .map((cat, index) => {
                       return (
                         <MenuItem
                           className="text-capitalize"
@@ -292,7 +271,7 @@ const PostList = () => {
               </tbody>
             </table>
 
-            {postList?.totalPages > 1 && (
+            {postList?.totalPages >= 1 && (
               <div className="d-flex tableFooter">
                 <Pagination
                   count={postList.totalPages}

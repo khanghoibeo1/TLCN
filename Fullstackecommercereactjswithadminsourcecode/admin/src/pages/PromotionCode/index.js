@@ -6,26 +6,30 @@ import { Button } from '@mui/material';
 import SearchBox from '../../components/SearchBox';
 import { FaPencilAlt, FaEye } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
+import Pagination from "@mui/material/Pagination";
 import DashboardBox from '../Dashboard/components/dashboardBox'; // Import DashboardBox
 
 const PromotionCodeList = () => {
   const [promotionList, setPromotionList] = useState([]);
   const [totalPromotion, setTotalPromotion] = useState(0);
+  const [dayRemain, setDayRemain] = useState("");
+  const [querySearch, setQuerySearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const context = useContext(MyContext);
   const history = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
     context.setProgress(40);
-    fetchDataFromApi(`/api/promotionCode`).then((res) => {
+    fetchDataFromApi(`/api/promotionCode?q=${querySearch}&expiredDay=${dayRemain}&page=1&perPage=10`).then((res) => {
       setPromotionList(res);
       context.setProgress(100);
     });
-
     fetchDataFromApi("/api/promotionCode/get/count").then((res) => {
       setTotalPromotion(res.promotionCodeCount);
     });
-  }, []);
+  }, [dayRemain]);
 
   const deletePromotion = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete?");
@@ -42,7 +46,7 @@ const PromotionCodeList = () => {
         });
 
         // Fetch updated list
-        fetchDataFromApi(`/api/promotionCode`).then((res) => {
+        fetchDataFromApi(`/api/promotionCode?q=${querySearch}&expiredDay=${dayRemain}&page=1&perPage=10`).then((res) => {
           setPromotionList(res);
         });
       });
@@ -55,15 +59,24 @@ const PromotionCodeList = () => {
     }
   };
   const onSearch = (keyword) => {
+    setQuerySearch(keyword)
     if (keyword !== "") {
-      fetchDataFromApi(`/api/search/promotionCode?q=${keyword}`).then((res) => {
+      fetchDataFromApi(`/api/promotionCode?q=${keyword}&expiredDay=${dayRemain}&page=1&perPage=10`).then((res) => {
         setPromotionList(res);
       });
     } else {
-      fetchDataFromApi(`/api/promotionCode`).then((res) => {
+      fetchDataFromApi(`/api/promotionCode?q=${keyword}&expiredDay=${dayRemain}&page=1}&perPage=10`).then((res) => {
         setPromotionList(res);
       });
     }
+  };
+
+  const handleChange = (event, value) => {
+    context.setProgress(40);
+    fetchDataFromApi(`/api/promotionCode?q=${querySearch}&expiredDay=${dayRemain}&page=${value}&perPage=10`).then((res) => {
+        setPromotionList(res);
+        context.setProgress(100);
+    }); 
   };
   return (
     <>
@@ -97,6 +110,16 @@ const PromotionCodeList = () => {
                     <div className="searchWrap d-flex">
                         <SearchBox onSearch={onSearch} />
                     </div>
+                </div>
+                <div className="col-md-3">
+                    <h4>Day Remain</h4>
+                    <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Days to expired day"
+                    value={dayRemain}
+                    onChange={(e) => setDayRemain(e.target.value)}
+                    />
                 </div>
             </div>
 
@@ -159,54 +182,21 @@ const PromotionCodeList = () => {
                       </tr>
                     ))}
                 </tbody>
-
-                {/* <thead className="thead-dark">
-                    <tr>
-                    <th>PROMOTION CODE</th>
-                    <th>DISCOUNT</th>
-                    <th>MAX USAGE</th>
-                    <th>USED COUNT</th>
-                    <th>DESCRIPTION</th>
-                    <th>STATUS</th>
-                    <th>ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-        {promotionList?.data?.length !== 0 &&
-          promotionList?.data?.map((promotion, index) => (
-            <tr key={index}>
-              <td>{promotion?.code}</td>
-              <td>{promotion?.discountPercent}%</td>
-              <td>{promotion?.maxUsage}</td>
-              <td>{promotion?.usedCount}</td>
-              <td>{promotion?.description}</td>
-              <td>{promotion?.status}</td>
-              <td>
-                <div className="actions d-flex align-items-center">
-                  <Link to={`/promotionCode/details/${promotion?.id}`}>
-                    <Button className="secondary">
-                      <FaEye />
-                    </Button>
-                  </Link>
-
-                  <Link to={`/promotionCode/edit/${promotion.id}`}>
-                    <Button className="success">
-                      <FaPencilAlt />
-                    </Button>
-                  </Link>
-
-                  <Button className="error" onClick={() => deletePromotion(promotion.id)}>
-                    <MdDelete />
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-      </tbody> */}
-    </table>
-  </div>
-</div>
-
+            </table>
+          </div>
+          {promotionList?.totalPages >= 1 && (
+            <div className="d-flex tableFooter">
+            <Pagination
+                count={promotionList?.totalPages}
+                color="primary"
+                className="pagination"
+                showFirstButton
+                showLastButton
+                onChange={handleChange}
+            />
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

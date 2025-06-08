@@ -153,7 +153,8 @@ const Checkout = () => {
     if (
       promo.status === "hide" ||
       promo.usedCount >= promo.maxUsage ||
-      promo.users.some((existingUser) => existingUser.userId === useContext.userId)
+      promo.users.some((existingUser) => existingUser.userId === useContext.userId) ||
+      promo.minOrderValue >= totalAmount
     ) {
       return;
     }
@@ -687,14 +688,14 @@ const Checkout = () => {
                       <Stack spacing={2}>
                         {promotionCodeList.map((promo) => {
                           const checked = tempSelection.some((p) => p.code === promo.code);
-                          const disabled =
-                            (!checked &&
-                              selectedPromotions.some((p) => !p.canCombine && p.type !== "shipping") &&
-                              promo.type !== "shipping" &&
-                              !promo.canCombine) ||
-                            (!checked &&
-                              promo.type === "shipping" &&
-                              selectedPromotions.some((p) => p.type === "shipping"));
+                          // const disabled =
+                          //   (!checked &&
+                          //     selectedPromotions.some((p) => !p.canCombine && p.type !== "shipping") &&
+                          //     promo.type !== "shipping" &&
+                          //     !promo.canCombine) ||
+                          //   (!checked &&
+                          //     promo.type === "shipping" &&
+                          //     selectedPromotions.some((p) => p.type === "shipping"));
 
                           return (
                             <Paper
@@ -705,7 +706,7 @@ const Checkout = () => {
                               <Checkbox
                                 checked={checked}
                                 onChange={() => handleTogglePromo(promo)}
-                                disabled={disabled}
+                                // disabled={disabled}
                                 sx={{ mt: 0.5 }}
                               />
                               <Box>
