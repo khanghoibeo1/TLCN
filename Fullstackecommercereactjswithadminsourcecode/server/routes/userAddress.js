@@ -7,18 +7,24 @@ router.get(`/`, async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const filter = {};
-    if (userId) {
-      filter.userId = userId;
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'userId is required' });
     }
 
-    const list = await UserAddress.find(filter);
+    let userAddressList = await UserAddress.find({ userId });
 
-    if (!list || list.length === 0) {
-      return res.status(404).json({ success: false, message: 'No address found' });
+    // Nếu chưa có userAddress, thì tạo mới
+    if (!userAddressList || userAddressList.length === 0) {
+      const newUserAddress = await UserAddress.create({
+        userId,
+        addresses: []
+      });
+
+      // Trả về danh sách chứa bản ghi mới tạo
+      userAddressList = [newUserAddress];
     }
 
-    return res.status(200).json(list);
+    return res.status(200).json(userAddressList);
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false });

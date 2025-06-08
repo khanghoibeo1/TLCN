@@ -127,6 +127,7 @@ function App() {
   useEffect(() => {
     if (user.userId) {
       fetchDataFromApi(`/api/userAddress?userId=${user.userId}`).then((res) => {
+        console.log(res)
         setAddressList(res[0].addresses);
       });
     }
@@ -135,6 +136,7 @@ function App() {
   // Load address from localStorage
   useEffect(() => {
     const address = localStorage.getItem("address");
+    console.log(address)
     if (address) {
       try {
         setselectedAddress(JSON.parse(address));

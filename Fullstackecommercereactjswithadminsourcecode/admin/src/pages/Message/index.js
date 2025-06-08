@@ -64,7 +64,7 @@ export default function AdminChat() {
     fetchDataFromApi('/api/messages/users')
       .then(async data => {
           // nạp unreadCount cho từng client
-          const withBadge = await Promise.all(data.map(async c => {
+          const withBadge = await Promise.all(data?.map(async c => {
             const { unreadCount } = await fetchDataFromApi(
               `/api/messages/count/unread-admin/${c._id}`
             );
@@ -144,7 +144,7 @@ export default function AdminChat() {
         }}>
           <h4>Clients</h4>
           <ul style={{listStyle:'none',padding:0}}>
-            {clients.map(c => (
+            {clients?.map(c => (
               <li key={c._id}
                   onClick={()=>setSelectedClient(c)}
                   style={{
@@ -202,7 +202,7 @@ export default function AdminChat() {
                 overflowY: 'auto',
                 padding: '16px',
               }}>
-                {messages.map((m, i) => {
+                {messages?.map((m, i) => {
                   const msgDate = new Date(m.createdAt);
                   const prev = i>0 ? new Date(messages[i-1].createdAt) : null;
                   const showDate = i===0 || !isSameDay(msgDate,prev);

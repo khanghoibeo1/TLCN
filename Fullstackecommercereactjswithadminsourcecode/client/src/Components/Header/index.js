@@ -58,6 +58,7 @@ const Header = () => {
     setAnchorEl(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("address");
     // localStorage.removeItem("location");
     context.setIsLogin(false);
     // window.location.href = "/signIn"
