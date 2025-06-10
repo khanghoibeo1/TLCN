@@ -73,7 +73,7 @@ const Dashboard = () => {
 
     console.log(locationSelected)
 
-    fetchDataFromApi(`/api/orders/get/data/status-summary?locationId=${locationSelected}`).then((res) => {
+    fetchDataFromApi(`/api/orders/get/data/status-summary?fromDate=${filter.fromDate}&toDate=${filter.toDate}&locationId=${locationSelected}`).then((res) => {
       setOrderStatusData(res);
     });
 
@@ -99,7 +99,7 @@ const Dashboard = () => {
       setreviewStatsData(res);
     });
 
-    fetchDataFromApi(`/api/orders/get/data/most-sold-products?locationId=${locationSelected}`).then((res) => {
+    fetchDataFromApi(`/api/orders/get/data/most-sold-products?fromDate=${filter.fromDate}&toDate=${filter.toDate}&locationId=${locationSelected}`).then((res) => {
       setMostSellingProductsData(res);
     });
 
@@ -144,6 +144,14 @@ const Dashboard = () => {
       console.log(filter);
       fetchDataFromApi(`/api/orders/get/data/stats/sales?fromDate=${filter.fromDate}&toDate=${filter.toDate}&groupBy=${filter.groupBy}`).then((res) => {
         setSalesData(res);
+      });
+
+      fetchDataFromApi(`/api/orders/get/data/most-sold-products?fromDate=${filter.fromDate}&toDate=${filter.toDate}&locationId=${locationSelected}`).then((res) => {
+        setMostSellingProductsData(res);
+      });
+
+      fetchDataFromApi(`/api/orders/get/data/status-summary?fromDate=${filter.fromDate}&toDate=${filter.toDate}&locationId=${locationSelected}`).then((res) => {
+        setOrderStatusData(res);
       });
       
     } catch (error) {

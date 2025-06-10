@@ -54,6 +54,36 @@ export const postData2 = async (url, payload) => {
   }
 };
 
+export const postData3 = async (url, formData) => {
+    try {
+        const response = await fetch(process.env.REACT_APP_API_URL + url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Include your API key in the Authorization header
+                'Content-Type': 'application/json', // Adjust the content type as needed
+              },
+           
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            
+            //console.log(data)
+            return data;
+        } else {
+            const error = new Error(data.message || 'Something went wrong');
+            error.response = { data }; // Gán thêm dữ liệu để dễ dùng ở catch
+            throw error;
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+
+}
+
 export const postData = async (url, formData) => {
     try {
         const response = await fetch(process.env.REACT_APP_API_URL + url, {

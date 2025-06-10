@@ -225,9 +225,9 @@ const BatchCodeList = () => {
                                             <Link to={`/batchCode/edit/${batch._id}`}>
                                                 <Button className="success" color="success"><FaPencilAlt /></Button>
                                             </Link>
-                                            <Button className="error" color="error" onClick={() => deleteBatchCode(batch._id)} disabled={isLoading}>
+                                            {batch.status !== 'delivered' && <Button className="error" color="error" onClick={() => deleteBatchCode(batch._id)} disabled={isLoading}>
                                                 <MdDelete />
-                                            </Button>
+                                            </Button>}
                                         </div>
                                     </td>
                                 </tr>

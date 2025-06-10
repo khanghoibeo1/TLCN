@@ -150,6 +150,31 @@ router.post('/create', async (req, res) => {
     if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
       return res.status(400).json({ success: false, message: 'Invalid payment method.'});
     }
+    for (const item of products) {
+      const batch = await BatchCode.findById(item.batchId);
+      if (!batch) continue;
+
+      // Trừ trong batchCode
+      if (batch.amountRemain < item.quantity) {
+          return res.status(400).json({ message: `Do not enough in batch ${batch.batchName}` });
+      }
+
+      // Trừ trong product.amountAvailable theo locationId từ batch
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
+
+      const locationIndex = product.amountAvailable.findIndex(
+          a => a.locationId?.toString() === batch.locationId?.toString()
+      );
+      console.log(locationIndex)
+
+      if (locationIndex >= 0) {
+          product.amountAvailable[locationIndex].quantity -= item.quantity;
+          if (product.amountAvailable[locationIndex].quantity < 0) {
+          return res.status(400).json({ message: `Do not enough in batch for product ${product.name}` });
+          }
+      }
+    }
 
     if (!amount || typeof amount !== 'number' || amount <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid amount.' });
@@ -386,14 +411,24 @@ router.post('/capture-paypal-order', async (req, res) => {
         console.error('Error capture PayPal:', error);
         return res.status(500).json({ success: false, message: 'Sever error.' });
     }
-});router.get('/get/data/status-summary', async (req, res) => {
+});
+
+router.get('/get/data/status-summary', async (req, res) => {
   try {
-    const locationId = req.query.locationId;
+    const { locationId, fromDate, toDate } = req.query;
     console.log(locationId)
 
     const matchStage = {};
     if (locationId && locationId !== "null") {
       matchStage.locationId = new mongoose.Types.ObjectId(locationId);
+    }
+
+    // Thêm lọc theo khoảng thời gian nếu có
+    if (fromDate && toDate) {
+      matchStage.date = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate),
+      };
     }
 
     const statusSummary = await Orders.aggregate([
@@ -421,11 +456,20 @@ router.post('/capture-paypal-order', async (req, res) => {
   
   router.get('/get/data/most-sold-products', async (req, res) => {
     try {
-        const locationId = req.query.locationId;
+        const { locationId, fromDate, toDate } = req.query;
         const matchStage = {};
         if (locationId && locationId !== "null") {
             matchStage.locationId = new mongoose.Types.ObjectId(locationId);
         }
+
+        // Lọc theo ngày nếu có
+        if (fromDate && toDate) {
+          matchStage.date = {
+            $gte: new Date(fromDate),
+            $lte: new Date(toDate),
+          };
+        }
+
         const mostSoldProducts = await Orders.aggregate([
             { $match: matchStage },
             { $unwind: "$products" },

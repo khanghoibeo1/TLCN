@@ -298,7 +298,7 @@ const Orders = () => {
                               >
                                 <MenuItem value="pending">Pending</MenuItem>
                                 <MenuItem value="verified">Verify</MenuItem>
-                                <MenuItem value="cancel">Cancel</MenuItem>
+                                <MenuItem value="cancelled">Cancel</MenuItem>
                               </Select>
                             ) : (
                               order?.status === 'cancelled' ? (
@@ -314,7 +314,7 @@ const Orders = () => {
                                 >
                                   <MenuItem value="verified">Verified</MenuItem>
                                   <MenuItem value="delivered">Delivered</MenuItem>
-                                  <MenuItem value="cancel">Cancel</MenuItem>
+                                  <MenuItem value="cancelled">Cancel</MenuItem>
                                 </Select>
                               ) : order?.status === 'delivered' ? (
                                 <span className="badge badge-info">{order?.status}</span>
