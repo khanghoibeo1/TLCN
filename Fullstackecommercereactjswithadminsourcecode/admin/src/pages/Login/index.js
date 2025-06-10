@@ -138,7 +138,7 @@ const Login = () => {
         <div className="loginBox">
           <Link to={"/"} className="d-flex align-items-center flex-column logo">
             <img src={Logo} />
-            <span className="ml-2">ECOMMERCE</span>
+            <span className="ml-2">FRUITOPIA</span>
           </Link>
           <div className="wrapper mt-3 card border">
             <form onSubmit={signIn}>
