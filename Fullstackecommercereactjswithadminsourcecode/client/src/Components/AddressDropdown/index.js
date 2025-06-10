@@ -105,6 +105,10 @@ const CountryDropdown = () => {
         if (!window.confirm("Are you sure you want to delete this address?")) return;
 
         try {
+            if(context.selectedAddress?.id === addressList[index].id){
+                context.setselectedAddress(null)
+                localStorage.removeItem("address");
+            }
             await deleteData(`/api/userAddress/${userContext.userId}/${index}`);
             const res = await fetchDataFromApi(`/api/userAddress?userId=${userContext.userId}`);
             context.setAddressList(res[0]?.addresses || []);
