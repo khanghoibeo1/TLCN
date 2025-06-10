@@ -319,7 +319,7 @@ function ClientChat() {
             <div>
               <div className="chat-box-messages" style={{ height: '300px', overflowY: 'auto', marginBottom: '10px' }} >
                 
-                {messages.length === 0 && (
+                {messages?.length === 0 && (
                   <div style={{
                     backgroundColor: isAI ? '#eee' : '#eee',
                     color: '#333',
@@ -333,7 +333,7 @@ function ClientChat() {
                     {isAI ? initialAIGreeting : initialAdminGreeting}
                   </div>
                 )}
-                {messages.map((msg, idx) => {
+                {messages?.map((msg, idx) => {
                   const msgDate = new Date(msg.createdAt);
                   const prevMsgDate = idx > 0 ? new Date(messages[idx - 1].createdAt) : null;
                   const showDateHeader = idx === 0 || !isSameDay(msgDate, prevMsgDate);

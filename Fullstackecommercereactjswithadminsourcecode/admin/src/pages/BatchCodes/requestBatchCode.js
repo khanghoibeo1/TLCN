@@ -255,9 +255,9 @@ const RequestBatchCode = () => {
                                                 </Link>
                                              : ''}
                                             
-                                            <Button className="error" color="error" onClick={() => deleteBatchCode(batch._id)} disabled={isLoading}>
+                                            {batch.status !== 'delivered' &&<Button className="error" color="error" onClick={() => deleteBatchCode(batch._id)} disabled={isLoading}>
                                                 <MdDelete />
-                                            </Button>
+                                            </Button>}
                                         </div>
                                     </td>
                                 </tr>

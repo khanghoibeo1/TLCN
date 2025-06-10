@@ -11,6 +11,9 @@ function init(server) {
       origin: [
         process.env.CLIENT_BASE_URL,
         process.env.ADMIN_BASE_URL,
+        'http://localhost:3008',
+        'http://localhost:3002',
+        'https://final-ecommerce-server.onrender.com'
       ],
       methods: ["GET", "POST"],
     },

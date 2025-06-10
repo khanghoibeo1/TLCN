@@ -20,13 +20,14 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import { MyContext } from "../../App";
-import { fetchDataFromApi, postData, deleteData, editData } from "../../utils/api";
+import { fetchDataFromApi, postData3, postData, deleteData, editData } from "../../utils/api";
 
 import { useNavigate } from "react-router-dom";
 
 import { PayPalButton } from "react-paypal-button-v2";
 
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { create } from "@mui/material/styles/createTransitions";
 
 const Checkout = () => {
   const [formFields, setFormFields] = useState({
@@ -96,14 +97,14 @@ const Checkout = () => {
     }
     setShippingFee(fee)
   },[shippingMethod, userAddress, country]);
-
+console.log(formFields.streetAddress)
   useEffect(() => {
     setFormFields(prev => ({
       ...prev,
       fullName: userAddress?.name || prev.fullName,
       phoneNumber: userAddress?.phoneNumber || prev.phoneNumber,
       email: userContext.email || prev.email,
-      streetAddress: userAddress?.address,
+      streetAddress: userAddress?.address || prev.streetAddress,
     }));
   }, [userContext, userAddress]);
 
@@ -489,7 +490,7 @@ const Checkout = () => {
     console.log(payLoad)
       
     try {
-      const createdOrder = await postData('/api/orders/create', payLoad);
+      const createdOrder = await postData3('/api/orders/create', payLoad);
       // Nếu selectedPromotion là một mảng các promotion
       for (const promo of selectedPromotions) {
         const updatedPromo = {
@@ -526,7 +527,7 @@ const Checkout = () => {
         context.setAlertBox({
             open: true,
             error: true,
-            msg: "Checkout failed. Please try again.",
+            msg: error?.response?.data?.message || "Checkout failed. Please try again.",
         });
     }
 };

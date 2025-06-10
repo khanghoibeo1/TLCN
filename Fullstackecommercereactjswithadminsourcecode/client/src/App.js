@@ -127,6 +127,7 @@ function App() {
   useEffect(() => {
     if (user.userId) {
       fetchDataFromApi(`/api/userAddress?userId=${user.userId}`).then((res) => {
+        console.log(res)
         setAddressList(res[0].addresses);
       });
     }
@@ -135,6 +136,7 @@ function App() {
   // Load address from localStorage
   useEffect(() => {
     const address = localStorage.getItem("address");
+    console.log(address)
     if (address) {
       try {
         setselectedAddress(JSON.parse(address));
@@ -146,8 +148,16 @@ function App() {
 
   const getCountry = async (url) => {
     const res = await axios.get(url);
-    setCountryList(res.data.data);
+    const countries = res.data.data;
+    setCountryList(countries);
+
+    const location = localStorage.getItem("location");
+    if (!location && countries.length > 0) {
+      setselectedCountry(countries[0]);
+      localStorage.setItem("location", JSON.stringify(countries[0]));
+    }
   };
+
 
   const getCartData = () => {
     const user = JSON.parse(localStorage.getItem("user"));

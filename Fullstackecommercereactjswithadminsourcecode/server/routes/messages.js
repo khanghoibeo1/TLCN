@@ -138,12 +138,7 @@ router.post('/send/:id', authenticateToken, multer.single('image'), async(req, r
         
 
         // Kiểm tra nếu vai trò của người gửi và người nhận không đúng      
-        if ((senderRole === 'client' && receiver.role !== 'mainAdmin') || 
-            (senderRole === 'mainAdmin' && receiver.role !== 'client') ||
-            (senderRole === 'client' && receiver.role !== 'storeAdmin') || 
-            (senderRole === 'storeAdmin' && receiver.role !== 'client') ||
-            (senderRole === 'client' && receiver.role !== 'staff') || 
-            (senderRole === 'staff' && receiver.role !== 'client') ) {
+        if ((senderRole === 'client' && receiver.role === 'client')  ) {
             return res.status(400).json({ error: 'You can only chat between client and admin' });
         }
 
