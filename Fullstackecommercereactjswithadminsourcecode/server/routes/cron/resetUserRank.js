@@ -1,4 +1,5 @@
 const cron = require('node-cron');
+const { Orders } = require('../../models/orders');
 const {User} = require('../../models/user'); 
 const {Product} = require('../../models/products.js'); // sửa đường dẫn nếu cần
 const {BatchCode} = require('../../models/batchCode');     // sửa đường dẫn nếu cần
@@ -56,6 +57,54 @@ cron.schedule('0 0 * * *', async () => {
     console.error("❌ Error updating amountAvailable:", err);
   }
 });
+
+async function autoCancelPendingVNPayOrders() {
+  try {
+    console.log("🔄 Checking for VNPAY pending orders older than 15 minutes...");
+
+    const fifteenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    const orders = await Orders.find({
+      status: 'pending',
+      payment: 'VNPAY',
+      createdAt: { $lte: fifteenMinutesAgo }
+    });
+
+    for (const order of orders) {
+      for (const item of order.products) {
+        const batch = await BatchCode.findById(item.batchId);
+        if (batch) {
+          batch.amountRemain += item.quantity;
+          await batch.save();
+        }
+
+        const product = await Product.findById(item.productId);
+        if (!product) continue;
+
+        const locationIndex = product.amountAvailable.findIndex(
+          a => a.locationId?.toString() === batch?.locationId?.toString()
+        );
+
+        if (locationIndex >= 0) {
+          product.amountAvailable[locationIndex].quantity += item.quantity;
+        }
+
+        await product.save();
+      }
+
+      order.status = 'cancelled';
+      await order.save();
+
+      console.log(`❌ Auto-cancelled order ${order._id} due to timeout.`);
+    }
+
+    console.log("✅ Auto-cancel process completed.");
+  } catch (err) {
+    console.error("❌ Error auto-cancelling orders:", err);
+  }
+}
+
+cron.schedule('*/10 * * * *', autoCancelPendingVNPayOrders);
 
 // Hàm chứa logic cập nhật
 async function updateProductAvailability() {

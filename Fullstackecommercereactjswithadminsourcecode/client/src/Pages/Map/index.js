@@ -6,30 +6,58 @@ import "./index.css";
 
 const StorePage = () => {
   const [stores, setStores] = useState([]);
-  const { selectedAddress } = useContext(MyContext); // lấy từ context
-  console.log(selectedAddress)
+  const [userLocation, setUserLocation] = useState(null);
+  const { selectedAddress } = useContext(MyContext);
 
   useEffect(() => {
-    // Nếu chưa có địa chỉ được chọn, không fetch store
-    if (!selectedAddress?.lat || !selectedAddress?.lng) return;
+    const determineUserLocation = () => {
+      if (selectedAddress?.lat && selectedAddress?.lng) {
+        setUserLocation({
+          lat: selectedAddress?.lat,
+          lng: selectedAddress?.lng,
+        });
+      } else {
+        // Dùng vị trí hiện tại nếu không có địa chỉ được chọn
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setUserLocation({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+            },
+            (error) => {
+              console.error("Error while getting user location:", error);
+            }
+          );
+        } else {
+          console.error("Web browser do not support get location.");
+        }
+      }
+    };
 
-    // Gọi API lấy store có lat/lng
+    determineUserLocation();
+  }, [selectedAddress]);
+
+  useEffect(() => {
+    if (!userLocation) return;
+
     fetchDataFromApi("/api/storeLocations").then((res) => {
       const storeList = res.data.map((store) => ({
         ...store,
-        name: store.location, // hoặc store.name nếu có
+        name: store.location,
         lat: store.lat,
         lng: store.lng,
       }));
       setStores(storeList);
     });
-  }, [selectedAddress]);
+  }, [userLocation, selectedAddress]);
 
   return (
     <div className="storeLocationPage">
       <div>
-        {selectedAddress && stores.length > 0 && (
-          <StoreLocator userLocation={selectedAddress} stores={stores} />
+        {userLocation && stores.length > 0 && (
+          <StoreLocator userLocation={selectedAddress?.lat ? selectedAddress : userLocation} stores={stores} />
         )}
       </div>
       <div className="shippingfee-guide">
@@ -42,10 +70,7 @@ const StorePage = () => {
         </ul>
         <p><i>*Express shipping adds 30% to the base delivery fee.</i></p>
       </div>
-
-
     </div>
-    
   );
 };
 

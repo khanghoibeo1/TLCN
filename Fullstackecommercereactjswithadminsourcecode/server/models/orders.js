@@ -28,7 +28,7 @@ const ordersSchema = mongoose.Schema({
     payment: {
         type: String,
         required: true,
-        enum: ['Cash on Delivery', 'Paypal']
+        enum: ['Cash on Delivery', 'Paypal','VNPAY']
     },
     email: {
         type: String,

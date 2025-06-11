@@ -33,6 +33,7 @@ import SearchPage from "./Pages/Search";
 import Blog from "./Pages/Blog";
 import Map from "./Pages/Map";
 import DetailBlog from "./Pages/DetailBlog";
+import PaymentSuccess from "./Pages/PaymentSuccess";
 
 // Utils
 import { fetchDataFromApi, postData } from "./utils/api";
@@ -190,7 +191,7 @@ function App() {
 
     setAddingInCart(true);
     postData("/api/cart/add", data).then((res) => {
-      if (res.status !== false) {
+      if (res.status !== 'FAIL') {
         setAlertBox({ open: true, error: false, msg: "Item is added in the cart" });
         setTimeout(() => setAddingInCart(false), 1000);
         getCartData();
@@ -262,6 +263,7 @@ function App() {
           <Route exact={true} path="/map" element={<Map />} />
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
           <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
+          <Route exact={true} path="/paymentSuccess" element={<PaymentSuccess />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
         {isOpenProductModal === true && <ProductModal data={productData} />}

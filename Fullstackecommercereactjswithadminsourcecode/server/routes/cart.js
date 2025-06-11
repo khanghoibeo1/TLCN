@@ -102,6 +102,22 @@ router.post('/add', async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
+    // 🔎 Lấy tất cả item trong cart của user
+    const existingCartItems = await Cart.find({ userId });
+
+    // 🔄 Nếu đã có sản phẩm trong cart, kiểm tra locationId của batchId
+    if (existingCartItems.length > 0) {
+      const firstBatchId = existingCartItems[0].batchId;
+      const firstBatch = await BatchCode.findById(firstBatchId);
+      if (!firstBatch) return res.status(400).json({ message: 'Invalid batch in cart' });
+
+      const existingLocationId = String(firstBatch.locationId);
+      if (String(locationId) !== existingLocationId) {
+        return res.status(400).json({status: 'FAIL', msg: 'Products must be from the same location' });
+      }
+    }
+
+
     const today = new Date();
 
     const batches = await BatchCode.find({

@@ -11,6 +11,16 @@ const  client  = require('../helper/paypal/paypal.config');
 const { User } = require('../models/user');
 const { sendOrderConfirmationEmail } = require('../helper/mailtrap/emails');
 
+const moment = require("moment");
+const crypto = require("crypto");
+require("dotenv").config();
+
+const vnp_TmnCode = process.env.VNP_TMNCODE;
+const vnp_HashSecret = process.env.VNP_HASHSECRET;
+const vnp_Url = process.env.VNP_URL || "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+const vnp_ReturnUrl = process.env.VNP_RETURNURL;
+
+
 router.get('/user', async (req, res) => {
   try {
     const { userid, page = 1, limit = 10, startDate, endDate } = req.query;
@@ -147,7 +157,7 @@ router.post('/create', async (req, res) => {
   try{
     const { name, phoneNumber, address, shippingFee, shippingMethod, amount, payment, email, userid, products, date, orderDiscount, note, locationId, locationName } = req.body;
 
-    if (!['Cash on Delivery', 'Paypal'].includes(payment)) {
+    if (!['Cash on Delivery', 'Paypal','VNPAY'].includes(payment)) {
       return res.status(400).json({ success: false, message: 'Invalid payment method.'});
     }
     for (const item of products) {
@@ -299,7 +309,7 @@ router.put('/:id', async (req, res) => {
         const { name, phoneNumber, address, shippingMethod, shippingFee, amount, payment, email, userid, products, status, date, note, locationId, locationName } = req.body;
 
         // Nếu cập nhật phương thức thanh toán, kiểm tra giá trị
-        if (payment && !['Cash on Delivery', 'Paypal'].includes(payment)) {
+        if (payment && !['Cash on Delivery', 'Paypal','VNPAY'].includes(payment)) {
             return res.status(400).json({ success: false, message: 'Invalid payment method.' });
         }
 
@@ -412,6 +422,66 @@ router.post('/capture-paypal-order', async (req, res) => {
         return res.status(500).json({ success: false, message: 'Sever error.' });
     }
 });
+
+router.post("/vnpay/test/test/create_payment_url", (req, res) => {
+  const ipAddr = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  const { amount, orderId, bankCode, orderDescription } = req.body;
+
+  function getVnpCreateDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    const second = String(now.getSeconds()).padStart(2, '0');
+    return `${year}${month}${date}${hour}${minute}${second}`;
+  }
+  const createDate = getVnpCreateDate();
+  const orderInfo = orderDescription || "Payment at eCommerce site";
+  const orderType = "other";
+  const locale = "vn";
+  const currCode = "USD";
+  const vnp_TxnRef = orderId;
+
+  let vnp_Params = {
+    vnp_Version: "2.1.0",
+    vnp_Command: "pay",
+    vnp_TmnCode: vnp_TmnCode,
+    vnp_Locale: locale,
+    vnp_CurrCode: currCode,
+    vnp_TxnRef: vnp_TxnRef,
+    vnp_OrderInfo: orderInfo,
+    vnp_OrderType: orderType,
+    vnp_Amount: amount * 100,
+    vnp_ReturnUrl: vnp_ReturnUrl,
+    vnp_IpAddr: ipAddr,
+    vnp_CreateDate: createDate,
+  };
+
+  if (bankCode) {
+    vnp_Params["vnp_BankCode"] = bankCode;
+  }
+
+  vnp_Params = sortObject(vnp_Params);
+
+  const signData = new URLSearchParams(vnp_Params).toString();
+  const hmac = crypto.createHmac("sha512", vnp_HashSecret);
+  const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+  vnp_Params["vnp_SecureHash"] = signed;
+
+  const paymentUrl = vnp_Url + "?" + new URLSearchParams(vnp_Params).toString();
+  return res.json({ url: paymentUrl });
+});
+
+function sortObject(obj) {
+  const sorted = {};
+  const keys = Object.keys(obj).sort();
+  for (let key of keys) {
+    sorted[key] = obj[key];
+  }
+  return sorted;
+}
 
 router.get('/get/data/status-summary', async (req, res) => {
   try {

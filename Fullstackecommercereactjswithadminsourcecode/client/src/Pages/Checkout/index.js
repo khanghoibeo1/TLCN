@@ -20,7 +20,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import { MyContext } from "../../App";
-import { fetchDataFromApi, postData3, postData, deleteData, editData } from "../../utils/api";
+import { fetchDataFromApi, postData3, postData, deleteData, editData, editData2 } from "../../utils/api";
 
 import { useNavigate } from "react-router-dom";
 
@@ -181,85 +181,6 @@ console.log(formFields.streetAddress)
     setOpen(false);
   };
 
-  // useEffect(() => {
-  //   if (!cartData || !selectedPromotions) return;
-
-  //   let productTotal = 0;
-  //   let currentShippingFee = shippingFee; // lấy từ state đã fetch
-  //   const appliedDiscounts = [];
-
-  //   const cartItems = Array.isArray(cartData) ? cartData : [cartData];
-
-  //   // Tổng giá sản phẩm ban đầu
-  //   productTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  //   // const sortedPromotions = [...selectedPromotions].sort((a, b) => {
-  //   //   if (a.discountType === 'percent' && b.discountType === 'amount') return -1;
-  //   //   if (a.discountType === 'amount' && b.discountType === 'percent') return 1;
-  //   //   return 0;
-  //   // });
-  //   const sortedPromotions = [...selectedPromotions].sort((a, b) => {
-  //   // Ưu tiên mã product trước shipping
-  //   if (a.type === 'product' && b.type === 'shipping') return -1;
-  //   if (a.type === 'shipping' && b.type === 'product') return 1;
-
-  //   // Nếu cả hai đều là product, xét tiếp applicableCategoryIds
-  //   if (a.type === 'product' && b.type === 'product') {
-  //     const aHasCat = Array.isArray(a.applicableCategoryIds) && a.applicableCategoryIds.length > 0;
-  //     const bHasCat = Array.isArray(b.applicableCategoryIds) && b.applicableCategoryIds.length > 0;
-  //     if (aHasCat && !bHasCat) return -1;
-  //     if (!aHasCat && bHasCat) return 1;
-  //   }
-
-  //   // Còn lại thì giữ nguyên
-  //   return 0;
-  // });
-
-  //   sortedPromotions.forEach(promo => {
-  //     if (promo.status !== 'active') return;
-
-  //     // Áp dụng khuyến mãi sản phẩm
-  //     if (promo.type === 'product') {
-  //       const applicableItems =
-  //         promo.applicableCategoryIds.length > 0
-  //           ? cartItems.filter(item => promo.applicableCategoryIds.includes(item.categoryId))
-  //           : cartItems;
-
-  //       const applicableTotal = applicableItems.reduce(
-  //         (sum, item) => sum + item.price * item.quantity,
-  //         0
-  //       );
-
-  //       if (applicableTotal >= promo.minOrderValue) {
-  //         let discount = 0;
-  //         if (promo.discountType === 'percent') {
-  //           discount = applicableTotal * (promo.discountValue / 100);
-  //         } else {
-  //           discount = Math.min(applicableTotal, promo.discountValue);
-  //         }
-  //         productTotal -= discount;
-  //         appliedDiscounts.push({ code: promo.code, amount: discount });
-  //       }
-  //     }
-
-  //     // Áp dụng khuyến mãi shipping
-  //     if (promo.type === 'shipping') {
-  //       if (productTotal >= promo.minOrderValue) {
-  //         let discount = 0;
-  //         if (promo.discountType === 'percent') {
-  //           discount = currentShippingFee * (promo.discountValue / 100);
-  //         } else {
-  //           discount = Math.min(currentShippingFee, promo.discountValue);
-  //         }
-  //         currentShippingFee -= discount;
-  //         appliedDiscounts.push({ code: promo.code, amount: discount });
-  //       }
-  //     }
-  //   });
-
-  //   setTotalAmount(productTotal + currentShippingFee);
-  //   setShippingFee(currentShippingFee); // update nếu shipping được giảm
-  // }, [selectedPromotions, cartData, promotionCodeList]);
   useEffect(() => {
     if (!cartData || !selectedPromotions) return;
 
@@ -403,7 +324,7 @@ console.log(formFields.streetAddress)
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "Please fill full name ",
+          msg: "Please choose User Address ",
         });
         return false;
       }
@@ -412,7 +333,7 @@ console.log(formFields.streetAddress)
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "Please fill Street address",
+          msg: "Please choose User Address",
         });
         return false;
       }
@@ -421,7 +342,7 @@ console.log(formFields.streetAddress)
         context.setAlertBox({
           open: true,
           error: true,
-          msg: "Please fill phone Number ",
+          msg: "Please choose User Address ",
         });
         return false;
       }
@@ -490,6 +411,7 @@ console.log(formFields.streetAddress)
     console.log(payLoad)
       
     try {
+      
       const createdOrder = await postData3('/api/orders/create', payLoad);
       // Nếu selectedPromotion là một mảng các promotion
       for (const promo of selectedPromotions) {
@@ -506,6 +428,24 @@ console.log(formFields.streetAddress)
 
       // user.totalSpent = (user.totalSpent || 0) + parseInt(totalAmount);
       // localStorage.setItem("user", JSON.stringify(user));
+
+      if (paymentMethod === "VNPAY") {
+        const response = await postData3("/api/orders/vnpay/test/test/create_payment_url", {
+          amount: (totalAmount - (discount > 0? discount : 0) +  (shippingFee > 0? shippingFee: 0) -  (shippingFeeDiscount > 0 ? shippingFeeDiscount: 0) ) * 100 > 50000 ? 
+                    (totalAmount - (discount > 0? discount : 0) +  (shippingFee > 0? shippingFee: 0) -  (shippingFeeDiscount > 0 ? shippingFeeDiscount: 0) ) * 100 : 50000,
+          orderId: createdOrder._id,
+          bankCode: "", // optional
+          orderDescription: "Payment for Order " + orderId,
+        });
+
+        if (response.url) {
+          window.location.href = response.url; // Redirect to VNPAY
+        } else {
+          alert("Could not initiate VNPAY payment.");
+        }
+        return false;
+
+      } 
 
       if (paymentMethod === "Paypal") {
           // Đơn hàng sẽ được xử lý qua PayPal, frontend sẽ tạo PayPal order sau khi nhận orderId
@@ -591,6 +531,7 @@ console.log(formFields.streetAddress)
                       name="fullName"
                       value={userAddress?.name}
                       onChange={onChangeInput}
+                      InputProps={{ readOnly: true }}
                     />
                   </div>
                 </div>
@@ -609,6 +550,7 @@ console.log(formFields.streetAddress)
                       name="streetAddress"
                       value={userAddress?.address}
                       onChange={onChangeInput}
+                      InputProps={{ readOnly: true }}
                     />
                   </div>
 
@@ -636,6 +578,7 @@ console.log(formFields.streetAddress)
                       name="phoneNumber"
                       value={userAddress?.phoneNumber}
                       onChange={onChangeInput}
+                      InputProps={{ readOnly: true }}
                     />
                   </div>
                 </div>
@@ -650,7 +593,6 @@ console.log(formFields.streetAddress)
                       name="email"
                       value={userContext?.email}
                       // InputProps={{ readOnly: true }}
-                      dissabled
                     />
                   </div>
                 </div>
@@ -753,6 +695,7 @@ console.log(formFields.streetAddress)
                     <option value="">Select Payment Method</option>
                     <option value="Paypal">PayPal</option>
                     <option value="Cash on Delivery">Cash on Delivery</option>
+                    <option value="VNPAY">VNPAY</option>
                   </select>
                 </div>
               </div>
