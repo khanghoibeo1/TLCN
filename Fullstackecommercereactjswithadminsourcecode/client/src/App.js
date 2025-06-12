@@ -34,6 +34,7 @@ import Blog from "./Pages/Blog";
 import Map from "./Pages/Map";
 import DetailBlog from "./Pages/DetailBlog";
 import PaymentSuccess from "./Pages/PaymentSuccess";
+import CompareProducts from "./Pages/CompareProducts"
 
 // Utils
 import { fetchDataFromApi, postData } from "./utils/api";
@@ -267,6 +268,7 @@ useEffect(() => {
           <Route exact={true} path="/detailblog/:id" element={<DetailBlog />} />
           <Route exact={true} path="/license" element={<IntroduceAndLicense />} />
           <Route exact={true} path="/paymentSuccess" element={<PaymentSuccess />} />
+          <Route exact={true} path="/compareProducts" element={<CompareProducts />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
         {isOpenProductModal === true && <ProductModal data={productData} />}

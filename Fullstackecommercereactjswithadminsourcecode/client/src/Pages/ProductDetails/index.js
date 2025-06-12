@@ -9,7 +9,7 @@ import { MdOutlineCompareArrows } from "react-icons/md";
 import Tooltip from "@mui/material/Tooltip";
 import RelatedProducts from "./RelatedProducts";
 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { fetchDataFromApi, postData } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
 import { MyContext } from "../../App";
@@ -32,6 +32,7 @@ const ProductDetails = () => {
   const [tabError, setTabError] = useState(false);
 
   const { id } = useParams();
+  const history = useNavigate()
 
   const context = useContext(MyContext);
   const selectedCountry = context.selectedCountry?.iso2;
@@ -268,6 +269,53 @@ const addReview = async (e) => {
     }
   };
 
+  const addToCompare = () => {
+    const existingCompareList = JSON.parse(localStorage.getItem("compareList")) || [];
+    const alreadyExists = existingCompareList.find(item => item.id === productData?.id);
+
+    if (alreadyExists) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Product is already in the comparison list.",
+      });
+      history("/compareProducts")
+      return;
+    }
+
+    if (existingCompareList.length >= 2) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: "Compare list is already two products.",
+      });
+      history("/compareProducts")
+      return;
+    }
+
+    const compareItem = {
+      id: productData?.id,
+      name: productData?.name,
+      image: productData?.images?.[0],
+      price: latestBatch?.price || productData?.price,
+      brand: productData?.brand,
+      rating: productData?.rating,
+      description: productData?.description,
+    };
+    console.log(compareItem)
+
+    const updatedList = [...existingCompareList, compareItem];
+    localStorage.setItem("compareList", JSON.stringify(updatedList));
+
+    context.setAlertBox({
+      open: true,
+      error: false,
+      msg: "Product added to compare list.",
+    });
+    history("/compareProducts")
+  };
+
+
   return (
     <>
       <section className="productDetails section">
@@ -388,7 +436,7 @@ const addReview = async (e) => {
                     </Tooltip>
 
                     <Tooltip title="Add to Compare" placement="top">
-                      <Button className="btn-blue btn-lg btn-big btn-circle ml-2">
+                      <Button className="btn-blue btn-lg btn-big btn-circle ml-2"  onClick={addToCompare}>
                         <MdOutlineCompareArrows />
                       </Button>
                     </Tooltip>
