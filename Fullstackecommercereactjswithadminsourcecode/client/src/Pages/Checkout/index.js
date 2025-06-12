@@ -377,10 +377,9 @@ console.log(formFields.streetAddress)
         name: formFields.fullName,
         phoneNumber: formFields.phoneNumber,
         address: formFields.streetAddress,
-        date: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
+        date: new Date().toLocaleString("sv-SE", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          hour12: false,
         }),
       };
 
@@ -523,8 +522,9 @@ console.log(formFields.streetAddress)
               <div className="row mt-3">
                 <div className="col-md-6">
                   <div className="form-group">
+                    <h6>Full Name *</h6>
                     <TextField
-                      label="Full Name *"
+                      label=""
                       variant="outlined"
                       className="w-100"
                       size="small"
@@ -543,7 +543,7 @@ console.log(formFields.streetAddress)
                 <div className="col-md-12">
                   <div className="form-group">
                     <TextField
-                      label="House number and street name"
+                      label=""
                       variant="outlined"
                       className="w-100"
                       size="small"
@@ -570,8 +570,9 @@ console.log(formFields.streetAddress)
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
+                    <h6>Phone Number*</h6>
                     <TextField
-                      label="Phone Number"
+                      label=""
                       variant="outlined"
                       className="w-100"
                       size="small"

@@ -739,7 +739,7 @@ router.put('/admin-update/:id', async (req, res) => {
     }
 
     // pending -> cancel (Admin huỷ đơn giống client)
-    if (order.status === 'pending' && status === 'cancelled') {
+    if ((order.status === 'pending' || order.status === 'verified') && status === 'cancelled') {
       for (const item of order.products) {
         const batch = await BatchCode.findById(item.batchId);
         if (batch) {

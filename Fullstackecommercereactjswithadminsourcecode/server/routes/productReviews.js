@@ -2,7 +2,10 @@ const { ProductReviews } = require('../models/productReviews');
 const { Product } = require('../models/products');
 const express = require('express');
 const router = express.Router();
+const openAI = require("../helper/openai/openAI.js")
+const {authenticateToken } = require("../middleware/authenticateToken");  // Đảm bảo openAi.js được require đúng
 
+const AI_USER_ID = process.env.AI_USER_ID; 
 
 router.get(`/`, async (req, res) => {
 
@@ -59,70 +62,6 @@ router.get('/:id', async (req, res) => {
 
 
 router.post('/add', async (req, res) => {
-    
-    // let review = new ProductReviews({
-    //     customerId: req.body.customerId,
-    //     customerName: req.body.customerName,
-    //     review:req.body.review,
-    //     customerRating: req.body.customerRating,
-    //     productId: req.body.productId
-    // });
-
-
-
-    // if (!review) {
-    //     res.status(500).json({
-    //         error: err,
-    //         success: false
-    //     })
-    // }
-
-
-    // review = await review.save();
-    
-
-    // res.status(201).json(review);
-
-    //AVERAGE RATING
-    // try {
-    //     // Extract the review data from the request body
-    //     const { customerId, customerName, review, customerRating, productId } = req.body;
-
-    //     // Create a new review object
-    //     let newReview = new ProductReviews({
-    //         customerId,
-    //         customerName,
-    //         review,
-    //         customerRating,
-    //         productId
-    //     });
-
-    //     // Save the review
-    //     newReview = await newReview.save();
-
-    //     // Fetch all reviews for the product
-    //     const allReviews = await ProductReviews.find({ productId });
-
-    //     // Calculate the new average rating
-    //     const totalRating = allReviews.reduce((acc, cur) => acc + cur.customerRating, 0);
-    //     const averageRating = totalRating / allReviews.length;
-
-    //     // Update the product's rating with the new average
-    //     await Product.findByIdAndUpdate(productId, { rating: averageRating });
-
-    //     // Send back the response with the review and updated rating
-    //     res.status(201).json({
-    //         success: true,
-    //         review: newReview,
-    //         updatedRating: averageRating
-    //     });
-    // } catch (err) {
-    //     // Handle errors and send a response
-    //     res.status(500).json({
-    //         error: err.message,
-    //         success: false
-    //     });
-    // }
     //AVERAGE AND LIMITED REVIEW IN A DAY
     try {
         const { customerId, customerName, review, customerRating, productId } = req.body;
@@ -146,6 +85,30 @@ router.post('/add', async (req, res) => {
                 success: false,
                 error: 'You have already reviewed this product today.'
             });
+        }
+
+        // Kiểm tra bình luận có độc hại không bằng AI
+        const completion = await openAI.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+            {
+            role: "system",
+            content: "Bạn là một hệ thống phát hiện bình luận không phù hợp. Trả lời 'true' nếu nội dung dưới đây chứa ngôn ngữ độc hại, thô tục, xúc phạm, phân biệt chủng tộc, hoặc không phù hợp. Trả lời 'false' nếu bình thường."
+            },
+            {
+            role: "user",
+            content: `Review: "${review}"`
+            }
+        ]
+        });
+
+        const isInappropriate = completion.choices[0].message.content.toLowerCase().includes("true");
+
+        if (isInappropriate) {
+        return res.status(400).json({
+            success: false,
+            error: "The comment content is inappropriate and has been rejected."
+        });
         }
 
         // Tạo mới một review
@@ -185,6 +148,43 @@ router.post('/add', async (req, res) => {
     }
 
 });
+
+// DELETE a review by ID
+router.delete('/:id', async (req, res) => {
+    try {
+        const review = await ProductReviews.findByIdAndDelete(req.params.id);
+        
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                message: 'Review not found'
+            });
+        }
+
+        // Cập nhật lại rating sản phẩm nếu cần
+        const productId = review.productId;
+        const remainingReviews = await ProductReviews.find({ productId });
+
+        if (remainingReviews.length > 0) {
+            const totalRating = remainingReviews.reduce((acc, cur) => acc + cur.customerRating, 0);
+            const averageRating = totalRating / remainingReviews.length;
+            await Product.findByIdAndUpdate(productId, { rating: averageRating });
+        } else {
+            await Product.findByIdAndUpdate(productId, { rating: 0 });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Review deleted successfully'
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
 
 // API để thống kê số bình luận theo số sao từ 1 đến 5
 router.get('/get/reviews/stats', async (req, res) => {

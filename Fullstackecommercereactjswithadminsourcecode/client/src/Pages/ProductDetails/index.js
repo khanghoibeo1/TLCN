@@ -108,70 +108,77 @@ const ProductDetails = () => {
     setRating(e.target.value);
     reviews.customerRating = e.target.value;
   };
+const addReview = async (e) => {
+  e.preventDefault();
 
-  const addReview = (e) => {
-    e.preventDefault();
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) {
+    context.setAlertBox({
+      open: true,
+      error: true,
+      msg: "Please login first.",
+    });
+    return;
+  }
 
-    if (user !== null) {
-      reviews.customerName = user?.name;
-      reviews.customerId = user?.userId;
-      reviews.productId = id;
-      
-      if(reviews.review!==""){
-      
-      setIsLoading(true);
+  if (!reviews.review || reviews.review.trim() === "") {
+    context.setAlertBox({
+      open: true,
+      error: true,
+      msg: "Please add a review.",
+    });
+    return;
+  }
 
-      postData("/api/productReviews/add", reviews).then((res) => {
-        setIsLoading(false);
+  const reviewData = {
+    ...reviews,
+    customerName: user.name,
+    customerId: user.userId,
+    productId: id,
+  };
 
-        if (res?.error) {
-          // Hiển thị thông báo lỗi nếu người dùng đã gửi review rồi
-          context.setAlertBox({
-              open: true,
-              error: true,
-              msg: "You have already submitted a review for today.",
-          });
-        }else{
+  setIsLoading(true);
 
+  try {
+    const res = await postData("/api/productReviews/add", reviewData);
+    setIsLoading(false);
+    console.log(res)
 
-          setReviews({ review: "", customerRating: 1 });
-          setRating(1);
-          // reviews.customerRating = 1;
-
-          // setReviews({
-          //   review: "",
-          //   customerRating: 1,
-          // });
-
-          // Update product rating with the new value
-          setProductData(prevData => ({
-            ...prevData,
-            rating: res.updatedRating // Update the rating in state
-          }));
-
-          fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
-            setreviewsData(res);
-          });
-        }
-      });
-      }else{
+    if (res.success === false) {
       context.setAlertBox({
         open: true,
         error: true,
-        msg: "Please add a Review",
+        msg: res.error || "You have already submitted a review for today.",
       });
-      }
-
     } else {
+      setReviews({ review: "", customerRating: 1 });
+      setRating(1);
+
+      setProductData((prevData) => ({
+        ...prevData,
+        rating: res.updatedRating,
+      }));
+
+      fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res) => {
+        setreviewsData(res);
+      });
+
       context.setAlertBox({
         open: true,
-        error: true,
-        msg: "Please Login first",
+        error: false,
+        msg: "Review submitted successfully.",
       });
     }
-  };
+  } catch (err) {
+    setIsLoading(false);
+    context.setAlertBox({
+      open: true,
+      error: true,
+      msg: err?.response?.data?.error || "An unexpected error occurred.",
+    });
+  }
+};
 
   const quantity = (val) => {
     setProductQuantity(val);

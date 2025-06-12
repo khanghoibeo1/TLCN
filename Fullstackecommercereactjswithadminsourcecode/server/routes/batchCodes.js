@@ -285,7 +285,7 @@ router.get(`/:id`, async (req, res) => {
 router.post(`/create`, async (req, res) => {
     try {
         console.log(req.body)
-        let batchName = `${req.body.productName}-${req.body.importDate}`;
+        let batchName = `${req.body.productName}-${req.body.importDate}-${Date.now()}`;
         let batch = new BatchCode({
             batchName: batchName,
             productId: req.body.productId,
@@ -418,7 +418,7 @@ router.post("/:id/status", async (req, res) => {
 
             // Tạo batch mới ở kho con
             const newBatch = new BatchCode({
-                batchName: `${sourceBatch.batchName}-split`,
+                batchName: `${sourceBatch.batchName}-split-${Date.now()}`,
                 productId: sourceBatch.productId,
                 productName: sourceBatch.productName,
                 amount: transferAmount,

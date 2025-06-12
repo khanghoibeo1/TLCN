@@ -13,7 +13,7 @@ const {init , getIo} = require('./helper/socketIO/socket.js')
 // const {io, getReceiverSocketId} = socketIo(server);
 
 app.use(cors({
-  origin: ['http://localhost:3008','http://localhost:3002', 'https://fruitstore-ecommerce-client.netlify.app','https://fruitstore-ecommerce-admin.netlify.app', 'https://final-ecommerce-server.onrender.com'], // thêm domain tại đây
+  origin: ['https://sandbox.vnpayment.vn/paymentv2/vpcpay.html','https://fruitstore-ecommerce-client.netlify.app/paymentSuccess','http://localhost:3008','http://localhost:3002', 'https://fruitstore-ecommerce-client.netlify.app','https://fruitstore-ecommerce-admin.netlify.app', 'https://final-ecommerce-server.onrender.com'], // thêm domain tại đây
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));

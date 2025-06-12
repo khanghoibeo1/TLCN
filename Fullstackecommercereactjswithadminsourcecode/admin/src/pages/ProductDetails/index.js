@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { styled, emphasize } from '@mui/material/styles';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
@@ -8,10 +8,10 @@ import { BiSolidCategoryAlt } from "react-icons/bi";
 import { BsPatchCheckFill } from "react-icons/bs";
 import { useParams } from "react-router-dom";
 import Rating from '@mui/material/Rating';
-import { fetchDataFromApi } from "../../utils/api";
+import { fetchDataFromApi,deleteData } from "../../utils/api";
 import ProductZoom from '../../components/ProductZoom';
 import UserAvatarImgComponent from "../../components/userAvatarImg";
-
+import { MyContext } from '../../App';
 // Styled Breadcrumb component
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor = theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[800];
@@ -33,7 +33,9 @@ const StyledBreadcrumb = styled(Chip)(({ theme }) => {
 const ProductDetails = () => {
     const [productData, setProductData] = useState({});
     const [reviewsData, setReviewsData] = useState([]);
+    const [isLoadingBar, setIsLoadingBar] = useState(false);
     const { id } = useParams();
+    const context = useContext(MyContext)
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -41,6 +43,33 @@ const ProductDetails = () => {
         fetchDataFromApi(`/api/products/${id}`).then(setProductData);
         fetchDataFromApi(`/api/productReviews?productId=${id}`).then(setReviewsData);
     }, [id]);
+
+    const handleDeleteReview = (reviewId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete?");
+        if (!confirmDelete) return;
+        const userInfo = JSON.parse(localStorage.getItem("user"));
+        if (userInfo?.role === "mainAdmin") {
+            context.setProgress(40);
+            setIsLoadingBar(true);
+            deleteData(`/api/productReviews/${reviewId}`).then((res) => {
+            context.setProgress(100);
+            context.setAlertBox({
+                open: true,
+                error: false,
+                msg: "Review Deleted!",
+            });
+    
+            fetchDataFromApi(`/api/productReviews?productId=${id}`).then(setReviewsData);
+            setIsLoadingBar(false);
+            });
+        } else {
+            context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Only Admin can delete Posts",
+            });
+        }
+    }
 
     return (
         <>
@@ -158,7 +187,7 @@ const ProductDetails = () => {
                                                 <div className="col-sm-7 d-flex">
                                                     <UserAvatarImgComponent img="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" lg={true} />
                                                     <div className="info pl-3">
-                                                        <h6>{review?.customerName}</h6>
+                                                        <h6>{review?.customerName} - {review?.customerId}</h6>
                                                         <span>{review?.dateCreated}</span>
                                                     </div>
                                                 </div>
@@ -166,7 +195,16 @@ const ProductDetails = () => {
                                                     <Rating name="read-only" value={review?.customerRating} readOnly />
                                                 </div>
                                             </div>
-                                            <p className="mt-3">{review?.review}</p>
+                                            <div className="d-flex justify-content-between align-items-start">
+                                                <p className="mt-3 mb-0 flex-grow-1">{review?.review}</p>
+                                                <button
+                                                    onClick={() => handleDeleteReview(review.id)}
+                                                    className="btn btn-sm btn-danger ms-3 mt-2"
+                                                >
+                                                    &times;
+                                                </button>
+                                            </div>
+
                                         </div>
                                     ))}
                                 </div>

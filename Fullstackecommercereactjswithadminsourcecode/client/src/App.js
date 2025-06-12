@@ -154,11 +154,14 @@ function App() {
 
     const location = localStorage.getItem("location");
     if (!location && countries.length > 0) {
+      console.log(countries[0])
       setselectedCountry(countries[0]);
       localStorage.setItem("location", JSON.stringify(countries[0]));
     }
   };
-
+useEffect(() => {
+  getCartData()
+}, [])
 
   const getCartData = () => {
     const user = JSON.parse(localStorage.getItem("user"));
