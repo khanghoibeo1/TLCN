@@ -9,6 +9,7 @@ const streamifier = require('streamifier');
 
 const openAI = require("../helper/openai/openAI.js")
 const {authenticateToken } = require("../middleware/authenticateToken");  // Đảm bảo openAi.js được require đúng
+const getProductInfoText = require('../helper/openai/getProductInfoText.js');
 
 const AI_USER_ID = process.env.AI_USER_ID; //AI_USER_ID=000000000000000000000000
 const MAX_AI_QUESTIONS = Number(process.env.MAX_AI_QUESTIONS) || 5;
@@ -201,17 +202,17 @@ router.post("/sendBot", authenticateToken,  multer.single("image"), async (req, 
         todayEnd.setHours(23, 59, 59, 999);  // Kết thúc ngày hôm nay (23:59:59)
 
         // 2) Kiểm tra số câu hỏi đã gửi trong ngày
-        const askedCount = await Messages.countDocuments({
-            senderId,
-            receiverId: AI_USER_ID,
-            createdAt: { $gte: todayStart, $lt: todayEnd },  // Kiểm tra trong ngày hôm nay
-        });
+        // const askedCount = await Messages.countDocuments({
+        //     senderId,
+        //     receiverId: AI_USER_ID,
+        //     createdAt: { $gte: todayStart, $lt: todayEnd },  // Kiểm tra trong ngày hôm nay
+        // });
 
-        if (askedCount >= 5) {  // Giới hạn 5 câu hỏi trong một ngày
-            return res.status(403).json({
-                error: "Bạn đã hết lượt hỏi AI trong ngày, vui lòng quay lại vào ngày mai. Bạn có thể liên hệ admin để được hỗ trợ.",
-            });
-        }
+        // if (askedCount >= 5) {  // Giới hạn 5 câu hỏi trong một ngày
+        //     return res.status(403).json({
+        //         error: "Bạn đã hết lượt hỏi AI trong ngày, vui lòng quay lại vào ngày mai. Bạn có thể liên hệ admin để được hỗ trợ.",
+        //     });
+        // }
 
         // 3) Nếu có ảnh => upload lên Cloudinary
         let imageUrl;
@@ -238,60 +239,19 @@ router.post("/sendBot", authenticateToken,  multer.single("image"), async (req, 
         });
         await userMsg.save();
         const io = getIo();
-
+       
         const userSocketId = getReceiverSocketId(senderId);
         if (userSocketId) io.to(userSocketId).emit("newMessage", userMsg);
-
+        const productInfoText = await getProductInfoText(text);
         // 5) Gọi OpenAI để trả lời
         const completion = await openAI.chat.completions.create({
             model: "gpt-3.5-turbo",  // Hoặc có thể thay bằng phiên bản mới hơn nếu cần
             messages: [
               {
                 role: "system",
-                content: `Bạn là trợ lý ảo của FRUITOPIA, chuỗi cửa hàng nông sản tươi sạch. 
-                  Bạn chỉ trả lời khi câu hỏi liên quan đến:
-
-                  1. **Danh mục sản phẩm, website cung cấp gì?, website bán gì?    **
-                    - Trái cây: táo, cam, chuối, dưa hấu, xoài…  
-                    - Rau củ: cà chua, dưa leo, bí đỏ, khoai lang…  
-                    - Hạt & gia vị: lạc, điều, hạt chia…  
-                    - Thịt: Bò, gà, cá, sản phẩm đông lạnh,...
-                  2. **Giá & khuyến mãi**  
-                    - Giá hiện tại hiển thị trên website (ví dụ: 50.000₫/kg táo fuji)  
-                    - Chương trình giảm 5% khi mua từ 5kg trở lên  
-                  3. **Cách thức đặt hàng**  
-                    - Q: "Tôi muốn mua thì bò thì làm sao? " 
-                    - A: "Bạn có thể đặt hàng qua website hoặc gọi hotline 0912727714 để được hỗ trợ."
-                    - Truy cập website của FRUITOPIA  
-                    - Chọn sản phẩm, thêm sản phẩm vào giỏ hàng và chọn thanh toán, rồi điền địa chỉ nhận hàng, chọn hình thức thanh toán  
-                  4. **Thanh toán**  
-                    - COD (thanh toán khi nhận hàng)  
-                    - Chuyển khoản ngân hàng (Vietcombank, Techcombank)  
-                    - Ví điện tử 
-                  5. **Vận chuyển**  
-                    - Giao trong nội thành TP.HCM: 2–4 tiếng  
-                    - Ngoại thành & tỉnh: 1–2 ngày làm việc  
-                    - Miễn phí vận chuyển cho đơn ≥500.000₫  
-                  6. **Bảo quản & đổi trả**  
-                    - Bảo quản mát 0–4°C trong tủ lạnh  
-                    - Đổi trả trong 24h nếu có hàng hư hỏng, mất nước  
-                    - Liên hệ hotline 0912727714 để hỗ trợ  
-                  7. **Ví dụ Q&A**  
-                    - Q: “Mình muốn mua 3kg chuối, giá bao nhiêu?”  
-                      A: “Chuối Cavendish giá 30.000₫/kg, 3kg sẽ là 90.000₫. Bạn có thể đặt ngay trên website hoặc qua số 0912727714.”  
-                    - Q: “Shop có giao hàng Cần Thơ không?”  
-                      A: “Có, bên mình giao hàng toàn quốc, Cần Thơ dự kiến nhận trong 1–2 ngày.
-                    - Q: "Xin chào”
-                      A: "Xin chào, mình là trợ lý ảo của FRUITOPIA. Bạn cần hỗ trợ gì về sản phẩm nông sản tươi sạch không?"
-                    - Q: "Mình muốn mua 5kg táo, có giảm giá không?"
-                      A: "Có, nếu bạn mua từ 5kg táo trở lên sẽ được giảm 5%. Giá hiện tại là 50.000₫/kg, vậy 5kg sẽ là 237.500₫ sau khi giảm giá."
-                  - Q: "Mình muốn mua 2kg dưa hấu, giá bao nhiêu?"
-                      A: "Dưa hấu hiện tại giá 20.000₫/kg, vậy 2kg sẽ là 40.000₫. Bạn có thể đặt hàng qua website hoặc gọi hotline 0912727714 để được hỗ trợ."  
-
-                  **Luôn** trả lời ngắn gọn, rõ ràng, và chỉ đi vào chủ đề nông sản. Nếu người dùng hỏi ngoài phạm vi, hãy nói:  
-                  “Xin lỗi, mình chỉ hỗ trợ về sản phẩm và dịch vụ của FRUITOPIA. Vui lòng liên hệ Admin để được giúp đỡ thêm.” `
+                content: `Bạn là trợ lý ảo của FRUITOPIA. Trả lời đúng theo dữ liệu bên dưới, không bịa. Ưu tiên đề cập giá, tồn kho và khuyến mãi nếu có.`
               },
-              { role: "user", content: text }
+              { role: "user", content:`${productInfoText}\nCâu hỏi: ${text}`,}
             ],
             max_tokens: 1500,  // Điều chỉnh max_tokens theo yêu cầu
         });
