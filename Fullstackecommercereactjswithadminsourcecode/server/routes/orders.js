@@ -11,7 +11,7 @@ const  client  = require('../helper/paypal/paypal.config');
 const { User } = require('../models/user');
 const { sendOrderConfirmationEmail } = require('../helper/mailtrap/emails');
 
-const moment = require("moment");
+// const moment = require("moment");
 const crypto = require("crypto");
 require("dotenv").config();
 
