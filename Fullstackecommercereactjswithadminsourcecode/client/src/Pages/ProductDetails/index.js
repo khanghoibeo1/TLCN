@@ -79,6 +79,15 @@ const ProductDetails = () => {
       }
     });
 
+    postData(`/api/recentView/add?userId=${user?.userId}&productId=${id}`).then((res) => {
+      if(res.success){
+        console.log('Added to recentView')
+      }
+      else{
+        console.log(res.error)
+      }
+    })
+
     
     context.setEnableFilterTab(false);
   }, [id]);
@@ -89,7 +98,7 @@ const ProductDetails = () => {
       });
   }, [id]);
 
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(5);
   const [reviews, setReviews] = useState({
     productId: "",
     customerName: "",

@@ -1,8 +1,15 @@
 const cron = require('node-cron');
 const { Orders } = require('../../models/orders');
+const { RecentView } = require('../../models/recentView');
 const {User} = require('../../models/user'); 
+const {Recommendation} = require('../../models/recommendation'); 
 const {Product} = require('../../models/products.js'); // sửa đường dẫn nếu cần
 const {BatchCode} = require('../../models/batchCode');     // sửa đường dẫn nếu cần
+const openAI = require("../../helper/openai/openAI.js")
+const {authenticateToken } = require("../../middleware/authenticateToken");  // Đảm bảo openAi.js được require đúng
+
+const AI_USER_ID = process.env.AI_USER_ID; //AI_USER_ID=000000000000000000000000
+const MAX_AI_QUESTIONS = Number(process.env.MAX_AI_QUESTIONS) || 5;
 
 // Chạy vào 00:00 ngày 1 hàng tháng
 cron.schedule('0 0 1 * *', async () => {
@@ -156,6 +163,112 @@ async function updateProductAvailability() {
 // Gọi hàm này bất cứ lúc nào bạn muốn chạy
 updateProductAvailability();
 
-// Bạn có thể bỏ đoạn cron.schedule đi nếu bạn chỉ muốn chạy thủ công
-// hoặc vẫn giữ nó nếu muốn nó chạy tự động vào 0h đêm
-// cron.schedule('0 0 * * *', updateProductAvailability); // Nếu muốn dùng lại hàm này cho cron
+
+async function UpadateRecentView () {
+  try {
+    console.log("🔄 Đang tạo gợi ý sản phẩm từ AI...");
+
+    // Bước 1: Lấy toàn bộ sản phẩm
+    const allProducts = await Product.find({}, "id name category subCategory season rating brand");
+
+    // Format cho prompt chưa có rating và brand và season
+    const productList = allProducts.map(p => ({
+      id: p.id.toString(),
+      name: p.name,
+      category: p.category,
+      subCategory: p.subCategory,
+      season: p.season,
+    }));
+
+    const allViews = await RecentView.find({}).populate("viewedProducts.productId");
+
+    for (const view of allViews) {
+      const userId = view.userId;
+      const viewed = view.viewedProducts
+        .map(v => v.productId)
+        .filter(Boolean)
+        .slice(-30);
+
+      const viewedList = viewed.map(p => ({
+        id: p._id.toString(),
+        name: p.name,
+        category: p.category,
+        subCategory: p.subCategory,
+        season: p.season,
+      }));
+
+      const prompt = `
+Bạn là hệ thống gợi ý sản phẩm cho người dùng của FRUITOPIA.
+
+Dưới đây là danh sách **toàn bộ sản phẩm** (gọi là "Tập sản phẩm"):
+${JSON.stringify(productList)}
+
+Và dưới đây là danh sách **30 sản phẩm người dùng đã xem gần đây**:
+${JSON.stringify(viewedList)}
+
+Hãy chọn ra khoảng **50 sản phẩm từ Tập sản phẩm** mà bạn cho rằng phù hợp nhất với người dùng này, sắp xếp theo mức độ liên quan từ cao đến thấp.
+
+**Chỉ trả về mảng các ID sản phẩm (chuỗi _id Mongo) theo đúng thứ tự**, ví dụ:
+["665f13e2abc123", "665f1355def456", "665f19zz789999", ...]
+
+Không cần thêm lời giải thích.
+      `.trim();
+
+      const aiRes = await openAI.chat.completions.create({
+        model: "gpt-3.5-turbo", // hoặc gpt-3.5-turbo nếu bạn dùng bản rẻ hơn
+        messages: [
+          {
+            role: "system",
+            content: `Bạn là AI gợi ý sản phẩm theo hành vi người dùng.`
+          },
+          { role: "user", content: `${prompt}` }
+        ],
+        temperature: 0.7,
+        max_tokens: 1500
+      });
+
+      if (
+        aiRes &&
+        aiRes.choices &&
+        aiRes.choices.length > 0 &&
+        aiRes.choices[0].message
+      ) {
+        rawText = aiRes.choices[0].message.content.trim();
+      } else {
+        console.error("❌ Không có phản hồi hợp lệ từ OpenAI");
+        continue; // bỏ qua user này, sang người tiếp theo
+      }
+
+      let productIds;
+      try {
+        productIds = JSON.parse(rawText); // Nếu GPT trả về mảng JSON hợp lệ
+        console.log(productIds)
+      } catch (e) {
+        // fallback: xử lý nếu trả về dạng ["id1", "id2"] nhưng lỗi cú pháp
+        productIds = rawText
+          .replace(/[\[\]"]/g, "")
+          .split(",")
+          .map(s => s.trim())
+          .filter(Boolean);
+      }
+
+      // Lưu hoặc cập nhật vào Recommendation
+      await Recommendation.findOneAndUpdate(
+        { userId },
+        {
+          userId,
+          recommendedProducts: productIds.slice(0, 50), // chỉ giữ 50
+        },
+        { upsert: true, new: true }
+      );
+
+      console.log(`✅ Đã cập nhật gợi ý cho user ${userId}`);
+    }
+
+    console.log("🎯 Hoàn tất cập nhật gợi ý sản phẩm.");
+  } catch (err) {
+    console.error("❌ Lỗi cập nhật gợi ý:", err.message);
+  }
+};
+
+UpadateRecentView();

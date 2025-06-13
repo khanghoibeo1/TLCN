@@ -209,7 +209,6 @@ router.get(`/seasonName`, async (req, res) => {
     .skip((page - 1) * perPage)
     .limit(perPage)
     .exec();
-  console.log(productListArr)
 
   // Nếu lọc theo location khác "All"
   if (location !== "All") {
