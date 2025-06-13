@@ -78,13 +78,13 @@
     color: #333;
   }
 
-  .detail-blog .comment-box .author-name {
+ .author-name {
     font-size: 16px;
     font-weight: 600;
     color: #333;
   }
   
-  .detail-blog .comment-box .comment-date {
+  .comment-date {
     font-size: 14px;
     color: #ccc;
   }

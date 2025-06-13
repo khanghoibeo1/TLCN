@@ -13,8 +13,6 @@ const Blog = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [postId, setPostId] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyingToName, setReplyingToName] = useState(null); // Lưu ID của comment được reply
   const [expandedCount, setExpandedCount] = useState(3);
@@ -132,7 +130,7 @@ const Blog = () => {
     }
   
     const newComment = {
-      postId,
+      postId:id,
       parentId: replyingTo,  // Nếu không có replyingTo thì là comment gốc
       parentName: replyingToName,
       author: {
@@ -152,7 +150,7 @@ const Blog = () => {
           setReplyingToName(null);//Reset name
   
           // Fetch lại comment sau khi gửi thành công
-          fetchDataFromApi(`/api/comments/post?postId=${postId}`).then((res) => {
+          fetchDataFromApi(`/api/comments/post?postId=${id}`).then((res) => {
             setComments(createCommentTree(res.data));
           });
         }
@@ -202,67 +200,55 @@ const Blog = () => {
               style={{ marginLeft: comment.parentId ? "20px" : "0px" }} // Chỉ thụt 1 lần nếu có parentId
             >
               {( !comment.parentId) &&
-              <div className="info">
+              <div>
                 <div className="d-flex align-items-center w-100">
                   <div className="d-flex align-items-center">
+                    <span className="author-name">{comment.author.name} → </span>
                     {comment.parentId && (
-                      <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName} → </span>
+                      <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName} </span>
                     )}
-                    <span className="author-name">{comment.author.name}</span>
                   </div>
                   <div className="ml-2">
                     <span className="comment-date">{comment.createdAt.split('T')[0]}</span>
                   </div>
-                  {/* <h5>
-                    {comment.parentId && <span style={{ color: 'gray' }}> {comment.parentName} → </span> }
-                    {<span>{comment.author.name}</span>} 
-                  </h5>
-                  <div className="ml-auto">{<h6 className="text-light">{comment.createdAt.split('T')[0]}</h6>}
-                  </div> */}
                 </div>
-                <p>{
+                <div>{
                 <>
                   <p>{comment.content}</p>
                   {/* Nút Reply */}
                   <Button type="button"  color="success" onClick={() => handleReplyClick(comment.id, comment.author.name)}>↳ Reply</Button>
-                  {!expandedIndexes.includes(index) && sortedComments[index+1]?.parentId && <Button type="button"  color="success" onClick={() => handleLoadMoreReplyClick(index)}>more replies...</Button>}
+                  {!expandedIndexes.includes(index) && sortedComments[index+1]?.parentId !== null && <Button type="button"  color="success" onClick={() => handleLoadMoreReplyClick(index)}>more replies...</Button>}
                 </>
-                }</p>
+                }</div>
               </div>}
               {expandedIndexes.length !== 0 && 
                 <>
                   {flag < expandedCount && [ index - 1, index - 2, index -3, index - 4].some(i => expandedIndexes.includes(i)) && comment.parentId && [ index - 1, index - 2, index - 3, index - 4].every(i => sortedComments[i]?.parentId !== null || expandedIndexes.includes(i)) &&
-                    <div className="info ml-5">
-                    <div className="d-flex align-items-center w-100 ">
-                      <div className="d-flex align-items-center">
-                        {comment.parentId && (
-                          <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName} → </span>
-                        )}
-                        <span className="author-name">{comment.author.name}</span>
+                    <div className=" ml-5">
+                      <div className="d-flex align-items-center w-100 ">
+                        <div className="d-flex align-items-center">
+                          <span className="author-name">{comment.author.name} → </span>
+                          {comment.parentId && (
+                            <span style={{ color: 'gray', marginRight: 4 }}>{comment.parentName}</span>
+                          )}
+                        </div>
+                        <div className="ml-2">
+                          <span className="comment-date">{comment.createdAt.split('T')[0]}</span>
+                        </div>
                       </div>
-                      <div className="ml-2">
-                        <span className="comment-date">{comment.createdAt.split('T')[0]}</span>
-                    </div>
-                      {/* <h5>
-                        {comment.parentId && <span style={{ color: 'gray' }}> {comment.parentName} → </span> }
-                        {<span className='font-weight-bold'>{comment.author.name}</span>} 
-                      </h5>
-                      <div className="ml-auto">{<h6 className="text-light">{comment.createdAt.split('T')[0]}</h6>}
-                      </div> */}
-                    </div>
-                    <p>{
+                    <div>{
                     <>
                       <p>{comment.content}</p>
                       {/* Nút Reply */}
                       <Button type="button"  color="success" onClick={() => handleReplyClick(comment.id, comment.author.name)}>↳ Reply</Button>
-                      {((sortedComments[index]?.parentId  && sortedComments[index+1]?.parentId !== null && expandedIndexes.includes(index-4) && !expandedIndexes.includes(index)) ) && <Button type="button"  color="success" onClick={() => handleLoadMoreReplyClick(index)}>more replies...</Button>}
-                      {(comments[index+1].parentId === null || (expandedIndexes.includes(index-4) && !expandedIndexes.includes(index)) ) && <Button type="button"  color="success" onClick={() => handleCloseReplyClick(index-4)}>close replies...</Button>}
+                      {(((sortedComments[index] && sortedComments[index]?.parentId !== null)  && (sortedComments[index+1] && sortedComments[index+1]?.parentId !== null) && expandedIndexes.includes(index-4) && !expandedIndexes.includes(index)) ) && <Button type="button"  color="success" onClick={() => handleLoadMoreReplyClick(index)}>more replies...</Button>}
+                      {(sortedComments[index+1]?.parentId === null || (expandedIndexes.includes(index-4) && !expandedIndexes.includes(index)) ) && <Button type="button"  color="success" onClick={() => handleCloseReplyClick(index-4)}>close replies...</Button>}
                       {(() => {
                         flag++; // Tăng flag mà không hiển thị nó
                         return null; // Không render gì cả
                       })()}
                     </>
-                    }</p>
+                    }</div>
                   </div>
                   }
                 </>
@@ -344,13 +330,6 @@ const Blog = () => {
               <p><strong>By:</strong> {selectedPost.author}</p>
             </div>
           </div>
-
-          {/* Hình ảnh hiển thị trước phần nội dung */}
-          {/* <div className="post-images">
-            {selectedPost.images.map((image, index) => (
-              <img key={index} src={image} alt={`Post illustration ${index + 1}`} />
-            ))}
-          </div> */}
 
           {/* Youtube */}
           {selectedPost.ytbLink && 

@@ -208,7 +208,8 @@ const BatchCodeList = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {batchCodes?.batches?.length > 0 && batchCodes?.batches.map((batch, index) => (
+                            {batchCodes?.batches?.length > 0 && batchCodes?.batches
+                            .map((batch, index) => (
                                 <tr key={index}>
                                     <td>{batch.batchName}</td>
                                     <td>{batch.productId}</td>

@@ -1,6 +1,7 @@
 const { Comment } = require('../models/comment');
 const express = require('express');
 const router = express.Router();
+const openAI = require("../helper/openai/openAI.js")
 
 // Get all comments for a specific post
 router.get('/post/', async (req, res) => {
@@ -56,44 +57,112 @@ router.get('/post/', async (req, res) => {
 //   });
 
 // Add a new comment
+// router.post('/add', async (req, res) => {
+//   const { content, author, postId, parentId, parentName } = req.body;
+
+//   if (!content || !author || !postId) {
+//       return res.status(400).json({ success: false, error: 'Missing required fields' });
+//   }
+
+//   try {
+//       if (typeof author !== 'object' || !author.name || !author.userId) {
+//           return res.status(400).json({ success: false, error: 'Invalid author object format' });
+//       }
+
+//       // Nếu có parentId, kiểm tra xem nó có tồn tại không
+//       if (parentId) {
+//           const parentComment = await Comment.findById(parentId);
+//           if (!parentComment) {
+//               return res.status(400).json({ success: false, error: 'Parent comment not found' });
+//           }
+//       }
+
+//       const comment = new Comment({
+//           content,
+//           author: {
+//               name: author.name,
+//               userId: author.userId
+//           },
+//           postId,
+//           parentId: parentId || null,
+//           parentName: parentName || null
+//       });
+
+//       const savedComment = await comment.save();
+//       return res.status(201).json(savedComment);
+//   } catch (error) {
+//       console.error(error.message);
+//       return res.status(500).json({ success: false, error: 'Internal server error' });
+//   }
+// });
+
 router.post('/add', async (req, res) => {
-  const { content, author, postId, parentId, parentName } = req.body;
+    const { content, author, postId, parentId, parentName } = req.body;
 
-  if (!content || !author || !postId) {
-      return res.status(400).json({ success: false, error: 'Missing required fields' });
-  }
+    // Kiểm tra dữ liệu bắt buộc
+    if (!content || !author || !postId) {
+        return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
 
-  try {
-      if (typeof author !== 'object' || !author.name || !author.userId) {
-          return res.status(400).json({ success: false, error: 'Invalid author object format' });
-      }
+    if (typeof author !== 'object' || !author.name || !author.userId) {
+        return res.status(400).json({ success: false, error: 'Invalid author object format' });
+    }
 
-      // Nếu có parentId, kiểm tra xem nó có tồn tại không
-      if (parentId) {
-          const parentComment = await Comment.findById(parentId);
-          if (!parentComment) {
-              return res.status(400).json({ success: false, error: 'Parent comment not found' });
-          }
-      }
+    try {
+        // Kiểm tra sự tồn tại của comment cha (nếu có)
+        if (parentId) {
+            const parentComment = await Comment.findById(parentId);
+            if (!parentComment) {
+                return res.status(400).json({ success: false, error: 'Parent comment not found' });
+            }
+        }
 
-      const comment = new Comment({
-          content,
-          author: {
-              name: author.name,
-              userId: author.userId
-          },
-          postId,
-          parentId: parentId || null,
-          parentName: parentName || null
-      });
+        // Kiểm tra nội dung không phù hợp bằng AI
+        const completion = await openAI.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: "Bạn là hệ thống phát hiện bình luận không phù hợp. Trả lời 'true' nếu nội dung bên dưới chứa ngôn ngữ độc hại, thô tục, xúc phạm, phân biệt chủng tộc, không phù hợp. Trả lời 'false' nếu bình thường."
+                },
+                {
+                    role: "user",
+                    content: `Comment: "${content}"`
+                }
+            ]
+        });
 
-      const savedComment = await comment.save();
-      return res.status(201).json(savedComment);
-  } catch (error) {
-      console.error(error.message);
-      return res.status(500).json({ success: false, error: 'Internal server error' });
-  }
+        const isInappropriate = completion.choices[0].message.content.toLowerCase().includes("true");
+
+        if (isInappropriate) {
+            return res.status(400).json({
+                success: false,
+                error: 'Comment content is inappropriate and has been rejected.'
+            });
+        }
+
+        // Tạo và lưu comment mới
+        const comment = new Comment({
+            content,
+            author: {
+                name: author.name,
+                userId: author.userId
+            },
+            postId,
+            parentId: parentId || null,
+            parentName: parentName || null
+        });
+
+        const savedComment = await comment.save();
+
+        return res.status(201).json({ success: true, comment: savedComment });
+
+    } catch (error) {
+        console.error('Add comment error:', error.message);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
 });
+
 
 // Delete a comment by ID
 router.delete('/:id', async (req, res) => {
