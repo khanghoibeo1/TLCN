@@ -457,6 +457,7 @@ console.log(formFields.streetAddress)
           // Xử lý Cash on Delivery
           cartData.forEach(async (item) => {
               await deleteData(`/api/cart/${item.id}`);
+    
           });
           context.getCartData();
           history("/orders");

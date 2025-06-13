@@ -64,6 +64,7 @@ const Home = () => {
     setselectedSeason('Fall');
 
     const location = localStorage.getItem("location");
+    const user = JSON.parse(localStorage.getItem("user"));
     console.log(location)
 
     if (location !== null && location !== "" && location !== undefined) {
@@ -74,7 +75,7 @@ const Home = () => {
       );
 
       fetchDataFromApi(
-        `/api/products?page=1&perPage=4&location=${location}`
+        `/api/recommendation/${user.userId}`
       ).then((res) => {
         setProductsData(res);
       });
@@ -246,7 +247,7 @@ const Home = () => {
               </div>
 
               <div
-                className="product_row w-100 mt-2"
+                className="product_row w-100 mt-2" data-aos="fade-up"
                 style={{
                   opacity: `${isLoading === true ? "0.5" : "1"}`,
                 }}
@@ -293,14 +294,61 @@ const Home = () => {
 
               <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info w-100 d-flex flex-column">
-                  <h3 className="mb-0 hd">NEW PRODUCTS</h3>
+                  <h3 className="mb-0 hd">SOMETHING YOU MAY LIKE</h3>
                   <p className="text-light text-sml mb-0">
                     New products with updated stocks.
                   </p>
                 </div>
               </div>
+              <div
+                className="product_row w-100 mt-2" data-aos="fade-up"
+                style={{
+                  opacity: `${isLoading === true ? "0.5" : "1"}`,
+                }}
+              >
+               
 
-              {productsData?.products?.length === 0 && (
+                {context.windowWidth > 992 ? (
+                  <Swiper
+                    slidesPerView={4}
+                    spaceBetween={0}
+                    navigation={true}
+                    slidesPerGroup={context.windowWidth > 992 ? 3 : 1}
+                    modules={[Navigation]}
+                    className="mySwiper"
+                  >
+                    {productsData?.recommended?.length !== 0 &&
+                      productsData.recommended
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return (
+                            <SwiperSlide key={index}>
+                              <ProductItem item={item} />
+                            </SwiperSlide>
+                          );
+                        })}
+
+                    <SwiperSlide style={{ opacity: 0 }}>
+                      <div className={`productItem`}></div>
+                    </SwiperSlide>
+                  </Swiper>
+                ) : (
+                  <div className="productScroller">
+                    {productsData?.recommended.length !== 0 &&
+                      productsData
+                        ?.slice(0)
+                        ?.reverse()
+                        ?.map((item, index) => {
+                          return <ProductItem item={item} key={index} />;
+                        })}
+                  </div>
+                )}
+              </div>
+
+              
+
+              {/* {productsData?.products?.length === 0 && (
                 <div
                   className="d-flex align-items-center justify-content-center"
                   style={{ minHeight: "300px" }}
@@ -317,7 +365,7 @@ const Home = () => {
                     .map((item, index) => {
                       return <ProductItem key={index} item={item} />;
                     })}
-              </div>
+              </div> */}
 
               {bannerList?.length !== 0 && (
                 <div className="mt-3 mb-3 " data-aos="zoom-in">
@@ -424,7 +472,7 @@ const Home = () => {
               </div>
 
               <div
-                className="product_row w-100 mt-2"
+                className="product_row w-100 mt-2" data-aos="fade-up"
                 style={{
                   opacity: `${isLoading === true ? "0.5" : "1"}`,
                 }}

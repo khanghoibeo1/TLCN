@@ -59,6 +59,7 @@ const Header = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("address");
+    localStorage.removeItem("compareList");
     // localStorage.removeItem("location");
     context.setIsLogin(false);
     // window.location.href = "/signIn"
