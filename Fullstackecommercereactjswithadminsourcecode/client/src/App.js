@@ -226,7 +226,7 @@ useEffect(() => {
   return (
     <BrowserRouter>
       <MyContext.Provider value={values}>
-        <Snackbar open={alertBox.open} autoHideDuration={6000} onClose={handleClose} className="snackbar">
+        <Snackbar open={alertBox.open} autoHideDuration={5000} onClose={handleClose} className="snackbar">
           <Alert onClose={handleClose} severity={alertBox.error ? "error" : "success"} variant="filled" sx={{ width: "100%" }}>
             {alertBox.msg}
           </Alert>

@@ -93,7 +93,7 @@ router.post('/add', async (req, res) => {
         messages: [
             {
             role: "system",
-            content: "Bạn là một hệ thống phát hiện bình luận không phù hợp. Trả lời 'true' nếu nội dung dưới đây chứa ngôn ngữ độc hại, thô tục, xúc phạm, phân biệt chủng tộc, hoặc không phù hợp. Trả lời 'false' nếu bình thường."
+            content: "Bạn là một hệ thống phát hiện bình luận không phù hợp. Trả lời 'true' nếu nội dung dưới đây chứa ngôn ngữ độc hại, thô tục, xúc phạm, phân biệt chủng tộc, xưng hô không lịch sự, hoặc không phù hợp. Trả lời 'false' nếu bình thường."
             },
             {
             role: "user",

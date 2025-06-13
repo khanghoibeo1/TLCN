@@ -104,7 +104,7 @@ const ProductDetails = () => {
     customerName: "",
     customerId: "",
     review: "",
-    customerRating: 1,
+    customerRating: 5,
   });
 
   const onChangeInput = (e) => {
