@@ -350,7 +350,7 @@ const SignUp = () => {
               </Link>
             </p>
 
-            <h6 className="mt-4 text-center font-weight-bold">
+            {/* <h6 className="mt-4 text-center font-weight-bold">
               Or continue with social account
             </h6>
 
@@ -360,7 +360,7 @@ const SignUp = () => {
               onClick={signInWithGoogle}
             >
               <img src={GoogleImg} /> Sign In with Google
-            </Button>
+            </Button> */}
           </form>
         </div>
       </div>

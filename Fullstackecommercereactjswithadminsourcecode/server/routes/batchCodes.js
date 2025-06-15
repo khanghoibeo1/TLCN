@@ -243,6 +243,7 @@ router.get('/:id/:location/latest-batch', async (req, res) => {
         const query = {
             productId: id,
             status: "delivered",
+            amountRemain: { $gt: 0 },
             expiredDate: { $gt: new Date() }, // ✅ Chỉ lấy batch còn hạn
             ...(location !== "null"
                 ? { locationId: locationId }

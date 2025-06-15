@@ -64,7 +64,8 @@ const Home = () => {
     setselectedSeason('Fall');
 
     const location = localStorage.getItem("location");
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user")) ;
+    const userId = user?.userId || "dddddddddddddddddddddddd";
     console.log(location)
 
     if (location !== null && location !== "" && location !== undefined) {
@@ -75,7 +76,7 @@ const Home = () => {
       );
 
       fetchDataFromApi(
-        `/api/recommendation/${user.userId}`
+        `/api/recommendation/${userId}`
       ).then((res) => {
         setProductsData(res);
       });

@@ -6,6 +6,7 @@ const { Product } = require('../models/products'); // Đảm bảo đã import P
 // GET: Lấy danh sách sản phẩm gợi ý đầy đủ theo userId
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
+    console.log(userId)
 
     try {
         const recommendation = await Recommendation.findOne({ userId }).populate('recommendedProducts');
