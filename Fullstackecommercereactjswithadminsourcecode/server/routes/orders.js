@@ -140,17 +140,33 @@ router.get('/:id', async (req, res) => {
     return res.status(200).send(order);
 })
 
-router.get(`/get/count`, async (req, res) =>{
-    const orderCount = await Orders.countDocuments()
+router.get(`/get/count`, async (req, res) => {
+    let { fromDate, toDate } = req.query;
 
-    if(!orderCount) {
-        res.status(500).json({success: false})
-    } else{
-        res.send({
-            orderCount: orderCount
-        });
+    // Nếu không có fromDate/toDate thì dùng mặc định
+    if (!fromDate) {
+        fromDate = "2024-01-01";
     }
-})
+    if (!toDate) {
+        toDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    const filter = {
+        date: {
+            $gte: new Date(fromDate),
+            $lte: new Date(toDate + "T23:59:59.999Z") // đảm bảo lấy hết ngày toDate
+        }
+    };
+
+    try {
+        const orderCount = await Orders.countDocuments(filter);
+        res.send({ orderCount });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+
 
 router.post('/create', async (req, res) => {
 
@@ -569,10 +585,17 @@ router.get('/get/data/status-summary', async (req, res) => {
 
 
 router.get("/get/data/stats/sales", async (req, res) => {
-    const { fromDate, toDate, groupBy, locationId } = req.query;
+    let { fromDate, toDate, groupBy, locationId } = req.query;
   
-    if (!fromDate || !toDate || !groupBy) {
-      return res.status(400).json({ message: 'Missing required parameters.' });
+    // Nếu không có fromDate/toDate thì dùng mặc định
+    if (!fromDate) {
+        fromDate = "2024-01-01";
+    }
+    if (!toDate) {
+        toDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+    if (!groupBy) {
+        groupBy = "day"; // YYYY-MM-DD
     }
   
     try {

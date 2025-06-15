@@ -525,16 +525,43 @@ router.get(`/rating`, async (req, res) => {
 //   });
 // });
 
-router.get(`/get/count`, async (req, res) => {
-  const productsCount = await Product.countDocuments();
+// router.get(`/get/count`, async (req, res) => {
+//   const productsCount = await Product.countDocuments();
 
-  if (!productsCount) {
-    res.status(500).json({ success: false });
-  } else {
-    res.send({
-      productsCount: productsCount,
-    });
-  }
+//   if (!productsCount) {
+//     res.status(500).json({ success: false });
+//   } else {
+//     res.send({
+//       productsCount: productsCount,
+//     });
+//   }
+// });
+
+
+router.get(`/get/count`, async (req, res) => {
+    let { fromDate, toDate } = req.query;
+
+    // Nếu không có fromDate/toDate thì dùng mặc định
+    if (!fromDate) {
+        fromDate = "2024-01-01";
+    }
+    if (!toDate) {
+        toDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    const filter = {
+        dateCreated: {
+            $gte: new Date(fromDate),
+            $lte: new Date(toDate + "T23:59:59.999Z") // đảm bảo lấy hết ngày toDate
+        }
+    };
+
+    try {
+        const productsCount = await Product.countDocuments(filter);
+        res.send({ productsCount: productsCount });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 router.get(`/featured`, async (req, res) => {

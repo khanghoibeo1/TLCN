@@ -112,11 +112,11 @@ const Dashboard = () => {
       context.setProgress(100);
     });
 
-    fetchDataFromApi("/api/user/get/count").then((res) => {
+    fetchDataFromApi(`/api/user/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
       setTotalUsers(res.userCount);
     });
 
-    fetchDataFromApi("/api/orders/get/count").then((res) => {
+    fetchDataFromApi(`/api/orders/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
       setTotalOrders(res.orderCount);
     });
 
@@ -130,11 +130,11 @@ const Dashboard = () => {
       setTotalSales(sales);
     });
 
-    fetchDataFromApi("/api/products/get/count").then((res) => {
+    fetchDataFromApi(`/api/products/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
       setTotalProducts(res.productsCount);
     });
 
-    fetchDataFromApi("/api/productReviews/get/count").then((res) => {
+    fetchDataFromApi(`/api/productReviews/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
       setTotalProductsReviews(res.productsReviews);
     });
   }, [locationSelected]);
@@ -152,6 +152,22 @@ const Dashboard = () => {
 
       fetchDataFromApi(`/api/orders/get/data/status-summary?fromDate=${filter.fromDate}&toDate=${filter.toDate}&locationId=${locationSelected}`).then((res) => {
         setOrderStatusData(res);
+      });
+      
+      fetchDataFromApi(`/api/orders/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
+        setTotalOrders(res.orderCount);
+      });
+      
+      fetchDataFromApi(`/api/products/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
+        setTotalProducts(res.productsCount);
+      });
+
+      fetchDataFromApi(`/api/productReviews/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
+        setTotalProductsReviews(res.productsReviews);
+      });
+      
+      fetchDataFromApi(`/api/user/get/count?fromDate=${filter.fromDate}&toDate=${filter.toDate}`).then((res) => {
+        setTotalUsers(res.userCount);
       });
       
     } catch (error) {

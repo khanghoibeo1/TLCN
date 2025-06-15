@@ -692,16 +692,43 @@ router.delete('/userAdmin/:id', async (req, res) => {
 
 
 // Get count user
-router.get(`/get/count`, async (req, res) =>{
-    const userCount = await User.countDocuments()
+// router.get(`/get/count`, async (req, res) =>{
+//     const userCount = await User.countDocuments()
 
-    if(!userCount) {
-        res.status(500).json({success: false})
-    } 
-    res.send({
-        userCount: userCount
-    });
-})
+//     if(!userCount) {
+//         res.status(500).json({success: false})
+//     } 
+//     res.send({
+//         userCount: userCount
+//     });
+// })
+
+
+router.get(`/get/count`, async (req, res) => {
+    let { fromDate, toDate } = req.query;
+
+    // Nếu không có fromDate/toDate thì dùng mặc định
+    if (!fromDate) {
+        fromDate = "2024-01-01";
+    }
+    if (!toDate) {
+        toDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    const filter = {
+        date: {
+            $gte: new Date(fromDate),
+            $lte: new Date(toDate + "T23:59:59.999Z") // đảm bảo lấy hết ngày toDate
+        }
+    };
+
+    try {
+        const userCount = await User.countDocuments(filter);
+        res.send({ userCount: userCount });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // Verify google
 router.post(`/authWithGoogle`, async (req, res) => {
