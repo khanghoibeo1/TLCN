@@ -106,7 +106,7 @@ const ProductDetails = () => {
     review: "",
     customerRating: 5,
   });
-
+  
   const onChangeInput = (e) => {
     setReviews(() => ({
       ...reviews,
@@ -162,8 +162,8 @@ const addReview = async (e) => {
         msg: res.error || "You have already submitted a review for today.",
       });
     } else {
-      setReviews({ review: "", customerRating: 1 });
-      setRating(1);
+      setReviews({ review: "", customerRating: 5 });
+      setRating(5);
 
       setProductData((prevData) => ({
         ...prevData,

@@ -430,8 +430,7 @@ console.log(formFields.streetAddress)
 
       if (paymentMethod === "VNPAY") {
         const response = await postData3("/api/orders/vnpay/test/test/create_payment_url", {
-          amount: (totalAmount - (discount > 0? discount : 0) +  (shippingFee > 0? shippingFee: 0) -  (shippingFeeDiscount > 0 ? shippingFeeDiscount: 0) ) * 100 > 50000 ? 
-                    (totalAmount - (discount > 0? discount : 0) +  (shippingFee > 0? shippingFee: 0) -  (shippingFeeDiscount > 0 ? shippingFeeDiscount: 0) ) * 100 : 50000,
+          amount: (totalAmount - (discount > 0? discount : 0) +  (shippingFee > 0? shippingFee: 0) -  (shippingFeeDiscount > 0 ? shippingFeeDiscount: 0) ),
           orderId: createdOrder._id,
           bankCode: "", // optional
           orderDescription: "Payment for Order " + orderId,

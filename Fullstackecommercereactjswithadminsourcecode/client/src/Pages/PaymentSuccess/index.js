@@ -21,7 +21,8 @@ const PaymentSuccess = () => {
     },[])
 
   useEffect(() => {
-    const orderId = searchParams.get("vnp_TxnRef");
+    const fullTxnRef = searchParams.get("vnp_TxnRef");
+    const orderId = fullTxnRef?.split("-")[0];
     const responseCode = searchParams.get("vnp_ResponseCode");
 
 
@@ -37,6 +38,20 @@ const PaymentSuccess = () => {
             open: true,
             error: true,
             msg: "Failed to verify payment.",
+          });
+        })
+        .finally(() => setIsVerifying(false));
+    } else if( orderId && responseCode === "24") {
+      editData2(`/api/orders/admin-update/${orderId}`, { status: "cancelled" })
+        .then((res) => {
+          setSuccess(false);
+        })
+        .catch((err) => {
+          console.error("Error cancel payment:", err);
+          context.setAlertBox({
+            open: true,
+            error: true,
+            msg: "Failed to cancel payment.",
           });
         })
         .finally(() => setIsVerifying(false));

@@ -49,7 +49,8 @@ const Home = () => {
   };
 
   const selectCat = (cat) => {
-    setselectedCat(cat);
+    const encodedCat = encodeURIComponent(cat);
+    setselectedCat(encodedCat);
   };
 
   const selectSeason = (season) => {
@@ -217,7 +218,7 @@ const Home = () => {
             <div className="col-md-9 productRow" >
               <div className="d-flex align-items-center res-flex-column">
                 <div className="info" data-aos="fade-left" style={{ width: "35%" }}>
-                  <h3 className="mb-0 hd">Popular Products</h3>
+                  <h3 className="mb-0 hd">Discover Our Products</h3>
                   <p className="text-light text-sml mb-0">
                     Don't miss out on great offers this month!
                   </p>
@@ -295,7 +296,7 @@ const Home = () => {
 
               <div className="d-flex align-items-center mt-5" data-aos="zoom-in">
                 <div className="info w-100 d-flex flex-column">
-                  <h3 className="mb-0 hd">SOMETHING YOU MAY LIKE</h3>
+                  <h3 className="mb-0 hd">OFFER FOR YOU</h3>
                   <p className="text-light text-sml mb-0">
                     New products with updated stocks.
                   </p>

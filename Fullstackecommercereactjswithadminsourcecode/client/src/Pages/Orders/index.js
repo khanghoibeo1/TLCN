@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { editData, editData2, fetchDataFromApi } from '../../utils/api';
+import { editData, editData2, fetchDataFromApi, postData3 } from '../../utils/api';
 import Pagination from '@mui/material/Pagination';
 import Dialog from '@mui/material/Dialog';
 import { MdClose } from "react-icons/md";
@@ -73,6 +73,22 @@ const Orders = () => {
         })
         .catch((err) => console.error('Error updating order status:', err));
     };
+
+    const continueCheckout = async(orderId, totalAmount) => {
+        const newTxnRef = `${orderId}-${Date.now()}`;
+        const response = await postData3("/api/orders/vnpay/test/test/create_payment_url", {
+            amount: totalAmount,
+            orderId: newTxnRef,
+            bankCode: "", // optional
+            orderDescription: "Payment for Order " + orderId,
+        });
+
+        if (response.url) {
+            window.location.href = response.url; // Redirect to VNPAY
+        } else {
+            alert("Could not initiate VNPAY payment.");
+        }
+    }
 
     return (
         <>
@@ -169,7 +185,20 @@ const Orders = () => {
                                                 <td>{order.address}</td>
                                                 <td>
                                                     {order.status === 'pending' &&
-                                                    order.payment === 'Cash on Delivery' && (
+                                                     order.payment === 'VNPAY' && 
+                                                    (
+                                                        <button
+                                                        className="btn btn-primary btn-sm mr-1"
+                                                        onClick={() =>
+                                                            continueCheckout(order.id, order.amount)
+                                                        }
+                                                        >
+                                                        Continue
+                                                        </button>
+                                                    )}
+                                                    {order.status === 'pending' &&
+                                                    // order.payment === 'Cash on Delivery' && 
+                                                    (
                                                         <button
                                                         className="btn btn-danger btn-sm"
                                                         onClick={() =>

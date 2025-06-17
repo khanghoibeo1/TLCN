@@ -457,7 +457,7 @@ router.post("/vnpay/test/test/create_payment_url", (req, res) => {
   const orderInfo = orderDescription || "Payment at eCommerce site";
   const orderType = "other";
   const locale = "vn";
-  const currCode = "USD";
+  const currCode = "VND";
   const vnp_TxnRef = orderId;
 
   let vnp_Params = {
@@ -469,7 +469,7 @@ router.post("/vnpay/test/test/create_payment_url", (req, res) => {
     vnp_TxnRef: vnp_TxnRef,
     vnp_OrderInfo: orderInfo,
     vnp_OrderType: orderType,
-    vnp_Amount: amount * 100,
+    vnp_Amount: amount * 26500 * 100,
     vnp_ReturnUrl: vnp_ReturnUrl,
     vnp_IpAddr: ipAddr,
     vnp_CreateDate: createDate,
