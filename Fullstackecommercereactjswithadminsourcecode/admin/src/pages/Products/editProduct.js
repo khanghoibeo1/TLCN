@@ -146,18 +146,34 @@ const EditUpload = () => {
 
   const handleSeasonChange = opts => setFormFields(prev => ({ ...prev, season: opts ? opts.map(o => o.value) : [] }));
 
-  const onChangeFile = async (e, endpoint) => {
-    setUploading(true);
-    const files = e.target.files;
-    const fd = new FormData(); files.forEach(f => fd.append('images', f));
-    try {
-      await uploadImage(endpoint, fd);
-      const resp = await fetchDataFromApi('/api/imageUpload');
-      setPreviews([...new Set(resp.flatMap(i => i.images))]);
-      context.setAlertBox({ open: true, error: false, msg: 'Images Uploaded!' });
-    } catch (err) { console.error(err); }
-    setUploading(false);
-  };
+  // const onChangeFile = async (e, endpoint) => {
+  //   setUploading(true);
+  //   const files = e.target.files;
+  //   const fd = new FormData(); files.forEach(f => fd.append('images', f));
+  //   try {
+  //     await uploadImage(endpoint, fd);
+  //     const resp = await fetchDataFromApi('/api/imageUpload');
+  //     setPreviews([...new Set(resp.flatMap(i => i.images))]);
+  //     context.setAlertBox({ open: true, error: false, msg: 'Images Uploaded!' });
+  //   } catch (err) { console.error(err); }
+  //   setUploading(false);
+  // };
+
+    const onChangeFile = async (e, endpoint) => {
+      setUploading(true);
+      const files = e.target.files;
+      const formdata = new FormData();
+      Array.from(files).forEach(f => formdata.append('images', f));
+      try {
+        await uploadImage(endpoint, formdata);
+        const res = await fetchDataFromApi('/api/imageUpload');
+        setPreviews(Array.from(new Set(res.flatMap(item => item.images))));
+        context.setAlertBox({ open: true, error: false, msg: 'Images Uploaded!' });
+      } catch (err) {
+        console.error(err);
+      }
+      setUploading(false);
+    };
 
   const removeImg = async (idx, url) => {
     const user = JSON.parse(localStorage.getItem('user'));

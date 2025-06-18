@@ -120,8 +120,11 @@ router.post('/add', async (req, res) => {
         messages: [
             {
             role: "system",
-            content: "Bạn là một hệ thống phát hiện bình luận không phù hợp. Trả lời 'true' nếu nội dung dưới đây chứa ngôn ngữ độc hại, thô tục, xúc phạm, phân biệt chủng tộc, xưng hô không lịch sự, hoặc không phù hợp. Trả lời 'false' nếu bình thường."
-            },
+            content: `Bạn là một hệ thống kiểm duyệt bình luận cho website thương mại điện tử. 
+Hãy phân tích nội dung bình luận sau và trả về kết quả dưới dạng JSON với 2 trường:
+- "flag": true nếu bình luận chứa ngôn ngữ độc hại, thô tục, xúc phạm, không phù hợp hoặc không đạt chuẩn văn hóa/lịch sự, không xưng hô lịch sự (như: tao, mày,...). Ngược lại, trả về false.
+- "message": nếu flag là true, giải thích lý do tại sao bình luận bị từ chối và đóng ngoặc tròn từ vi phạm đó. Nếu flag là false, ghi bình luận hợp lệ. và sử dụng tiếng anh để trả về`
+    },
             {
             role: "user",
             content: `Review: "${review}"`
@@ -129,12 +132,12 @@ router.post('/add', async (req, res) => {
         ]
         });
 
-        const isInappropriate = completion.choices[0].message.content.toLowerCase().includes("true");
-
-        if (isInappropriate) {
+        // const isInappropriate = completion.choices[0].message.content.toLowerCase().includes("true");
+        const result = JSON.parse(completion.choices[0].message.content);
+        if (result.flag) {
         return res.status(400).json({
             success: false,
-            error: "The comment content is inappropriate and has been rejected."
+            error: `The comment content is inappropriate and has been rejected: ${result.message || "Don't meet qualification."}`
         });
         }
 

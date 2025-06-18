@@ -9,7 +9,7 @@ const mailtrapClient = new MailtrapClient({
 });
 
 const sender = {
-  email: "hello@demomailtrap.com",
+  email: "hello@demomailtrap.co",
   name: "Trong Khang",
 };
 
