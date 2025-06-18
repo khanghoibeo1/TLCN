@@ -190,12 +190,26 @@ const Header = () => {
                     {context.isLogin !== true && context.windowWidth > 992 && (
                       <>
                         <Link to="/signIn">
-                          <Button className="btn-blue btn-round mr-3">
+                          <Button className="btn-blue btn-round mr-3" sx={{
+                            fontSize: "14px",
+                            padding: "6px 14px",
+                            lineHeight: 1,
+                            height: "auto",
+                            minWidth: "unset",
+                            borderRadius: "20px"
+                          }}>
                             Sign In
                           </Button>
                         </Link>
                         <Link to="/signUp">
-                          <Button className="btn-green btn-round ">
+                          <Button className="btn-green btn-round " sx={{
+                            fontSize: "14px",
+                            padding: "6px 14px",
+                            lineHeight: 1,
+                            height: "auto",
+                            minWidth: "unset",
+                            borderRadius: "20px"
+                          }}>
                             Sign Up
                           </Button>
                         </Link>
