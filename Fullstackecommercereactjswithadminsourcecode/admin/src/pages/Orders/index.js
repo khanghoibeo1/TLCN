@@ -287,19 +287,33 @@ const Orders = () => {
                           <td>{order?.locationName}</td>
                           <td>
                             {/* Nếu order đang pending, admin có thể chuyển sang verify */}
-                            {order?.status === 'pending' ? (
-                              <Select
-                                disabled={isLoading}
-                                value={order?.status}
-                                onChange={(e) =>  handleChangeStatus(e, order?._id)}
-                                displayEmpty
-                                size="small"
-                                className="w-100"
-                              >
-                                <MenuItem value="pending">Pending</MenuItem>
-                                <MenuItem value="verified">Verify</MenuItem>
-                                <MenuItem value="cancelled">Cancel</MenuItem>
-                              </Select>
+                            {(order?.status === 'pending' ) ? (
+                              order?.payment === "Cash on Delivery" ? (
+                                <Select
+                                  disabled={isLoading}
+                                  value={order?.status}
+                                  onChange={(e) =>  handleChangeStatus(e, order?._id)}
+                                  displayEmpty
+                                  size="small"
+                                  className="w-100"
+                                >
+                                  <MenuItem value="pending">Pending</MenuItem>
+                                  <MenuItem value="verified">Verify</MenuItem>
+                                  <MenuItem value="cancelled">Cancel</MenuItem>
+                                </Select>
+                                ) : (
+                                  <Select
+                                  disabled={isLoading}
+                                  value={order?.status}
+                                  onChange={(e) =>  handleChangeStatus(e, order?._id)}
+                                  displayEmpty
+                                  size="small"
+                                  className="w-100"
+                                >
+                                  <MenuItem value="pending">Pending</MenuItem>
+                                  <MenuItem value="cancelled">Cancel</MenuItem>
+                                </Select>
+                                )
                             ) : (
                               order?.status === 'cancelled' ? (
                                 <span className="badge badge-danger">{order?.status}</span>
