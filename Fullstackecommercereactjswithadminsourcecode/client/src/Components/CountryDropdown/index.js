@@ -53,7 +53,7 @@ const CountryDropdown = () => {
                 setcountryList(context.countryList);
             }}>
                 <div className='info d-flex flex-column'>
-                    <span className='label'>Your Location</span>
+                    <span className='label'>Store Location</span>
                     <span className='name'>{context.selectedCountry?.iso2 !== "" ? context.selectedCountry?.iso2.length > 10 ? context.selectedCountry?.iso2.substr(0, 10) + '...' : context.selectedCountry?.iso2 : 'Select Location'}</span>
                 </div>
                 <span className='ml-auto'><FaAngleDown /></span>

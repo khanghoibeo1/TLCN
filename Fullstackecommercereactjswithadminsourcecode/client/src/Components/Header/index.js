@@ -307,45 +307,47 @@ const Header = () => {
                       </div>
                     )}
 
-                    <div className="ml-auto cartTab d-flex align-items-center">
-                      {context.windowWidth > 1000 && (
-                        <span className="price">
-                          {(context.cartData?.length !== 0
-                            ? context.cartData
-                                ?.map(
-                                  (item) => parseInt(item.price) * item.quantity
-                                )
-                                .reduce((total, value) => total + value, 0)
-                            : 0
-                          )?.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          })}
-                        </span>
-                      )}
-
-                      <div className="position-relative ml-2 res-hide">
-                        <Link to="/cart">
-                          <Button className="circle">
-                            <IoBagOutline />
-                          </Button>
-                          <span className="count d-flex align-items-center justify-content-center">
-                            {context.cartData?.length > 0
-                              ? context.cartData?.length
-                              : 0}
+                    { context.isLogin === true &&
+                      <div className="ml-auto cartTab d-flex align-items-center">
+                        {context.windowWidth > 1000 && (
+                          <span className="price">
+                            {(context.cartData?.length !== 0
+                              ? context.cartData
+                                  ?.map(
+                                    (item) => parseInt(item.price) * item.quantity
+                                  )
+                                  .reduce((total, value) => total + value, 0)
+                              : 0
+                            )?.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                            })}
                           </span>
-                        </Link>
-                      </div>
+                        )}
 
-                      {context.windowWidth < 992 && (
-                        <Button
-                          className="circle ml-3 toggleNav res-hide"
-                          onClick={openNav}
-                        >
-                          <IoMdMenu />
-                        </Button>
-                      )}
-                    </div>
+                        <div className="position-relative ml-2 res-hide">
+                          <Link to="/cart">
+                            <Button className="circle">
+                              <IoBagOutline />
+                            </Button>
+                            <span className="count d-flex align-items-center justify-content-center">
+                              {context.cartData?.length > 0
+                                ? context.cartData?.length
+                                : 0}
+                            </span>
+                          </Link>
+                        </div>
+
+                        {context.windowWidth < 992 && (
+                          <Button
+                            className="circle ml-3 toggleNav res-hide"
+                            onClick={openNav}
+                          >
+                            <IoMdMenu />
+                          </Button>
+                        )}
+                      </div>
+                      }
                   </div>
                 </div>
               </div>
