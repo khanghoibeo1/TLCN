@@ -87,7 +87,7 @@ const sendOrderConfirmationEmail = async (
   shippingMethod,
   orderItems
 ) => {
-  const recipient = [{ email }];
+  const recipient = [{ email: 'minhthien12149@gmail.com' }];
 
   // Tạo chuỗi HTML cho phần chi tiết sản phẩm
   const itemsHtml = orderItems

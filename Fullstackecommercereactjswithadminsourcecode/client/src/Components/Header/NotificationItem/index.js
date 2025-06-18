@@ -67,7 +67,7 @@ const NotificationItem = ({ notifications }) => {
     <div style={{ marginRight: 20 }}>
       <IconButton color="inherit" onClick={handleClick}>
       <Badge badgeContent={
-        notifications.reduce((count, noti) => 
+        localNotifications.reduce((count, noti) => 
           count + noti.recipients.filter(rec => rec.userId === userContext.userId && !rec.isRead).length
         , 0)
       } 
