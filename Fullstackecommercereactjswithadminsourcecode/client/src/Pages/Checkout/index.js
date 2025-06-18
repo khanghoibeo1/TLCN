@@ -454,10 +454,8 @@ console.log(formFields.streetAddress)
           });
       } else {
           // Xử lý Cash on Delivery
-          cartData.forEach(async (item) => {
-              await deleteData(`/api/cart/${item.id}`);
-    
-          });
+          await Promise.all(cartData.map(item => deleteData(`/api/cart/${item.id}`)));
+
           context.getCartData();
           history("/orders");
       }
@@ -490,9 +488,7 @@ console.log(formFields.streetAddress)
         const response = await postData('/api/orders/capture-paypal-order', { paypalOrderId, orderId });
         if (response.success) {
             // Xóa giỏ hàng
-            cartData.forEach(async (item) => {
-                await deleteData(`/api/cart/${item.id}`);
-            });
+            await Promise.all(cartData.map(item => deleteData(`/api/cart/${item.id}`)));
             context.getCartData();
             history("/orders");
         } else {

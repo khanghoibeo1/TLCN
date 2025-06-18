@@ -345,7 +345,7 @@ const Blog = () => {
 
           {/* Nội dung bài viết */}
           {/* <div className="post-content">{selectedPost.content}</div> */}
-          <div className="post-content" dangerouslySetInnerHTML={{ __html: selectedPost.content || "No Content Available" }} />
+          <div className="post-content" style={{ textAlign: "left" }}  dangerouslySetInnerHTML={{ __html: selectedPost.content || "No Content Available" }} />
           {tagProducts.length > 0 && (
             <div className="tag-products-container mt-4">
               <h5 className="mb-3">Related Products:</h5>

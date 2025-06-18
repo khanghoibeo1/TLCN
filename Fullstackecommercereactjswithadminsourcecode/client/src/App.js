@@ -54,7 +54,7 @@ function App() {
   const [categoryData, setCategoryData] = useState([]);
   const [subCategoryData, setsubCategoryData] = useState([]);
   const [postTypeData, setPostTypeData] = useState([]);
-  const [cartData, setCartData] = useState();
+  const [cartData, setCartData] = useState([]);
   const [searchData, setSearchData] = useState([]);
 
   const [user, setUser] = useState({ name: "", email: "", userId: "" });
@@ -79,7 +79,9 @@ function App() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.userId) {
-      fetchDataFromApi(`/api/cart?userId=${user.userId}`).then(setCartData);
+      fetchDataFromApi(`/api/cart?userId=${user.userId}`).then((res) => {
+      setCartData(res);
+    });
     }
   }, [isLogin]);
 
@@ -167,7 +169,9 @@ useEffect(() => {
   const getCartData = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.userId) {
-      fetchDataFromApi(`/api/cart?userId=${user.userId}`).then(setCartData);
+      fetchDataFromApi(`/api/cart?userId=${user.userId}`).then((res) => {
+      setCartData(res);
+    });
     }
   };
 

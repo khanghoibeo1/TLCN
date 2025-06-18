@@ -61,14 +61,13 @@ const PaymentSuccess = () => {
   }, []);
 
   useEffect(() => {
-  if (isPaymentVerified && cartData.length > 0) {
-    const deleteCart = async () => {
-      for (const item of cartData) {
-        await deleteData(`/api/cart/${item.id}`);
-      }
-    };
-    deleteCart();
-  }
+    if (isPaymentVerified && cartData.length > 0) {
+      const deleteCart = async () => {
+        await Promise.all(cartData.map(item => deleteData(`/api/cart/${item.id}`)));
+        await context.getCartData();
+      };
+      deleteCart();
+    }
   }, [isPaymentVerified, cartData]);
 
   return (
